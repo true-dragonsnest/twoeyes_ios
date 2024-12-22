@@ -9,15 +9,14 @@ import Foundation
 
 struct EntityIntro: Codable {
     var id: Int
+    var createdAt: Date
+    var updatedAt: Date
 
     var iosVersion: String?
     var aosVersion: String?
 
-    struct Assets: Codable {
-    }
-    var assets: Assets?
-    
-    var createdAt: Date?
-    var updatedAt: Date?
+//    struct Assets: Codable {
+//    }
+//    var assets: Assets?
 }
 

@@ -9,6 +9,8 @@ import Foundation
 
 struct EntityUser: Codable {
     var id: UUID
+    var createdAt: Date
+    var updatedAt: Date
     
     var userId: String
     var nickname: String?
@@ -23,9 +25,6 @@ struct EntityUser: Codable {
     
     var profilePictureUrl: String?
     var lastComment: String?
-    
-    var createdAt: Date?
-    var updatedAt: Date?
 }
 
 extension EntityUser: Identifiable, Hashable {}

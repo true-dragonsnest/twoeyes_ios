@@ -1,0 +1,103 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "@ " : {
+      "shouldTranslate" : false
+    },
+    "app.common.error" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Something went wrong 😑"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "오류가 발생했습니다 😑"
+          }
+        }
+      }
+    },
+    "banner area" : {
+      "shouldTranslate" : false
+    },
+    "Continue with" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시작하기"
+          }
+        }
+      }
+    },
+    "ID" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아이디"
+          }
+        }
+      }
+    },
+    "ID already taken, please try another one" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아이디가 이미 사용중입니다. 다른 아이디를 시도해보세요"
+          }
+        }
+      }
+    },
+    "ID Too short" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아이디가 너무 짧습니다"
+          }
+        }
+      }
+    },
+    "MAIN" : {
+      "shouldTranslate" : false
+    },
+    "Next" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다음"
+          }
+        }
+      }
+    },
+    "Please enter your ID" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아이디를 입력하세요"
+          }
+        }
+      }
+    },
+    "SignupHelloView" : {
+      "shouldTranslate" : false
+    },
+    "SignupWelcomeView" : {
+      "shouldTranslate" : false
+    },
+    "SPLASH" : {
+      "shouldTranslate" : false
+    }
+  },
+  "version" : "1.0"
+}

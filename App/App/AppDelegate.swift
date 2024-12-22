@@ -20,7 +20,7 @@ public class AppDelegate: NSObject, UIApplicationDelegate {
         "APP init : \(o: bundleId)".ld(T)
         
         initApns()
-        initFirebase()
+        // FIXME: enable if needed, initFirebase()
         "APP init done".ld(T)
         
         return true

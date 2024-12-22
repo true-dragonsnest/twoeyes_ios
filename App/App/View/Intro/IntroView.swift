@@ -12,26 +12,18 @@ private let T = #fileID
 struct IntroView: View {
     @EnvironmentObject var viewModel: IntroViewModel
 
-//    @StateObject var signupViewModel = SignupViewModel()
-//    @StateObject var mainViewModel = MainViewModel()
-
     var body: some View {
         Group {
             if viewModel.authState == .signOut {
-//                LoginView()
-                Color.red
+                LoginView()
                     .environmentObject(viewModel)
             } else if viewModel.authState == .needSignUp {
-//                SignupView()
-                Color.blue
+                SignupView()
                     .environmentObject(viewModel)
-//                    .environmentObject(signupViewModel)
                     .environment(\.authState, viewModel.authState)
                     .transition(.move(edge: .trailing))
             } else if viewModel.authState == .signIn {
-//                MainView()
-                Color.green
-//                    .environmentObject(mainViewModel)
+                Text("MAIN")
             } else {
                 splashView
             }

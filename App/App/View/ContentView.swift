@@ -39,7 +39,7 @@ struct ContentView: View {
             showErrorToast = true
         }
         .toast(isPresenting: $showErrorToast) {
-            AlertToast(displayMode: .hud, type: .regular, title: "app.common.error.unknown".localized)
+            AlertToast(displayMode: .hud, type: .regular, title: "app.common.error".localized)
         }
     }
 }

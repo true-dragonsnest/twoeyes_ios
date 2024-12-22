@@ -21,7 +21,7 @@ enum BackEnd {
         var query: PostgrestBuilder? {
             switch self {
             case .fetch:
-                return Self.rootQueryBuilder?.select().order("updatedAt", ascending: false)
+                return Self.rootQueryBuilder?.select().order("updated_at", ascending: false)
             }
         }
     }

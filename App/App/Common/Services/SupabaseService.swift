@@ -51,19 +51,21 @@ public actor SupabaseService {
         return formatter
     }()
     
-    nonisolated static public func decoder() -> JSONDecoder {
+    nonisolated public lazy var decoder: JSONDecoder = {
         let decoder = JSONDecoder()
         //decoder.dateDecodingStrategy = .iso8601
         decoder.dateDecodingStrategy = .formatted(Self.dateFormatter)
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
         return decoder
-    }
+    }()
     
-    nonisolated static public func encoder() -> JSONEncoder {
+    nonisolated public lazy var encoder: JSONEncoder = {
         let encoder = JSONEncoder()
         //decoder.dateDecodingStrategy = .iso8601
         encoder.dateEncodingStrategy = .formatted(Self.dateFormatter)
+        encoder.keyEncodingStrategy = .convertToSnakeCase
         return encoder
-    }
+    }()
     
     private func initSDKIfNeeded() throws {
         guard client == nil else {
@@ -81,14 +83,21 @@ public actor SupabaseService {
         "Supabase inited".ld(T)
     }
     
-    public func fetch<M: Codable>(from query: PostgrestBuilder?) async throws -> M {
+    public func fetch<M: Codable>(from query: PostgrestBuilder?, logLevel: Int = 0) async throws -> M {
         guard let query else {
             throw AppError.invalidRequest("nil fetch query".le(T))
         }
-        let data = try await query.execute().data
-        let ret: M = try Self.decoder().decode(M.self, from: data)
-        //"FETCH : \(o: ret.jsonPrettyPrinted)".ld(T)
-        return ret
+        do {
+            let data = try await query.execute().data
+            let ret: M = try decoder.decode(M.self, from: data)
+            if logLevel > 1 {
+                "FETCH : \(o: ret.jsonPrettyPrinted)".ld(T)
+            }
+            return ret
+        } catch {
+            "failed to fetch : \(error)".le(T)
+            throw error
+        }
     }
     
     public func observeTable(name: String, 
@@ -280,7 +289,7 @@ public extension Decodable {
             dict["updatedAt"] = date.timeIntervalSince1970 * 1000
         }
         do {
-            let entity: Self = try Self.decode(fromJsonDic: dict, decoder: SupabaseService.decoder())
+            let entity: Self = try Self.decode(fromJsonDic: dict, decoder: SupabaseService.shared.decoder)
             return entity
         } catch {
             "Failed to decode Supabase dictionary : \(error)".le(T)
