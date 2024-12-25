@@ -21,15 +21,29 @@
 		B55906D82D170D7C00CC17F2 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = B55906D72D170D7C00CC17F2 /* FirebaseCore */; };
 		B55906DA2D170D7C00CC17F2 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = B55906D92D170D7C00CC17F2 /* FirebaseCrashlytics */; };
 		B55906EA2D17264B00CC17F2 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = B55906E92D17264B00CC17F2 /* FirebaseMessaging */; };
+		B55907312D1B038900CC17F2 /* GoogleGenerativeAI in Frameworks */ = {isa = PBXBuildFile; productRef = B55907302D1B038900CC17F2 /* GoogleGenerativeAI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		B53089352D16F1C60014D4AD /* App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = App.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		B55907332D1C627700CC17F2 /* Exceptions for "App" folder in "App" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = B53089342D16F1C60014D4AD /* App */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		B53089372D16F1C60014D4AD /* App */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				B55907332D1C627700CC17F2 /* Exceptions for "App" folder in "App" target */,
+			);
 			path = App;
 			sourceTree = "<group>";
 		};
@@ -40,6 +54,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B55907312D1B038900CC17F2 /* GoogleGenerativeAI in Frameworks */,
 				B55906C42D17093C00CC17F2 /* Supabase in Frameworks */,
 				B55906B82D1708CB00CC17F2 /* AWSS3 in Frameworks */,
 				B55906EA2D17264B00CC17F2 /* FirebaseMessaging in Frameworks */,
@@ -118,6 +133,7 @@
 				B55906D72D170D7C00CC17F2 /* FirebaseCore */,
 				B55906D92D170D7C00CC17F2 /* FirebaseCrashlytics */,
 				B55906E92D17264B00CC17F2 /* FirebaseMessaging */,
+				B55907302D1B038900CC17F2 /* GoogleGenerativeAI */,
 			);
 			productName = App;
 			productReference = B53089352D16F1C60014D4AD /* App.app */;
@@ -156,6 +172,7 @@
 				B55906C52D17094E00CC17F2 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				B55906CE2D170CCA00CC17F2 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 				B55906D42D170D7C00CC17F2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				B559072F2D1B038900CC17F2 /* XCRemoteSwiftPackageReference "generative-ai-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B53089362D16F1C60014D4AD /* Products */;
@@ -317,6 +334,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = App/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = SelfQuiz;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
@@ -358,6 +376,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = App/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = SelfQuiz;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
@@ -466,6 +485,14 @@
 				minimumVersion = 11.6.0;
 			};
 		};
+		B559072F2D1B038900CC17F2 /* XCRemoteSwiftPackageReference "generative-ai-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/generative-ai-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.5.6;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -538,6 +565,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B55906D42D170D7C00CC17F2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseMessaging;
+		};
+		B55907302D1B038900CC17F2 /* GoogleGenerativeAI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B559072F2D1B038900CC17F2 /* XCRemoteSwiftPackageReference "generative-ai-swift" */;
+			productName = GoogleGenerativeAI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

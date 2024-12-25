@@ -7,16 +7,15 @@
 
 import SwiftUI
 
-// FIXME: to more secure area
 enum AppKey {
-    static let supabaseProjectUrl = "https://bgnymsxduwfrauidowxx.supabase.co"
-    static let supabaseApiKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJnbnltc3hkdXdmcmF1aWRvd3h4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ4NTQ5MTIsImV4cCI6MjA1MDQzMDkxMn0.psT8h0TtBT9RuhS0pAI9y3CKV7Ytf4kxHRFNBAuqP8o"
+    static let supabaseProjectUrl = UseCases.ReadPlist.execute(fileName: "Keys", key: "supabaseProjectUrl")
+    static let supabaseApiKey = UseCases.ReadPlist.execute(fileName: "Keys", key: "supabaseApiKey")
     
-    static let s3AccessKey = "462e33547cbb9182d8dffd297d740f1e"
-    static let s3SecretKey = "00e1a494db575f1952688d5784375329938d55600ab4eb5239cf1b6e8a84c8bd"
-    static let s3Endpoint = "https://7dc29b549999a730704a07f96d570cbc.r2.cloudflarestorage.com"
+    static let s3AccessKey = UseCases.ReadPlist.execute(fileName: "Keys", key: "s3AccessKey")
+    static let s3SecretKey = UseCases.ReadPlist.execute(fileName: "Keys", key: "s3SecretKey")
+    static let s3Endpoint = UseCases.ReadPlist.execute(fileName: "Keys", key: "s3Endpoint")
     
-    static let gptAuthKey: String = "Bearer sk-proj-5vPVsWU9OjBrMdxd3PZtT3BlbkFJJcAEpXKCuWzxWClAxqZY"
+    static let geminiApiKey: String = UseCases.ReadPlist.execute(fileName: "Keys", key: "GeminiApiKey")
 }
 
 enum AppConst {

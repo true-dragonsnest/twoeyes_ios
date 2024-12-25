@@ -31,9 +31,12 @@ struct IntroView: View {
     }
 
     var splashView: some View {
-        Color.yellow.ignoresSafeArea()
+        Color.primaryContainer.ignoresSafeArea()
             .overlay {
-                Text("SPLASH").font(.largeTitle).bold()
+                Text("SPLASH")
+                    .foregroundStyle(.onPrimaryContainer)
+                    .font(.largeTitle)
+                    .bold()
             }
     }
 }

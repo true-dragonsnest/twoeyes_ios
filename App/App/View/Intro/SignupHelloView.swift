@@ -14,12 +14,13 @@ struct SignupHelloView: View {
 
     var body: some View {
         ZStack {
-            Color.green.ignoresSafeArea()
+            Color.primaryContainer.ignoresSafeArea()
 
             VStack {
                 Spacer()
 
                 Text("SignupHelloView")
+                    .foregroundStyle(.onPrimaryContainer)
                     .font(.largeTitle)
 
                 Spacer()
@@ -28,12 +29,17 @@ struct SignupHelloView: View {
                     viewModel.navPush(.personalInfo)
                 }) {
                     Text("Next")
+                        .foregroundStyle(.onPrimaryAccent)
                         .padding()
-                        .background(.ultraThinMaterial)
+                        .background(.primaryAccent)
                         .clipShape(.capsule)
                 }
                 .padding(.bottom)
             }
         }
     }
+}
+
+#Preview {
+    SignupHelloView(viewModel: .init())
 }
