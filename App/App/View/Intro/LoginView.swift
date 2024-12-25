@@ -27,20 +27,23 @@ struct LoginView: View {
 
     var bannerArea: some View {
         ZStack {
-            Color.yellow
+            Color.secondaryContainer
             Text("banner area")
+                .foregroundStyle(.onSecondaryContainer)
         }
     }
 
     var buttonsArea: some View {
         ZStack {
-            Color.blue
+            Color.primaryContainer
 
             VStack {
                 Spacer()
 
                 Text("Continue with")
+                    .foregroundStyle(.onPrimaryContainer)
                     .font(.headline)
+                    .bold()
 
                 Spacer()
 
@@ -72,9 +75,9 @@ struct LoginView: View {
         }) {
             Image(systemName: "apple.logo")
                 .font(.title)
-                .foregroundColor(.primary)
+                .foregroundColor(.onPrimaryAccent)
                 .padding()
-                .background(.ultraThinMaterial)
+                .background(.primaryAccent)
                 .clipShape(Circle())
         }
     }

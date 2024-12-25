@@ -14,9 +14,10 @@ struct SignupWelcomeView: View {
 
     var body: some View {
         ZStack {
-            Color.blue.ignoresSafeArea()
+            Color.primaryContainer.ignoresSafeArea()
             
             Text("SignupWelcomeView")
+                .foregroundStyle(.onPrimaryContainer)
                 .font(.largeTitle)
             
             VStack {
@@ -32,8 +33,9 @@ struct SignupWelcomeView: View {
                     }
                 }) {
                     Text("Next")
+                        .foregroundStyle(.onPrimaryAccent)
                         .padding()
-                        .background(.ultraThinMaterial)
+                        .background(.primaryAccent)
                         .clipShape(.capsule)
                 }
                 .padding(.bottom)

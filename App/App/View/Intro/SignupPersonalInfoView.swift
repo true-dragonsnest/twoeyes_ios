@@ -20,20 +20,28 @@ struct SignupPersonalInfoView: View {
     @State var inProgress = false
 
     var body: some View {
+        content
+            .toolbarRole(.editor)
+    }
+    
+    var content: some View {
         ZStack {
-            Color.green.ignoresSafeArea()
+            Color.primaryContainer.ignoresSafeArea()
 
             VStack {
                 Spacer()
 
                 Text("Please enter your ID")
+                    .foregroundStyle(.onPrimaryContainer)
                     .font(.largeTitle)
                 
                 HStack(spacing: 0) {
                     Text("@ ")
+                        .foregroundStyle(.onPrimaryContainer)
                         .font(.headline)
                     
                     TextField("ID", text: $input)
+                        .foregroundStyle(.onPrimaryContainer)
                         .font(.headline)
                         .keyboardType(.asciiCapable)
                         .fixedSize()
@@ -49,8 +57,8 @@ struct SignupPersonalInfoView: View {
                 Spacer()
 
                 Text(errorMsg)
-                    .font(.caption)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(.error)
+                    .font(.footnote)
                     .padding(.bottom)
                     .opacity(errorMsg.isEmpty ? 0 : 1)
                 
@@ -58,6 +66,7 @@ struct SignupPersonalInfoView: View {
                     trySignup()
                 }) {
                     Text("Next")
+                        .foregroundStyle(.onPrimaryAccent)
                         .padding()
                         .opacity(inProgress ? 0 : 1)
                         .overlay {
@@ -65,7 +74,7 @@ struct SignupPersonalInfoView: View {
                                 ProgressView()
                             }
                         }
-                        .background(.ultraThinMaterial)
+                        .background(.primaryAccent)
                         .clipShape(.capsule)
                 }
                 .opacity(ableToNext ? 1 : 0)

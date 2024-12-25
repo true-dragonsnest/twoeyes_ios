@@ -47,15 +47,16 @@ public actor SupabaseService {
     nonisolated static public let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.timeZone = .init(secondsFromGMT: 0)
-        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        //formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
         return formatter
     }()
     
     nonisolated public lazy var decoder: JSONDecoder = {
         let decoder = JSONDecoder()
-        //decoder.dateDecodingStrategy = .iso8601
+        decoder.dateDecodingStrategy = .iso8601
         decoder.dateDecodingStrategy = .formatted(Self.dateFormatter)
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        //decoder.keyDecodingStrategy = .convertFromSnakeCase
         return decoder
     }()
     
@@ -63,7 +64,7 @@ public actor SupabaseService {
         let encoder = JSONEncoder()
         //decoder.dateDecodingStrategy = .iso8601
         encoder.dateEncodingStrategy = .formatted(Self.dateFormatter)
-        encoder.keyEncodingStrategy = .convertToSnakeCase
+        //encoder.keyEncodingStrategy = .convertToSnakeCase
         return encoder
     }()
     
@@ -89,11 +90,16 @@ public actor SupabaseService {
         }
         do {
             let data = try await query.execute().data
-            let ret: M = try decoder.decode(M.self, from: data)
-            if logLevel > 1 {
-                "FETCH : \(o: ret.jsonPrettyPrinted)".ld(T)
+            do {
+                let ret: M = try decoder.decode(M.self, from: data)
+                if logLevel > 1 {
+                    "FETCH : \(o: ret.jsonPrettyPrinted)".ld(T)
+                }
+                return ret
+            } catch {
+                "failed to decode fetch response : \(error), \(o: String(data: data, encoding: .utf8))".le(T)
+                throw error
             }
-            return ret
         } catch {
             "failed to fetch : \(error)".le(T)
             throw error

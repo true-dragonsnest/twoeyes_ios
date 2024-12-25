@@ -16,7 +16,7 @@ extension UseCases {
                 let _: EntityUser = try await UseCases.Fetch.user(id: id)
                 return false
             } catch {
-                "user may not found : \(error)".ld(T)
+                "user may not exist : \(error)".ld(T)
             }
             return true
         }
