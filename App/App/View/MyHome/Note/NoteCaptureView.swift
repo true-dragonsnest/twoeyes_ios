@@ -1,5 +1,5 @@
 //
-//  CaptureNoteView.swift
+//  NoteCaptureView.swift
 //  App
 //
 //  Created by Yongsik Kim on 12/28/24.
@@ -9,7 +9,9 @@ import SwiftUI
 
 private let T = #fileID
 
-struct CaptureNoteView: View {
+struct NoteCaptureView: View {
+    @EnvironmentObject var myHomeViewModel: MyHomeViewModel
+    
     @StateObject var cameraPreviewModel = ZoomCameraPreviewModel(aspectRatio: 9 / 16)
     @State var capturedImage: UIImage?
     @State var sendMode = false
@@ -123,7 +125,7 @@ struct CaptureNoteView: View {
 }
 
 // MARK: - actions
-extension CaptureNoteView {
+extension NoteCaptureView {
     func clear() {
         withAnimation {
             capturedImage = nil
@@ -144,6 +146,8 @@ extension CaptureNoteView {
     }
     
     func send() {
-        
+        let model = NoteModel()
+        model.image = capturedImage
+        myHomeViewModel.navPush(.init(viewType: .noteEdit(model: model)))
     }
 }

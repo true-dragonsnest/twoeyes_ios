@@ -7,12 +7,29 @@
 
 import SwiftUI
 
-@Observable
-class MyHomeViewModel {
-    enum NavPath {
-        case addNote
-        case study
-        case test
+class MyHomeViewModel: ObservableObject {
+    struct NavPath: Identifiable, Equatable, Hashable {
+        static func == (lhs: Self, rhs: Self) -> Bool {
+            lhs.id == rhs.id
+        }
+
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(id)
+        }
+        
+        enum ViewType {
+            case noteCapture
+            case noteEdit(model: NoteModel)
+            case study
+            case test
+        }
+        
+        let id = UUID()
+        let viewType: ViewType
+        
+        init(viewType: ViewType) {
+            self.viewType = viewType
+        }
     }
     var navPath = NavigationPath()
     

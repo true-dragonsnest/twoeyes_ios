@@ -1,5 +1,5 @@
 //
-//  EntityPage.swift
+//  EntityNote.swift
 //  App
 //
 //  Created by Yongsik Kim on 12/22/24.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct EntityPage: Codable, Identifiable, Equatable {
+struct EntityNote: Codable, Identifiable, Equatable {
     var id: Int?
     var createdAt: Date
     var updatedAt: Date
