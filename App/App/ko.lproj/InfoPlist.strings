@@ -1,0 +1,9 @@
+/* 
+  InfoPlist.strings
+  App
+
+  Created by Yongsik Kim on 12/28/24.
+  
+*/
+
+NSCameraUsageDescription = "노트를 촬영하여 공유하고 문제를 생성하기 위해서 카메라 접근이 필요합니다.";

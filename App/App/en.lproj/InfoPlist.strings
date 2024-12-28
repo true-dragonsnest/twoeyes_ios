@@ -1,0 +1,9 @@
+/* 
+  InfoPlist.strings
+  App
+
+  Created by Yongsik Kim on 12/28/24.
+  
+*/
+
+NSCameraUsageDescription = "You need camera access to capture and share the notes, as well as generate problems.";

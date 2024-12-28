@@ -4,6 +4,19 @@
     "@ " : {
       "shouldTranslate" : false
     },
+    "%lld" : {
+      "shouldTranslate" : false
+    },
+    "Add Note" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "노트 추가하기"
+          }
+        }
+      }
+    },
     "app.common.error" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -34,23 +47,32 @@
         }
       }
     },
+    "Explore" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "탐색"
+          }
+        }
+      }
+    },
+    "History" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "학습 이력"
+          }
+        }
+      }
+    },
     "ID" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "아이디"
-          }
-        }
-      }
-    },
-    "ID already taken, please try another one" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "아이디가 이미 사용중입니다. 다른 아이디를 시도해보세요"
           }
         }
       }
@@ -66,8 +88,25 @@
         }
       }
     },
-    "MAIN" : {
-      "shouldTranslate" : false
+    "Logout" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "로그아웃"
+          }
+        }
+      }
+    },
+    "My Notes" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내 노트"
+          }
+        }
+      }
     },
     "Next" : {
       "localizations" : {
@@ -75,6 +114,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "다음"
+          }
+        }
+      }
+    },
+    "note.capture.guide" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Take a photo of your note.\nYou can generate problems with AI for self-study and share them with the community."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "노트 필기의 사진을 촬영하세요.\nAI로 문제를 생성해서 자습할 수 있고, 커뮤니티에 공유할 수 있습니다."
           }
         }
       }
@@ -89,6 +145,33 @@
         }
       }
     },
+    "Settings" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설정"
+          }
+        }
+      }
+    },
+    "signup.error.id.already.exist" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ID already taken, please try another one"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아이디가 이미 사용중입니다. 다른 아이디를 시도해보세요"
+          }
+        }
+      }
+    },
     "SignupHelloView" : {
       "shouldTranslate" : false
     },
@@ -97,6 +180,16 @@
     },
     "SPLASH" : {
       "shouldTranslate" : false
+    },
+    "Study History" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "학습 이력"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

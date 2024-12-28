@@ -94,7 +94,7 @@ public class CameraService {
         "Stopped".ld(T)
     }
 
-    private func checkAccess() async throws {
+    public func checkAccess() async throws {
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             switch AVCaptureDevice.authorizationStatus(for: .video) {
             case .notDetermined:
