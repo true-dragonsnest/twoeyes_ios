@@ -17,7 +17,7 @@ struct MyHomeView: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
-                        "plus.circle.fill".iconButton(font: .headline, monochrome: .label1) {
+                        "plus.circle.fill".iconButton(font: .headline, monochrome: .appPrimary) {
                             viewModel.navPush(.init(viewType: .noteCapture))
                         }
                     }
@@ -26,6 +26,9 @@ struct MyHomeView: View {
                     switch path.viewType {
                     case .noteCapture:
                         NoteCaptureView()
+                            .environmentObject(viewModel)
+                    case .noteEdit(let model):
+                        NoteEditView(model: model)
                     default:
                         Color.red.ignoresSafeArea()
                     }

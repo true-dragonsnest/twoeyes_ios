@@ -10,13 +10,14 @@ import SwiftUI
 @Observable
 class NoteModel {
     var image: UIImage?
-    var title: String?
+    var title: String = ""
     var tags: [String] = []
     var isPrivate = false
     
     var cards: [EntityCard] = []
     
     var isEditMode = false
+    var readyToSave = true
     
     init() {
     }

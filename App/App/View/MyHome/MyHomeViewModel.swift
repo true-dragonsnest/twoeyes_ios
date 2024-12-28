@@ -31,7 +31,7 @@ class MyHomeViewModel: ObservableObject {
             self.viewType = viewType
         }
     }
-    var navPath = NavigationPath()
+    @Published var navPath = NavigationPath()
     
     @MainActor
     func navPush(_ path: NavPath) {

@@ -36,6 +36,14 @@ public extension String {
     }
 }
 
+// MARK: - utilities
+
+public extension String {
+    var hasContent: Bool {
+        self.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false
+    }
+}
+
 // MARK: - log
 
 public extension String {

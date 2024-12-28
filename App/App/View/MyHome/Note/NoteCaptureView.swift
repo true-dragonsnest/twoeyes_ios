@@ -16,11 +16,9 @@ struct NoteCaptureView: View {
     @State var capturedImage: UIImage?
     @State var sendMode = false
     
-    @State var inProgress = false
-    
     var body: some View {
         contentView
-            .navigationTitle("Add Note")
+            .navigationTitle("Capture Note")
             .navigationBarTitleDisplayMode(.inline)
             .toolbarRole(.editor)
             .toolbar(.hidden, for: .tabBar)
@@ -45,11 +43,6 @@ struct NoteCaptureView: View {
                 Spacer()
                 controls
                     .padding(.bottom)
-            }
-            
-            if inProgress {
-                ModalProgressView()
-                    .ignoresSafeArea()
             }
         }
     }

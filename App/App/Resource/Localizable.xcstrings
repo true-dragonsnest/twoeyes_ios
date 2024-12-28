@@ -4,18 +4,11 @@
     "@ " : {
       "shouldTranslate" : false
     },
+    "#" : {
+
+    },
     "%lld" : {
       "shouldTranslate" : false
-    },
-    "Add Note" : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "노트 추가하기"
-          }
-        }
-      }
     },
     "app.common.error" : {
       "extractionState" : "manual",
@@ -34,8 +27,28 @@
         }
       }
     },
+    "Apply Changes" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "변경사항 적용"
+          }
+        }
+      }
+    },
     "banner area" : {
       "shouldTranslate" : false
+    },
+    "Capture Note" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "노트 촬영"
+          }
+        }
+      }
     },
     "Continue with" : {
       "localizations" : {
@@ -43,6 +56,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "시작하기"
+          }
+        }
+      }
+    },
+    "Edit Note" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "노트 편집"
           }
         }
       }
@@ -88,6 +111,16 @@
         }
       }
     },
+    "Input note title" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "노트 제목을 입력하세요"
+          }
+        }
+      }
+    },
     "Logout" : {
       "localizations" : {
         "ko" : {
@@ -118,6 +151,16 @@
         }
       }
     },
+    "Note title" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "노트 제목"
+          }
+        }
+      }
+    },
     "note.capture.guide" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -141,6 +184,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "아이디를 입력하세요"
+          }
+        }
+      }
+    },
+    "Post Note" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "노트 게시"
           }
         }
       }
@@ -190,6 +243,9 @@
           }
         }
       }
+    },
+    "Tags" : {
+
     }
   },
   "version" : "1.0"
