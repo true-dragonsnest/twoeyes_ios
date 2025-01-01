@@ -19,7 +19,7 @@ struct SettingsView: View {
             .onTapGesture {
                 Task {
                     do {
-                        try await introViewModel.signOut()
+                        try await LoginUserModel.shared.logout()
                     } catch {
                         "failed to sign out : \(error)".le()
                         ContentViewModel.shared.error = error

@@ -30,12 +30,12 @@ struct NoteCaptureView: View {
             .onDisappear {
                 cameraPreviewModel.stop()
             }
-
+            .preferredColorScheme(.dark)
     }
     
     var contentView: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            Color.background.ignoresSafeArea()
             
             VStack {
                 preview
@@ -57,7 +57,7 @@ struct NoteCaptureView: View {
                     .overlay(alignment: .top) {
                         Text("note.capture.guide")
                             .font(.footnote)
-                            .foregroundStyle(.label3)
+                            .foregroundStyle(.label2)
                             .multilineTextAlignment(.center)
                             .padding(.top)
                     }
@@ -73,12 +73,8 @@ struct NoteCaptureView: View {
             Spacer()
             leadingButtons
             Spacer()
-            CameraButton(sendMode: $sendMode, height: 80) {
-                if sendMode == false {
-                    captureImage()
-                } else {
-                    send()
-                }
+            CameraButton(sendMode: .constant(false), height: 80) {
+                captureImage()
             }
             Spacer()
             trailingButtons
@@ -87,7 +83,7 @@ struct NoteCaptureView: View {
     }
     
     var leadingButtons: some View {
-        Color(uiColor: .systemBackground)
+        Color.background
             .overlay {
                 if sendMode {
                     cancelButton
@@ -99,21 +95,29 @@ struct NoteCaptureView: View {
     }
     
     var trailingButtons: some View {
-        Color(uiColor: .systemBackground)
+        Color.background
             .overlay {
+                if sendMode {
+                    nextButton
+                        .transition(AnyTransition.move(edge: .trailing).combined(with: .opacity))
+                }
             }
             .frame(width: 60, height: 60)
             .clipped()
     }
     
     var cancelButton: some View {
-        Image(systemName: "xmark")
-            .font(.title)
-            .padding()
-            .contentShape(Rectangle())
-            .onTapGesture {
-                clear()
-            }
+        "xmark".iconButton(font: .title, monochrome: .label1) {
+            clear()
+        }
+        .padding()
+    }
+    
+    var nextButton: some View {
+        "chevron.forward".iconButton(font: .title, monochrome: .label1) {
+            send()
+        }
+        .padding()
     }
 }
 

@@ -14,9 +14,11 @@ struct EntityCard: Codable, Identifiable, Equatable {
     
     let userId: UUID
     let noteId: Int
-    
+     
     var question: String
     var answer: String
+    var incorrectAnswers: [String]?
+    
     var sttEnabled: Bool
     var isPrivate: Bool
 }

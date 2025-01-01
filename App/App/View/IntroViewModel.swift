@@ -79,20 +79,16 @@ extension IntroViewModel {
 
     fileprivate func handleSingIn(user: SupabaseService.AuthUser) async {
         do {
-            let userEntity: EntityUser = try await UseCases.Fetch.user(id: user.id)
-            // FIXME: set login to login user model
-            "sign in as : \(user.id) -> \(o: userEntity)".li(T)
-            
-            await MainActor.run { self.authState = .signIn }
-            afterSignInProcess()
-        } catch {
-            let appError = AppError(error)
-            if case .notFound = appError {
+            "sign in as : \(user.id)".li(T)
+            if try await LoginUserModel.shared.login(userId: user.id) == false {
                 "Need sign up".li(T)
                 await MainActor.run { self.authState = .needSignUp }
             } else {
-                try? await signOut()
+                await MainActor.run { self.authState = .signIn }
+                afterSignInProcess()
             }
+        } catch {
+            try? await LoginUserModel.shared.logout()
         }
     }
 
@@ -104,14 +100,5 @@ extension IntroViewModel {
             throw AppError.generalError("sign up ok but sign in failed. Bug?".lf(T))
         }
         await handleSingIn(user: user)
-    }
-    
-    func signOut() async throws {
-        do {
-            try await SupabaseService.shared.signOut()
-        } catch {
-            "failed to sign out : \(error)".le(T)
-            throw error
-        }
     }
 }

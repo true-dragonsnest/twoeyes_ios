@@ -5,10 +5,42 @@
       "shouldTranslate" : false
     },
     "#" : {
-
+      "shouldTranslate" : false
     },
     "%lld" : {
       "shouldTranslate" : false
+    },
+    "✨ AI Gen" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "✨AI 생성"
+          }
+        }
+      }
+    },
+    "🔄 Re-Gen" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "🔄 다시 생성"
+          }
+        }
+      }
+    },
+    "AI flashcard" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI 플래시 카드"
+          }
+        }
+      }
     },
     "app.common.error" : {
       "extractionState" : "manual",
@@ -28,6 +60,7 @@
       }
     },
     "Apply Changes" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -37,8 +70,28 @@
         }
       }
     },
+    "Are you sure to skip AI flashcard generation?" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "정말로 AI 플래시 카드 생성을 건너뛰시겠습니까?"
+          }
+        }
+      }
+    },
     "banner area" : {
       "shouldTranslate" : false
+    },
+    "Cancel" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "취소"
+          }
+        }
+      }
     },
     "Capture Note" : {
       "localizations" : {
@@ -50,12 +103,33 @@
         }
       }
     },
+    "Confirm" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "확인"
+          }
+        }
+      }
+    },
     "Continue with" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "시작하기"
+          }
+        }
+      }
+    },
+    "Done" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "완료"
           }
         }
       }
@@ -76,6 +150,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "탐색"
+          }
+        }
+      }
+    },
+    "Generating AI flashcards..." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI 플래시 카드를 생성중 입니다..."
           }
         }
       }
@@ -161,6 +246,23 @@
         }
       }
     },
+    "note.ai.generation.guide" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI creates flashcards based on the content of your notes.\nYou can use the flashcards to study the content of your notes and also do self-tests."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI가 노트의 내용을 바탕으로 플래시 카드를 만들어 줍니다.\n플래시 카드를 사용해서 노트의 내용을 학습 할 수 있고, 셀프 테스트도 할 수 있습니다."
+          }
+        }
+      }
+    },
     "note.capture.guide" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -189,6 +291,7 @@
       }
     },
     "Post Note" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -231,6 +334,16 @@
     "SignupWelcomeView" : {
       "shouldTranslate" : false
     },
+    "Skip" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "건너뛰기"
+          }
+        }
+      }
+    },
     "SPLASH" : {
       "shouldTranslate" : false
     },
@@ -245,7 +358,14 @@
       }
     },
     "Tags" : {
-
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "태그"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

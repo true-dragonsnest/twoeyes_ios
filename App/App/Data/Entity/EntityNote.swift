@@ -17,5 +17,6 @@ struct EntityNote: Codable, Identifiable, Equatable {
     var title: String?
     var pictureUrl: String?
     var tags: [String]?
+    
     var isPrivate: Bool
 }

@@ -8,10 +8,15 @@
 import SwiftUI
 
 struct NoteEditView: View {
+    @EnvironmentObject var myHomeViewModel: MyHomeViewModel
+    @Environment(\.sceneSize) var sceneSize
+    
     @Bindable var model: NoteModel
     
     @State var tagInputFocused: Bool? = false
-    @State var inProgress = false
+    
+    @State var progressMessage: String?
+    @State var showAlert = false
     
     var body: some View {
         contentView
@@ -19,6 +24,21 @@ struct NoteEditView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbarRole(.editor)
             .toolbar(.hidden, for: .tabBar)
+            .alert(isPresented: $showAlert) {
+                Alert(
+                    title: Text("Confirm"),
+                    message: Text("Are you sure to skip AI flashcard generation?"),
+                    primaryButton: .destructive(Text("Cancel")),
+                    secondaryButton: .default(Text("Skip"))
+                )
+            }
+            .onAppear {
+                guard model.image != nil else {
+                    ContentViewModel.shared.error = AppError.notInited("Wrong note image".le())
+                    myHomeViewModel.navPop()
+                    return
+                }
+            }
     }
     
     var contentView: some View {
@@ -29,9 +49,13 @@ struct NoteEditView: View {
                 VStack(spacing: 24) {
                     imageView
                     infoView
+                        .padding(.horizontal)
                     tagView
-                    Spacer()
+                        .padding(.horizontal)
+                    cardView
+                    Divider()
                     actionButton
+                        .padding(.vertical)
                 }
             }
             .contentShape(.rect)
@@ -39,8 +63,8 @@ struct NoteEditView: View {
                 tagInputFocused = false
             }
             
-            if inProgress {
-                ModalProgressView()
+            if let progressMessage {
+                ModalProgressView(text: progressMessage)
                     .ignoresSafeArea()
             }
         }
@@ -61,32 +85,25 @@ struct NoteEditView: View {
         VStack {
             HStack {
                 Text("Note title")
-                    .font(.subheadline)
+                    .font(.headline)
                     .fontWeight(.semibold)
                     .foregroundStyle(.label1)
                 Spacer()
             }
-            HStack {
-                TextField("Input note title", text: $model.title)
-                    .font(.headline)
-                    .foregroundStyle(.label1)
-                    .padding()
-                    .background(.secondaryFill)
-                    .clipShape(.rect(cornerRadius: 24))
-                    .onSubmit {
-                        "haha : \(model.title)".ld()
-                    }
-                Spacer()
-            }
+            TextField("Input note title", text: $model.title)
+                .font(.headline)
+                .foregroundStyle(.label1)
+                .padding()
+                .background(.secondaryFill)
+                .clipShape(.rect(cornerRadius: 24))
         }
-        .padding(.horizontal)
     }
     
     var tagView: some View {
         VStack {
             HStack {
                 Text("Tags")
-                    .font(.subheadline)
+                    .font(.headline)
                     .fontWeight(.semibold)
                     .foregroundStyle(.label1)
                 Spacer()
@@ -104,19 +121,85 @@ struct NoteEditView: View {
         .onTapGesture {
             tagInputFocused = true
         }
-        .padding(.horizontal)
     }
-        
-    var actionButton: some View {
-        Text(model.isEditMode ? "Apply Changes" : "Post Note")
-            .font(.headline)
-            .foregroundStyle(model.readyToSave ? .white : .label3)
-            .padding()
-            .background(model.readyToSave ? .appPrimary : .secondaryFill)
-            .clipShape(.capsule)
-            .onTapGesture {
-                "cta".ld()
+    
+    var cardView: some View {
+        VStack {
+            VStack(spacing: 4) {
+                HStack {
+                    Text("AI flashcard")
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.label1)
+                    Spacer()
+                }
+                HStack {
+                    Text("note.ai.generation.guide")
+                        .font(.footnote)
+                        .foregroundStyle(.label3)
+                        .multilineTextAlignment(.leading)
+                    Spacer()
+                }
             }
-            .padding(.bottom)
+            .padding(.horizontal)
+            
+            if model.cards.isEmpty == false {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    let cardWidth = sceneSize.width - 32 * 2 - 16 * 2
+                    let cardHeight = cardWidth * 9 / 16
+                    LazyHStack(spacing: 16) {
+                        ForEach(0..<model.cards.count, id: \.self) { i in
+                            CardView(card: model.cards[i])
+                                .frame(width: cardWidth, height: cardHeight)
+                        }
+                    }
+                    .scrollTargetLayout()
+                }
+                .scrollClipDisabled()
+                .scrollTargetBehavior(.viewAligned)
+                .safeAreaPadding(.horizontal, 32 + 16)
+                .padding(.vertical)
+            }
+            
+            HStack(spacing: 32) {
+                Spacer()
+                ActionButton(text: model.cards.isEmpty ? "✨ AI Gen".localized : "🔄 Re-Gen".localized,
+                             disabled: false) {
+                    generate()
+                }
+                Spacer()
+            }
+        }
+    }
+    
+    var actionButton: some View {
+        ActionButton(text: "Done".localized,
+                     disabled: false)
+        {
+            if model.cards.isEmpty {
+                showAlert = true
+            } else {
+                commit()
+            }
+        }
+    }
+}
+
+// MARK: - generation
+extension NoteEditView {
+    func generate() {
+        Task { @MainActor in
+            progressMessage = "Generating AI flashcards...".localized
+            do {
+                try await model.generate()
+            } catch {
+                ContentViewModel.shared.error = error
+            }
+            progressMessage = nil
+        }
+    }
+    
+    func commit() {
+        
     }
 }

@@ -90,7 +90,13 @@ class ZoomCameraPreviewModel: ObservableObject {
             let cropped = cgImage.cropping(to: .init(origin: .init(x: 0, y: (h - cropHeight) / 2),
                                                      size: .init(width: w, height: cropHeight)))
             DispatchQueue.main.async {
-                self.cameraImage = cropped
+                if self.cameraImage == nil {
+                    withAnimation {
+                        self.cameraImage = cropped
+                    }
+                } else {
+                    self.cameraImage = cropped
+                }
             }
         }
         .store(in: &subscriptions)

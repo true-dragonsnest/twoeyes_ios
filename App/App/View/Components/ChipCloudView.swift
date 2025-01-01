@@ -1,8 +1,8 @@
 //
-//  ChipCloudView.swift
-//  App
+//  ChipsView.swift
+//  Nest3
 //
-//  Created by Yongsik Kim on 12/29/24.
+//  Created by Eunhye Kim on 11/5/23.
 //
 
 import SwiftUI

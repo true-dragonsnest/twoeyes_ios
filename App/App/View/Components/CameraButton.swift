@@ -21,7 +21,7 @@ struct CameraButton: View {
             Group {
                 if sendMode == false {
                     Circle()
-                        .fill(Color.white.gradient.opacity(0.8))
+                        .fill(Color.white.gradient.opacity(0.5))
                         .frame(width: height, height: height)
                         .overlay {
                             Image(systemName: "camera.fill")
@@ -54,7 +54,6 @@ struct CameraButton: View {
                 RandomGradientAnimationView(colors: [.blue, .purple, .red, .green], duration: 3)
             }
             .clipShape(.circle)
-            .preferredColorScheme(.dark)
         }
     }
 }

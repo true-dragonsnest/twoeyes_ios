@@ -14,9 +14,9 @@ private let T = #fileID
 
 struct ContentView: View {
     @EnvironmentObject var viewModel: ContentViewModel
-
-    // subview view models
     @StateObject var introViewModel = IntroViewModel()
+    
+    @State var size: CGSize = .init(width: 1, height: 1)
     
     @State var showErrorToast = false
 
@@ -38,6 +38,8 @@ struct ContentView: View {
         .onReceive(viewModel.error.publisher) { error in
             showErrorToast = true
         }
+        .environment(\.sceneSize, size)
+        .readSize { self.size = $0 }
         .toast(isPresenting: $showErrorToast) {
             AlertToast(displayMode: .hud, type: .regular, title: "app.common.error".localized)
         }
