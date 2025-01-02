@@ -99,7 +99,14 @@ struct CardView: View {
 }
 
 #Preview {
-    let card = EntityCard(createdAt: .now, updatedAt: .now, userId: .init(), noteId: 0, question: "HAHAHAHAHA", answer: "HOHOHOHOH",
-                          sttEnabled: true, isPrivate: false)
+    let card = EntityCard(createdAt: .now,
+                          updatedAt: .now,
+                          userId: .init(),
+                          noteId: 0,
+                          cardType: .wordCard,
+                          question: "HAHAHAHAHA",
+                          answer: "HOHOHOHOH",
+                          sttEnabled: true,
+                          isPrivate: false)
     CardView(card: card)
 }

@@ -191,7 +191,7 @@ extension NoteEditView {
         Task { @MainActor in
             progressMessage = "Generating AI flashcards...".localized
             do {
-                try await model.generate()
+                try await model.generate(cardType: .wordCard)
             } catch {
                 ContentViewModel.shared.error = error
             }
