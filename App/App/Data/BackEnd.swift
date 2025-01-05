@@ -50,18 +50,67 @@ enum BackEnd {
         }
     }
     
+    enum Notes {
+        static let table = "notes"
+        static var rootQueryBuilder: PostgrestQueryBuilder? {
+            SupabaseService.shared.client?.from(Self.table)
+        }
+        
+        case fetch(_ noteId: Int)
+        case insert(_ note: EntityNote, returnInserted: Bool)
+        
+        var query: PostgrestBuilder? {
+            switch self {
+            case let .fetch(noteId):
+                return Self.rootQueryBuilder?.select().eq("id", value: noteId)
+            case let .insert(note, returnInserted):
+                do {
+                    return try Self.rootQueryBuilder?.insert(note, returning: returnInserted ? .representation : nil)
+                } catch {
+                    "Notes.insert failed for \(o: note.jsonPrettyPrinted) : \(error)".le(T)
+                    return nil
+                }
+            }
+        }
+    }
+    
+    enum Cards {
+        static let table = "cards"
+        static var rootQueryBuilder: PostgrestQueryBuilder? {
+            SupabaseService.shared.client?.from(Self.table)
+        }
+        
+        case fetch(noteId: Int)
+        case insert(_ cards: [EntityCard])
+        
+        var query: PostgrestBuilder? {
+            switch self {
+            case let .fetch(noteId):
+                return Self.rootQueryBuilder?.select().eq("noteId", value: noteId)
+            case let .insert(cards):
+                do {
+                    return try Self.rootQueryBuilder?.insert(cards)
+                } catch {
+                    "Cards.insert failed : \(error)".le(T)
+                    return nil
+                }
+            }
+        }
+    }
+    
     enum Storage {
-        case common
+        case data
         
         var bucket: String {
             switch self {
-            case .common: return "selfquize-common"
+            case .data: return "note-data"
             }
         }
         
         var endpoint: String {
             switch self {
-            case .common: return "https://pub-a98cd200a2cb44b5bcc7d5f633ff46ef.r2.dev"
+            case .data: return
+                "https://pub-79e487131f6b4d7d89310a2eff5e06a2.r2.dev"
             }
         }
         

@@ -16,7 +16,7 @@ extension UseCases {
             do {
                 intros = try await SupabaseService.shared.fetch(from: BackEnd.Intro.fetch.query)
             } catch {
-                "Failed to read intro : \(error)".le(T)
+                "failed to read intro : \(error)".le(T)
                 throw error
             }
             //"intros : \(o: intros.jsonPrettyPrinted)".ld(T)
@@ -32,7 +32,7 @@ extension UseCases {
             do {
                 users = try await SupabaseService.shared.fetch(from: BackEnd.Users.fetch(id).query)
             } catch {
-                "Failed to read user : \(error)".le(T)
+                "failed to read user : \(error)".le(T)
                 throw error
             }
             guard let user = users.first else {
@@ -40,6 +40,17 @@ extension UseCases {
                 throw AppError.notFound()
             }
             return user
+        }
+        
+        static func noteCards(noteId: Int) async throws -> [EntityCard] {
+            let cards: [EntityCard]
+            do {
+                cards = try await SupabaseService.shared.fetch(from: BackEnd.Cards.fetch(noteId: noteId).query)
+            } catch {
+                "failed to fetch cards in note \(noteId): \(error)".le(T)
+                throw error
+            }
+            return cards
         }
     }
 }

@@ -35,14 +35,14 @@ struct CardView: View {
                     frontDegree = 90
                 }
                 withAnimation(.spring(duration: flipDuration).delay(flipDuration)) {
-                    backDegree = 0
+                    backDegree = 0.001
                 }
             } else {
                 withAnimation(.spring(duration: flipDuration)) {
                     backDegree = -90
                 }
                 withAnimation(.spring(duration: flipDuration).delay(flipDuration)) {
-                    frontDegree = 0
+                    frontDegree = 0.001
                 }
             }
         }

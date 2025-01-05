@@ -90,6 +90,51 @@ public extension UIImage {
     }
 }
 
+// MARK: - heic
+import AVFoundation
+
+extension CGImagePropertyOrientation {
+    init(_ uiOrientation: UIImage.Orientation) {
+        switch uiOrientation {
+        case .up: self = .up
+        case .upMirrored: self = .upMirrored
+        case .down: self = .down
+        case .downMirrored: self = .downMirrored
+        case .left: self = .left
+        case .leftMirrored: self = .leftMirrored
+        case .right: self = .right
+        case .rightMirrored: self = .rightMirrored
+        @unknown default:
+            fatalError()
+        }
+    }
+}
+
+public extension UIImage {
+    var isHeicSupported: Bool {
+        (CGImageDestinationCopyTypeIdentifiers() as? [String])?.contains((AVFileType.heic as CFString) as String) ?? false
+    }
+    
+    var cgImageOrientation: CGImagePropertyOrientation { .init(imageOrientation) }
+    
+    var heic: Data? { heic() }
+    func heic(compression: CGFloat = 0.8) -> Data? {
+        guard let mutableData = CFDataCreateMutable(nil, 0),
+              let destination = CGImageDestinationCreateWithData(mutableData, AVFileType.heic as CFString, 1, nil),
+              let cgImage
+        else {
+            "UIImage \(self) cannot converted into HEIC CGImage, check image source or device".le()
+            return nil
+        }
+        CGImageDestinationAddImage(destination,
+                                   cgImage,
+                                   [kCGImageDestinationLossyCompressionQuality: compression,
+                                                   kCGImagePropertyOrientation: cgImageOrientation.rawValue] as CFDictionary)
+        guard CGImageDestinationFinalize(destination) else { return nil }
+        return mutableData as Data
+    }
+}
+
 // MARK: - stroke around image
 
 public extension UIImage {

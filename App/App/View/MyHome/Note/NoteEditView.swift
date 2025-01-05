@@ -249,6 +249,13 @@ extension NoteEditView {
     }
     
     func commit() {
-        
+        Task { @MainActor in
+            do {
+                try await model.commit()
+                myHomeViewModel.navPopToRoot()
+            } catch {
+                ContentViewModel.shared.error = error
+            }
+        }
     }
 }

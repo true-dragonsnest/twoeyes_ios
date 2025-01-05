@@ -13,7 +13,7 @@ struct EntityCard: Codable, Identifiable, Equatable {
     var updatedAt: Date
     
     let userId: UUID
-    let noteId: Int
+    var noteId: Int
     
     var question: String
     var answer: String

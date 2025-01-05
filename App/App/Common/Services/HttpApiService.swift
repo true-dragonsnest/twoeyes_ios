@@ -126,7 +126,6 @@ public actor HttpApiService {
         return (data, HttpCode(rawValue: code))
     }
 
-    /// GET from URL
     public func get<M: Codable>(from urlStr: String) async throws -> M {
         "GET: \(urlStr)".ld(T)
 
@@ -147,54 +146,21 @@ public actor HttpApiService {
         throw AppError.httpError(code)
     }
 
-    private enum DownloadStatus {
-        case inProgress(Task<Data, Error>)
-        case completed(Data)
-    }
+    public func get(from urlStr: String) async throws -> Data {
+        "GET data: \(urlStr)".ld(T)
 
-    private var downloadRequests: [String: DownloadStatus] = [:]
-
-    private func download(_ urlRequest: URLRequest, cacheKey: String?) async throws -> Data {
-        if let cacheKey = cacheKey {
-            if let status = downloadRequests[cacheKey] {
-                switch status {
-                case let .inProgress(task):
-                    return try await task.value
-                case let .completed(data):
-                    return data
-                }
-            }
-
-            // TODO: query local storage cache
+        let url = try url(from: urlStr)
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        commonHeaders.forEach { key, value in
+            request.addValue(value, forHTTPHeaderField: key)
         }
+        let (data, code) = try await sendUrlRequest(request: request)
 
-        let fetchTask: Task<Data, Error> = Task {
-            let (data, response) = try await URLSession.shared.data(for: urlRequest)
-            let httpCode = HttpCode(rawValue: (response as? HTTPURLResponse)?.statusCode ?? 500)
-            guard httpCode.isSuccess else {
-                throw AppError.httpError(httpCode)
-            }
-            // TODO: save to local storage cache
+        if code.isSuccess {
             return data
         }
 
-        if let cacheKey = cacheKey {
-            downloadRequests[cacheKey] = .inProgress(fetchTask)
-        }
-        let data = try await fetchTask.value
-        if let cacheKey = cacheKey {
-            downloadRequests[cacheKey] = .completed(data)
-        }
-
-        return data
-    }
-}
-
-public extension HttpApiService {
-    func download(from urlStr: String, cacheKey: String? = nil) async throws -> Data {
-        "DOWNLOAD: \(urlStr)".ld(T)
-
-        let url = try url(from: urlStr)
-        return try await download(URLRequest(url: url), cacheKey: cacheKey)
+        throw AppError.httpError(code)
     }
 }
