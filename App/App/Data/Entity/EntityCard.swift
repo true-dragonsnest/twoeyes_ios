@@ -15,11 +15,6 @@ struct EntityCard: Codable, Identifiable, Equatable {
     let userId: UUID
     let noteId: Int
     
-    enum CardType: String, Codable {
-        case wordCard
-    }
-    let cardType: CardType
-     
     var question: String
     var answer: String
     

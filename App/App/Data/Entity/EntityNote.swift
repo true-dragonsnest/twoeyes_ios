@@ -14,6 +14,22 @@ struct EntityNote: Codable, Identifiable, Equatable {
     
     let userId: UUID
     
+    enum NoteType: String, Codable, CaseIterable {
+        case vocabulary
+        
+        var displayText: String {
+            switch self {
+            case .vocabulary: "Vocabulary".localized
+            }
+        }
+        var symbolName: String {
+            switch self {
+            case .vocabulary: "translate"
+            }
+        }
+    }
+    var noteType: NoteType
+    
     var title: String?
     var pictureUrl: String?
     var tags: [String]?

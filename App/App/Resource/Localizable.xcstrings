@@ -246,6 +246,9 @@
         }
       }
     },
+    "Note type" : {
+
+    },
     "note.ai.generation.guide" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -363,6 +366,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "태그"
+          }
+        }
+      }
+    },
+    "Vocabulary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "단어장"
           }
         }
       }

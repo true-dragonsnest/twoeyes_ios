@@ -34,7 +34,6 @@ extension UseCases {
                                        updatedAt: .now,
                                        userId: userId,
                                        noteId: 0,
-                                       cardType: .wordCard,
                                        question: item.question,
                                        answer: item.answer,
                                        sentenceExamples: item.examples.map { .init(sentence: $0.sentence, translation: $0.translation) },

@@ -49,10 +49,11 @@ struct NoteEditView: View {
                 VStack(spacing: 24) {
                     imageView
                     infoView
-                        .padding(.horizontal)
+                        .padding(.horizontal, 16)
+                    noteTypeView
                     tagView
-                        .padding(.horizontal)
-                    cardView
+                        .padding(.horizontal, 16)
+                    aiView
                     Divider()
                     actionButton
                         .padding(.vertical)
@@ -99,6 +100,49 @@ struct NoteEditView: View {
         }
     }
     
+    var noteTypeView: some View {
+        VStack(spacing: 8) {
+            HStack {
+                Text("Note type")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.label1)
+                Spacer()
+            }
+            .padding(.horizontal, 16)
+            
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack {
+                    ForEach(EntityNote.NoteType.allCases, id: \.self) { type in
+                        VStack(spacing: 4) {
+                            type.symbolName.iconButton(font: .system(size: 40), monochrome: .label1)
+                                .frame(width: 64, height: 64)
+                            Text(type.displayText)
+                                .foregroundStyle(.label1)
+                                .font(.footnote)
+                                .lineLimit(1)
+                        }
+                        .frame(width: 64)
+                        .padding()
+                        .background(.secondaryFill)
+                        .clipShape(.rect(cornerRadius: 16))
+                        .overlay {
+                            if type == model.noteType {
+                                RoundedRectangle(cornerRadius: 16)
+                                    .strokeBorder(.appPrimary, lineWidth: 2)
+                            }
+                        }
+                        .contentShape(.rect)
+                        .onTapGesture {
+                            model.noteType = type
+                        }
+                    }
+                }
+            }
+            .contentMargins(.horizontal, 16)
+        }
+    }
+    
     var tagView: some View {
         VStack {
             HStack {
@@ -123,7 +167,7 @@ struct NoteEditView: View {
         }
     }
     
-    var cardView: some View {
+    var aiView: some View {
         VStack {
             VStack(spacing: 4) {
                 HStack {
@@ -141,25 +185,9 @@ struct NoteEditView: View {
                     Spacer()
                 }
             }
-            .padding(.horizontal)
+            .padding(.horizontal, 16)
             
-            if model.cards.isEmpty == false {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    let cardWidth = sceneSize.width - 32 * 2 - 16 * 2
-                    let cardHeight = cardWidth * 9 / 16
-                    LazyHStack(spacing: 16) {
-                        ForEach(0..<model.cards.count, id: \.self) { i in
-                            CardView(card: model.cards[i])
-                                .frame(width: cardWidth, height: cardHeight)
-                        }
-                    }
-                    .scrollTargetLayout()
-                }
-                .scrollClipDisabled()
-                .scrollTargetBehavior(.viewAligned)
-                .safeAreaPadding(.horizontal, 32 + 16)
-                .padding(.vertical)
-            }
+            cardView
             
             HStack(spacing: 32) {
                 Spacer()
@@ -169,6 +197,27 @@ struct NoteEditView: View {
                 }
                 Spacer()
             }
+        }
+    }
+    
+    @ViewBuilder
+    var cardView: some View {
+        if model.cards.isEmpty == false {
+            ScrollView(.horizontal, showsIndicators: false) {
+                let cardWidth = sceneSize.width - 32 * 2 - 16 * 2
+                let cardHeight = cardWidth * 9 / 16
+                LazyHStack(spacing: 16) {
+                    ForEach(0..<model.cards.count, id: \.self) { i in
+                        CardView(card: model.cards[i])
+                            .frame(width: cardWidth, height: cardHeight)
+                    }
+                }
+                .scrollTargetLayout()
+            }
+            .scrollClipDisabled()
+            .scrollTargetBehavior(.viewAligned)
+            .safeAreaPadding(.horizontal, 32 + 16)
+            .padding(.vertical)
         }
     }
     
@@ -191,7 +240,7 @@ extension NoteEditView {
         Task { @MainActor in
             progressMessage = "Generating AI flashcards...".localized
             do {
-                try await model.generate(cardType: .wordCard)
+                try await model.generate()
             } catch {
                 ContentViewModel.shared.error = error
             }

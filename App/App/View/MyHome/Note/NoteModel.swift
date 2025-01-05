@@ -11,6 +11,7 @@ import SwiftUI
 class NoteModel {
     var image: UIImage?
     var title: String = ""
+    var noteType: EntityNote.NoteType = .vocabulary
     var tags: [String] = []
     var isPrivate = false
     
@@ -26,10 +27,10 @@ class NoteModel {
         // FIXME: code here
     }
     
-    func generate(cardType: EntityCard.CardType) async throws {
+    func generate() async throws {
         guard let userId = LoginUserModel.shared.user?.id else { return }
         guard let image else { return }
-        guard let systemPrompt = systemPrompts[cardType] else { return }
+        guard let systemPrompt = systemPrompts[noteType] else { return }
         
         struct Response: Codable {
             var question: String
@@ -61,27 +62,33 @@ class NoteModel {
 }
 
 // MARK: - system prompts
-private let systemPrompts: [EntityCard.CardType: String] = [
-    .wordCard: wordCardPrompt
+private let systemPrompts: [EntityNote.NoteType: String] = [
+    .vocabulary: wordCardPrompt
 ]
 
 private let wordCardPrompt: String =
 """
- The given image is a list of foreign language words.
+The given image is a list of English words and their meaning in Korean.
+Extract English word and its corresponding meaning in Korean.
+During extraction, never modify the original text in the image.
 
- In the given image, extract English word  and its corresponding meaning in Korean as shown in the image.
+your temporary response is in JSON format, do not markdown style in this format:
+[
+    {
+        'question': String,
+        'answer': String,
+    }
+]
 
- Then, create three example sentences using each word along with their translations.
-
- Write your response in JSON format, not markdown style in this format:
- [
-     {
-         'question': String,
-         'answer': String,
-         'examples': [ { 'sentence': String, 'translation': String } ]
-     }
- ]
-
+Then, create three example sentences using each word along with their translations.
+Finally, Write your response in JSON format, not markdown style in this format:
+[
+    {
+        'question': String,
+        'answer': String,
+        'examples': [ { 'sentence': String, 'translation': String } ]
+    }
+]
 """
 /*
 """

@@ -103,7 +103,6 @@ struct CardView: View {
                           updatedAt: .now,
                           userId: .init(),
                           noteId: 0,
-                          cardType: .wordCard,
                           question: "HAHAHAHAHA",
                           answer: "HOHOHOHOH",
                           sttEnabled: true,
