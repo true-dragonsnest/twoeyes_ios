@@ -168,7 +168,7 @@ struct NoteEditView: View {
     }
     
     var aiView: some View {
-        VStack {
+        VStack(spacing: 8) {
             VStack(spacing: 4) {
                 HStack {
                     Text("AI flashcard")
@@ -188,6 +188,11 @@ struct NoteEditView: View {
             .padding(.horizontal, 16)
             
             cardView
+            
+            if model.noteType == .custom {
+                userPromptView
+                    .padding(.horizontal, 16)
+            }
             
             HStack(spacing: 32) {
                 Spacer()
@@ -218,6 +223,17 @@ struct NoteEditView: View {
             .scrollTargetBehavior(.viewAligned)
             .safeAreaPadding(.horizontal, 32 + 16)
             .padding(.vertical)
+        }
+    }
+    
+    var userPromptView: some View {
+        VStack {
+            TextField("note.ai.generation.user.prompt.guide", text: $model.userPrompt)
+                .font(.headline)
+                .foregroundStyle(.label1)
+                .padding()
+                .background(.secondaryFill)
+                .clipShape(.rect(cornerRadius: 24))
         }
     }
     

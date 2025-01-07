@@ -23,6 +23,10 @@ struct MyNoteListView: View {
                     Divider()
                     ForEach(myHomeViewModel.notes) { note in
                         NoteListCell(note: note)
+                            .contentShape(.rect)
+                            .onTapGesture {
+                                myHomeViewModel.navPush(.init(viewType: .cardList(note: note)))
+                            }
                     }
                 }
             }

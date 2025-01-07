@@ -35,6 +35,7 @@ extension UseCases {
                                            generationConfig: config,
                                            systemInstruction: systemPrompt)
             let response = try await genModel.generateContent(userPrompt, image)
+            "Generate : \(systemPrompt), \(userPrompt)".ld(T)
             //"Response : \(response)".ld(T)
             guard let text = response.candidates.first?.content.parts.first?.text else {
                 throw AppError.invalidResponse("No text response : \(response)".le(T))

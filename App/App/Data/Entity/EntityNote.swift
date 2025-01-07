@@ -16,15 +16,18 @@ struct EntityNote: Codable, Identifiable, Equatable {
     
     enum NoteType: String, Codable, CaseIterable {
         case vocabulary
+        case custom
         
         var displayText: String {
             switch self {
             case .vocabulary: "Vocabulary".localized
+            case .custom: "Custom".localized
             }
         }
         var symbolName: String {
             switch self {
             case .vocabulary: "translate"
+            case .custom: "bubbles.and.sparkles.fill"
             }
         }
     }

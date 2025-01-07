@@ -30,6 +30,9 @@ struct MyHomeView: View {
                     case .noteEdit(let model):
                         NoteEditView(model: model)
                             .environmentObject(viewModel)
+                    case .cardList(let note):
+                        CardListView(note: note)
+                            .environmentObject(viewModel)
                     default:
                         Color.red.ignoresSafeArea()
                     }

@@ -30,7 +30,14 @@
       }
     },
     "Add Note" : {
-
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "노트 추가"
+          }
+        }
+      }
     },
     "AI flashcard" : {
       "localizations" : {
@@ -99,6 +106,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "노트 촬영"
+          }
+        }
+      }
+    },
+    "Card List" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "카드 목록"
           }
         }
       }
@@ -247,7 +264,14 @@
       }
     },
     "Note type" : {
-
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "노트 종류"
+          }
+        }
+      }
     },
     "note.ai.generation.guide" : {
       "extractionState" : "manual",
@@ -262,6 +286,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "AI가 노트의 내용을 바탕으로 플래시 카드를 생성합니다.\n플래시 카드를 사용해서 노트의 내용을 학습 할 수 있고, 셀프 테스트도 할 수 있습니다."
+          }
+        }
+      }
+    },
+    "note.ai.generation.user.prompt.guide" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please explain the rules for generating problems to the AI."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "문제 생성을 위한 규칙을 AI에게 설명해주세요"
           }
         }
       }
