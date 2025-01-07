@@ -45,9 +45,6 @@ class NoteModel {
         
         if let noteId = id {
             Task { @MainActor in
-                "FUCKFUCK".lf()
-                try? await Task.sleep(for: .seconds(10))
-                "FUCKFUCK 2".lf()
                 do {
                     let cards = try await UseCases.Fetch.noteCards(noteId: noteId)
                     self.cards = cards

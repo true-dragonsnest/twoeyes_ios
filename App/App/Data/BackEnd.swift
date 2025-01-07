@@ -56,11 +56,14 @@ enum BackEnd {
             SupabaseService.shared.client?.from(Self.table)
         }
         
+        case list(_ userId: UUID)   // FIXME: pagination
         case fetch(_ noteId: Int)
         case insert(_ note: EntityNote, returnInserted: Bool)
         
         var query: PostgrestBuilder? {
             switch self {
+            case let .list(userId):
+                return Self.rootQueryBuilder?.select().eq("userId", value: userId)
             case let .fetch(noteId):
                 return Self.rootQueryBuilder?.select().eq("id", value: noteId)
             case let .insert(note, returnInserted):

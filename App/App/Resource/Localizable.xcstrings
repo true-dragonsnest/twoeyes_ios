@@ -7,9 +7,6 @@
     "#" : {
       "shouldTranslate" : false
     },
-    "%lld" : {
-      "shouldTranslate" : false
-    },
     "✨ AI Gen" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -31,6 +28,9 @@
           }
         }
       }
+    },
+    "Add Note" : {
+
     },
     "AI flashcard" : {
       "localizations" : {

@@ -42,6 +42,7 @@ struct MyHomeView: View {
             Color.background.ignoresSafeArea()
             
             MyNoteListView()
+                .environmentObject(viewModel)
         }
     }
 }
