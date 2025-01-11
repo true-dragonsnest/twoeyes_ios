@@ -65,10 +65,20 @@ public actor HttpApiService {
     public static let shared = HttpApiService()
 
     private init() {
-        Task {
-            await setCommomHeader(forKey: "Content-Type", value: "application/json")
-        }
+        commonHeaders["Content-Type"] = "application/json"
     }
+    
+    public lazy var encoder: JSONEncoder = {
+        let encoder = JSONEncoder()
+//        encoder.keyEncodingStrategy = .convertToSnakeCase
+        return encoder
+    }()
+    
+    public lazy var decoder: JSONDecoder = {
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        return decoder
+    }()
 
     /// common header
     public private(set) var commonHeaders: [String: String] = [:]
@@ -79,8 +89,8 @@ public actor HttpApiService {
 
     private lazy var defaultSession: URLSession = {
         let sessionConfig = URLSessionConfiguration.default
-        sessionConfig.timeoutIntervalForRequest = 10.0
-        sessionConfig.timeoutIntervalForResource = 60.0
+        sessionConfig.timeoutIntervalForRequest = 60.0
+        sessionConfig.timeoutIntervalForResource = 3600.0
         return URLSession(configuration: sessionConfig)
     }()
 
@@ -97,22 +107,8 @@ public actor HttpApiService {
         }
         return url
     }
-
-    private func sendDataRequest(url: URL) async throws -> (Data, HttpCode) {
-        let (data, response) = try await defaultSession.data(from: url)
-
-        guard let httpResponse = response as? HTTPURLResponse else {
-            let errMsg = "invalid response : \(response)".le(T)
-            throw AppError.invalidResponse(errMsg)
-        }
-
-        let code = httpResponse.statusCode
-        "Response code = \(code), body = \(o: data.prettyPrintedJSONString)".ld(T)
-
-        return (data, HttpCode(rawValue: code))
-    }
-
-    private func sendUrlRequest(request: URLRequest) async throws -> (Data, HttpCode) {
+    
+    private func sendUrlRequest(request: URLRequest, logLevel: Int) async throws -> (Data, HttpCode) {
         let (data, response) = try await defaultSession.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse else {
@@ -121,46 +117,65 @@ public actor HttpApiService {
         }
 
         let code = httpResponse.statusCode
-        "Response code = \(code), body = \(o: data.prettyPrintedJSONString)".ld(T)
+        if logLevel > 1 {
+            //"Request to \(o: request.url?.absoluteString), body = \(o: request.httpBody?.prettyPrintedJSONString), header = \(o: request.allHTTPHeaderFields) -> \(code), body = \(o: data.prettyPrintedJSONString)".ld(T)
+            "Request to \(o: request.url?.absoluteString), header = \(o: request.allHTTPHeaderFields) -> \(code), body = \(o: data.prettyPrintedJSONString)".ld(T)
+        } else if logLevel > 0 {
+            "Response code = \(o: request.url?.absoluteString) -> \(code)".ld(T)
+        }
 
         return (data, HttpCode(rawValue: code))
     }
-
-    public func get<M: Codable>(from urlStr: String) async throws -> M {
-        "GET: \(urlStr)".ld(T)
-
+    
+    private enum UrlRequestMethod: String {
+        case get = "GET"
+        case put = "PUT"
+        case post = "POST"
+        case delete = "DELETE"
+    }
+    
+    private func performUrlRequest(method: UrlRequestMethod,
+                                   urlStr: String,
+                                   bodyData: Data? = nil,
+                                   logLevel: Int) async throws -> (Data, HttpCode)
+    {
+        if logLevel > 0 { "\(method.rawValue) : \(urlStr)".ld(T) }
+        
         let url = try url(from: urlStr)
         var request = URLRequest(url: url)
-        request.httpMethod = "GET"
+        request.httpMethod = method.rawValue
+        if let bodyData {
+            request.httpBody = bodyData
+        }
+        request.cachePolicy = .useProtocolCachePolicy   // FIXME: use .returnCacheDataElseLoad by option
         commonHeaders.forEach { key, value in
             request.addValue(value, forHTTPHeaderField: key)
         }
-        let (data, code) = try await sendUrlRequest(request: request)
-
-        if code.isSuccess {
-            let decoder = JSONDecoder()
-            let result = try decoder.decode(M.self, from: data)
-            return result
-        }
-
-        throw AppError.httpError(code)
+        return try await sendUrlRequest(request: request, logLevel: logLevel)
     }
 
-    public func get(from urlStr: String) async throws -> Data {
-        "GET data: \(urlStr)".ld(T)
-
-        let url = try url(from: urlStr)
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        commonHeaders.forEach { key, value in
-            request.addValue(value, forHTTPHeaderField: key)
+    public func get<M: Codable>(from urlStr: String, logLevel: Int = 1) async throws -> M {
+        let (data, code) = try await performUrlRequest(method: .get, urlStr: urlStr, logLevel: logLevel)
+        guard code.isSuccess else {
+            throw AppError.httpError(code)
         }
-        let (data, code) = try await sendUrlRequest(request: request)
+        return try decoder.decode(M.self, from: data)
+    }
 
-        if code.isSuccess {
-            return data
+    public func get(from urlStr: String, logLevel: Int = 1) async throws -> Data {
+        let (data, code) = try await performUrlRequest(method: .get, urlStr: urlStr, logLevel: logLevel)
+        guard code.isSuccess else {
+            throw AppError.httpError(code)
         }
-
-        throw AppError.httpError(code)
+        return data
+    }
+    
+    public func post<M: Encodable, N: Decodable>(entity: M, to urlStr: String, logLevel: Int = 1) async throws -> N {
+        let bodyData = try encoder.encode(entity)
+        let (data, code) = try await performUrlRequest(method: .post, urlStr: urlStr, bodyData: bodyData, logLevel: logLevel)
+        guard code.isSuccess else {
+            throw AppError.httpError(code)
+        }
+        return try decoder.decode(N.self, from: data)
     }
 }

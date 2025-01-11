@@ -18,23 +18,29 @@ extension UseCases {
 extension UseCases.ParseGenResult {
     enum WordCard {
         struct Response: Codable {
-            var question: String
-            var answer: String
-            struct Example: Codable {
-                var sentence: String
-                var translation: String
+            let convertedText: String
+            let questions: [Question]
+            
+            struct Question: Codable {
+                var question: String
+                var answer: String
+                var examples: [Example]
+                
+                struct Example: Codable {
+                    var sentence: String
+                    var translation: String
+                }
             }
-            var examples: [Example]
         }
         
         static func parse(userId: UUID, response jsonStr: String) throws -> [EntityCard] {
             do {
-                guard let parsed: [Response] = try [Response].decode(fromJsonStr: jsonStr) else {
+                guard let parsed: Response = try Response.decode(fromJsonStr: jsonStr) else {
                     throw AppError.invalidResponse("invalid AI response: \(jsonStr)".le())
                 }
                 "wordcard : \(o: parsed.jsonPrettyPrinted)".li()
                 
-                let cards = parsed.map { item in
+                let cards = parsed.questions.map { item in
                     EntityCard(createdAt: .now,
                                updatedAt: .now,
                                userId: userId,
@@ -58,18 +64,23 @@ extension UseCases.ParseGenResult {
 extension UseCases.ParseGenResult {
     enum CustomCard {
         struct Response: Codable {
-            var question: String
-            var answer: String
+            let convertedText: String
+            let questions: [Question]
+            
+            struct Question: Codable {
+                var question: String
+                var answer: String
+            }
         }
         
         static func parse(userId: UUID, response jsonStr: String) throws -> [EntityCard] {
             do {
-                guard let parsed: [Response] = try [Response].decode(fromJsonStr: jsonStr) else {
+                guard let parsed: Response = try Response.decode(fromJsonStr: jsonStr) else {
                     throw AppError.invalidResponse("invalid AI response: \(jsonStr)".le())
                 }
                 "custom card : \(o: parsed.jsonPrettyPrinted)".li()
                 
-                let cards = parsed.map { item in
+                let cards = parsed.questions.map { item in
                     EntityCard(createdAt: .now,
                                updatedAt: .now,
                                userId: userId,

@@ -59,6 +59,7 @@ class NoteModel {
     func generate() async throws {
         guard let userId = LoginUserModel.shared.user?.id else { return }
         guard let image else { return }
+        //guard let image = UIImage(named: "a") else { return }
         guard let basePrompt = basePrompts[noteType] else { return }
         
         struct Response: Codable {
@@ -150,41 +151,55 @@ private let basePrompts: [EntityNote.NoteType: String] = [
 
 private let wordCardPrompt: String =
 """
-The given image is a list of English words and their meaning in Korean.
-Extract English word and its corresponding meaning in Korean.
-During extraction, never modify the original text in the image.
+The given image is a notebook note. 
+Convert it into text, focusing on the original structure and keywords.
+When converting to text, keep the original language intact and there is no need to translate it into English.
 
-your temporary response is in JSON format, not markdown style in this format:
-[
-    {
-        'question': String,
-        'answer': String,
-    }
-]
+Let the converted text "convertedText".
 
-Then, create three example sentences using each word along with their translations.
+Then, create a list of questions and answers in the given image based on this command.
+
+COMMAND:
+- let each English word be a question
+- let Korean meaning for the English word be answers
+- for the problem/answers pair, if example sentences exist, collect the example sentence.
+   if no example sentences, create three example sentences using each word along with their translations.
+
 Finally, Write your response in JSON format, not markdown style in this format:
-[
-    {
+{
+  'convertedText' : string,
+  'questions' : [
+      {
         'question': String,
         'answer': String,
         'examples': [ { 'sentence': String, 'translation': String } ]
-    }
-]
+      }
+  ]
+}
 """
+
 
 private let customPrompt: String =
 """
-In the given image, find the questions and answers to create a problem list. 
-In doing so, make sure to construct the questions and answers based on this rule:
+The given image is a notebook note. 
+Convert it into text, focusing on the original structure and keywords.
+When converting to text, keep the original language intact and there is no need to translate it into English.
 
+Let the converted text "convertedText".
+
+Then, create a list of questions and answers in the given image based on this command.
+
+COMMAND:
 %@
 
 Finally, Write your response in JSON format, not markdown style in this format:
-[
-    {
+{
+  'convertedText' : string,
+  'questions' : [
+      {
         'question': String,
         'answer': String,
-    }
-]
+      }
+  ]
+}
 """
