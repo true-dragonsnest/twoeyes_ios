@@ -16,8 +16,13 @@ extension UseCases {
 
 // MARK: - word card
 extension UseCases.ParseGenResult {
+    struct Result {
+        let markdown: String?
+        let cards: [EntityCard]
+    }
+    
     enum WordCard {
-        struct Response: Codable {
+        private struct Response: Codable {
             let convertedText: String
             let questions: [Question]
             
@@ -33,7 +38,7 @@ extension UseCases.ParseGenResult {
             }
         }
         
-        static func parse(userId: UUID, response jsonStr: String) throws -> [EntityCard] {
+        static func parse(userId: UUID, response jsonStr: String) throws -> Result {
             do {
                 guard let parsed: Response = try Response.decode(fromJsonStr: jsonStr) else {
                     throw AppError.invalidResponse("invalid AI response: \(jsonStr)".le())
@@ -51,7 +56,7 @@ extension UseCases.ParseGenResult {
                                sttEnabled: true,
                                isPrivate: false)
                 }
-                return cards
+                return .init(markdown: parsed.convertedText, cards: cards)
             } catch {
                 "failed to parse wordcard : \(error)".le()
                 throw error
@@ -63,7 +68,7 @@ extension UseCases.ParseGenResult {
 // MARK: - custom card
 extension UseCases.ParseGenResult {
     enum CustomCard {
-        struct Response: Codable {
+        private struct Response: Codable {
             let convertedText: String
             let questions: [Question]
             
@@ -73,7 +78,7 @@ extension UseCases.ParseGenResult {
             }
         }
         
-        static func parse(userId: UUID, response jsonStr: String) throws -> [EntityCard] {
+        static func parse(userId: UUID, response jsonStr: String) throws -> Result {
             do {
                 guard let parsed: Response = try Response.decode(fromJsonStr: jsonStr) else {
                     throw AppError.invalidResponse("invalid AI response: \(jsonStr)".le())
@@ -90,7 +95,7 @@ extension UseCases.ParseGenResult {
                                sttEnabled: true,
                                isPrivate: false)
                 }
-                return cards
+                return .init(markdown: parsed.convertedText, cards: cards)
             } catch {
                 "failed to parse customcard : \(error)".le()
                 throw error

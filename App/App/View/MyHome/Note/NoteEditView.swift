@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import MarkdownUI
 
 struct NoteEditView: View {
     @EnvironmentObject var myHomeViewModel: MyHomeViewModel
@@ -187,6 +188,7 @@ struct NoteEditView: View {
             }
             .padding(.horizontal, 16)
             
+            markdownView
             cardView
             
             if model.noteType == .custom {
@@ -202,6 +204,14 @@ struct NoteEditView: View {
                 }
                 Spacer()
             }
+        }
+    }
+    
+    @ViewBuilder
+    var markdownView: some View {
+        if let markdown = model.markdown {
+            Markdown(markdown)
+                .padding(.horizontal, 16)
         }
     }
     
@@ -228,7 +238,7 @@ struct NoteEditView: View {
     
     var userPromptView: some View {
         VStack {
-            TextField("note.ai.generation.user.prompt.guide", text: $model.userPrompt)
+            TextField("note.ai.generation.user.prompt.guide", text: $model.commandPrompt)
                 .font(.headline)
                 .foregroundStyle(.label1)
                 .padding()

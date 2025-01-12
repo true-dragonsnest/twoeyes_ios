@@ -60,10 +60,12 @@ struct ZoomCameraPreview: View {
 // MARK: - view model
 class ZoomCameraPreviewModel: ObservableObject {
     let aspectRatio: CGFloat
+    let resolution: CameraService.Config.Resolution
     var onImageCaptured: ((UIImage) -> Void)?
     
-    init(aspectRatio: CGFloat) {
+    init(aspectRatio: CGFloat, resolution: CameraService.Config.Resolution = .default) {
         self.aspectRatio = aspectRatio
+        self.resolution = resolution
     }
     
     @Published var flashOn = false
@@ -140,7 +142,9 @@ class ZoomCameraPreviewModel: ObservableObject {
     
     private func startCamera() async {
         do {
-            try await CameraService.shared.start(config: .init(cameraPosition: frontCamera ? .front : .back, captureAudio: false))
+            try await CameraService.shared.start(config: .init(cameraPosition: frontCamera ? .front : .back,
+                                                               captureAudio: false,
+                                                               resolution: resolution))
             _ = CameraService.shared.turnFlash(flashOn)
             await MainActor.run {
                 zoomScale = CameraService.shared.setZoom(scale: Const.defaultZoomScale, animated: false)

@@ -13,6 +13,7 @@ private let T = #fileID
 extension UseCases {
     enum GeminiApi {
         static let model = "gemini-1.5-flash"
+        //static let model = "gemini-2.0-flash-exp"
         
         struct Result: Codable {
             let text: String
@@ -29,6 +30,7 @@ extension UseCases {
             let config = GenerationConfig(temperature: temperature,
                                           topP: 0.95,
                                           topK: 40,
+                                          maxOutputTokens: 8192 * 4,
                                           responseMIMEType: responseMIMEType)
             let genModel = GenerativeModel(name: model,
                                            apiKey: AppKey.geminiApiKey,

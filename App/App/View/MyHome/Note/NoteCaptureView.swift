@@ -12,7 +12,7 @@ private let T = #fileID
 struct NoteCaptureView: View {
     @EnvironmentObject var myHomeViewModel: MyHomeViewModel
     
-    @StateObject var cameraPreviewModel = ZoomCameraPreviewModel(aspectRatio: 9 / 16)
+    @StateObject var cameraPreviewModel = ZoomCameraPreviewModel(aspectRatio: 9 / 16, resolution: .UHD)
     @State var capturedImage: UIImage?
     @State var sendMode = false
     

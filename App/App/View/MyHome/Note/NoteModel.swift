@@ -14,9 +14,10 @@ class NoteModel {
     var title: String = ""
     var noteType: EntityNote.NoteType = .vocabulary
     var tags: [String] = []
-    var userPrompt: String = ""
+    var commandPrompt: String = "노트에 나타난 주요 개념에 대해서 묻는 문제들을 만들어줘"
     var isPrivate = false
     
+    var markdown: String?
     var cards: [EntityCard] = []
     
     var isEditMode = false
@@ -59,23 +60,16 @@ class NoteModel {
     func generate() async throws {
         guard let userId = LoginUserModel.shared.user?.id else { return }
         guard let image else { return }
-        //guard let image = UIImage(named: "a") else { return }
         guard let basePrompt = basePrompts[noteType] else { return }
+
+        "Generate : image \(image)".ld()
         
-        struct Response: Codable {
-            var question: String
-            var answer: String
-            struct Example: Codable {
-                var sentence: String
-                var translation: String
-            }
-            var examples: [Example]
-        }
+        try await UseCases.TextRecognition.execute(image)
         
         do {
             var systemPrompt = basePrompt
             if noteType == .custom {
-                systemPrompt = String(format: basePrompt, userPrompt)
+                systemPrompt = String(format: basePrompt, commandPrompt)
             }
             
             let response = try await UseCases.GeminiApi.generate(with: image,
@@ -87,13 +81,16 @@ class NoteModel {
 /*
  let text = "[{\"question\": \"receive\", \"answer\": \"받다\", \"incorrectAnswers\": [\"주다\", \"보내다\", \"던지다\"]}, {\"question\": \"different\", \"answer\": \"다른\", \"incorrectAnswers\": [\"같은\", \"비슷한\", \"유사한\"]}, {\"question\": \"enough\", \"answer\": \"충분한\", \"incorrectAnswers\": [\"부족한\", \"적은\", \"모자란\"]}, {\"question\": \"worry\", \"answer\": \"걱정하다\", \"incorrectAnswers\": [\"행복해하다\", \"즐거워하다\", \"기뻐하다\"]}, {\"question\": \"little\", \"answer\": \"조금\", \"incorrectAnswers\": [\"많이\", \"대단히\", \"엄청나게\"]}, {\"question\": \"my\", \"answer\": \"나의\", \"incorrectAnswers\": [\"너의\", \"그의\", \"우리의\"]}, {\"question\": \"spend\", \"answer\": \"쓰다\", \"incorrectAnswers\": [\"벌다\", \"모으다\", \"절약하다\"]}, {\"question\": \"rest\", \"answer\": \"쉬다\", \"incorrectAnswers\": [\"일하다\", \"움직이다\", \"활동하다\"]}, {\"question\": \"climb\", \"answer\": \"오르다\", \"incorrectAnswers\": [\"내리다\", \"떨어지다\", \"앉다\"]}]"
  */
-            try await MainActor.run {
-                switch noteType {
-                case .vocabulary:
-                    cards = try UseCases.ParseGenResult.WordCard.parse(userId: userId, response: text)
-                case .custom:
-                    cards = try UseCases.ParseGenResult.CustomCard.parse(userId: userId, response: text)
-                }
+            let result: UseCases.ParseGenResult.Result
+            switch noteType {
+            case .vocabulary:
+                result = try UseCases.ParseGenResult.WordCard.parse(userId: userId, response: text)
+            case .custom:
+                result = try UseCases.ParseGenResult.CustomCard.parse(userId: userId, response: text)
+            }
+            await MainActor.run {
+                markdown = result.markdown
+                cards = result.cards
             }
         } catch {
             "failed to generate : \(error)".le()
@@ -152,10 +149,10 @@ private let basePrompts: [EntityNote.NoteType: String] = [
 private let wordCardPrompt: String =
 """
 The given image is a notebook note. 
-Convert it into text, focusing on the original structure and keywords.
-When converting to text, keep the original language intact and there is no need to translate it into English.
+Convert it into markdown format, focusing on the original structure and keywords.
+When converting to markdown, keep the original language intact and there is no need to translate it into English.
 
-Let the converted text "convertedText".
+Let the converted markdown 'convertedText'.
 
 Then, create a list of questions and answers in the given image based on this command.
 
@@ -165,7 +162,7 @@ COMMAND:
 - for the problem/answers pair, if example sentences exist, collect the example sentence.
    if no example sentences, create three example sentences using each word along with their translations.
 
-Finally, Write your response in JSON format, not markdown style in this format:
+Finally, Write your response in JSON format:
 {
   'convertedText' : string,
   'questions' : [
@@ -182,17 +179,17 @@ Finally, Write your response in JSON format, not markdown style in this format:
 private let customPrompt: String =
 """
 The given image is a notebook note. 
-Convert it into text, focusing on the original structure and keywords.
-When converting to text, keep the original language intact and there is no need to translate it into English.
+Convert it into markdown format, focusing on the original structure and keywords.
+When converting to markdown, keep the original language intact and there is no need to translate it into English.
 
-Let the converted text "convertedText".
+Let the converted markdown 'convertedText'.
 
 Then, create a list of questions and answers in the given image based on this command.
 
 COMMAND:
 %@
 
-Finally, Write your response in JSON format, not markdown style in this format:
+Finally, Write your response in JSON format:
 {
   'convertedText' : string,
   'questions' : [

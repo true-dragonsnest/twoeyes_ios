@@ -22,6 +22,7 @@
 		B55906DA2D170D7C00CC17F2 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = B55906D92D170D7C00CC17F2 /* FirebaseCrashlytics */; };
 		B55906EA2D17264B00CC17F2 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = B55906E92D17264B00CC17F2 /* FirebaseMessaging */; };
 		B55907312D1B038900CC17F2 /* GoogleGenerativeAI in Frameworks */ = {isa = PBXBuildFile; productRef = B55907302D1B038900CC17F2 /* GoogleGenerativeAI */; };
+		B5E09A922D33B88100070103 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = B5E09A912D33B88100070103 /* MarkdownUI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -65,6 +66,7 @@
 				B55906D62D170D7C00CC17F2 /* FirebaseAnalytics in Frameworks */,
 				B55906C22D17093C00CC17F2 /* Realtime in Frameworks */,
 				B55906BB2D1708EF00CC17F2 /* CollectionConcurrencyKit in Frameworks */,
+				B5E09A922D33B88100070103 /* MarkdownUI in Frameworks */,
 				B55906DA2D170D7C00CC17F2 /* FirebaseCrashlytics in Frameworks */,
 				B55906C02D17093C00CC17F2 /* PostgREST in Frameworks */,
 				B55906D82D170D7C00CC17F2 /* FirebaseCore in Frameworks */,
@@ -134,6 +136,7 @@
 				B55906D92D170D7C00CC17F2 /* FirebaseCrashlytics */,
 				B55906E92D17264B00CC17F2 /* FirebaseMessaging */,
 				B55907302D1B038900CC17F2 /* GoogleGenerativeAI */,
+				B5E09A912D33B88100070103 /* MarkdownUI */,
 			);
 			productName = App;
 			productReference = B53089352D16F1C60014D4AD /* App.app */;
@@ -173,6 +176,7 @@
 				B55906CE2D170CCA00CC17F2 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 				B55906D42D170D7C00CC17F2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				B559072F2D1B038900CC17F2 /* XCRemoteSwiftPackageReference "generative-ai-swift" */,
+				B5E09A902D33B88100070103 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B53089362D16F1C60014D4AD /* Products */;
@@ -495,6 +499,14 @@
 				minimumVersion = 0.5.6;
 			};
 		};
+		B5E09A902D33B88100070103 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/gonzalezreal/swift-markdown-ui";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.4.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -572,6 +584,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B559072F2D1B038900CC17F2 /* XCRemoteSwiftPackageReference "generative-ai-swift" */;
 			productName = GoogleGenerativeAI;
+		};
+		B5E09A912D33B88100070103 /* MarkdownUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B5E09A902D33B88100070103 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */;
+			productName = MarkdownUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

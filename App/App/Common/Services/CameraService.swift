@@ -25,11 +25,33 @@ public class CameraService {
         public let cameraPosition: AVCaptureDevice.Position
         public let captureAudio: Bool
         public let captureQRCode: CGRect?
+        public let resolution: Resolution
+        
+        public enum Resolution: Int {
+            case `default` = 0
+            case HD = 921_600       // 1280 * 720
+            case FHD = 2_073_600    // 1920 * 1080
+            case UHD = 8_294_400    // 3840 * 2160
+            
+            var sessionPreset: AVCaptureSession.Preset {
+                switch self {
+                case .default: return .high
+                case .HD: return .hd1280x720
+                case .FHD: return .hd1920x1080
+                case .UHD: return .hd4K3840x2160
+                }
+            }
+        }
 
-        public init(cameraPosition: AVCaptureDevice.Position, captureAudio: Bool = false, captureQRCode: CGRect? = nil) {
+        public init(cameraPosition: AVCaptureDevice.Position,
+                    captureAudio: Bool = false,
+                    captureQRCode: CGRect? = nil,
+                    resolution: Resolution = .default)
+        {
             self.cameraPosition = cameraPosition
             self.captureAudio = captureAudio
             self.captureQRCode = captureQRCode
+            self.resolution = resolution
         }
     }
 
@@ -142,6 +164,31 @@ public class CameraService {
             }
         }
     }
+    
+    private func findBestFormat(for device: AVCaptureDevice, targetWidthHeight: Int) -> AVCaptureDevice.Format? {
+        var bestFormat: AVCaptureDevice.Format?
+        var closestDifference = Int.max
+        var maxFPS: Float64 = 0.0
+
+        for format in device.formats {
+            let formatDescription = format.formatDescription
+            let dimensions = CMVideoFormatDescriptionGetDimensions(formatDescription)
+
+            let currentArea = Int(dimensions.width * dimensions.height)
+            let areaDifference = abs(currentArea - targetWidthHeight)
+
+            if let fpsRange = format.videoSupportedFrameRateRanges.first {
+                let currentMaxFPS = fpsRange.maxFrameRate
+                if areaDifference <= closestDifference && currentMaxFPS >= maxFPS {
+                    bestFormat = format
+                    closestDifference = areaDifference
+                    maxFPS = currentMaxFPS
+                }
+            }
+        }
+
+        return bestFormat
+    }
 
     private func configure() throws {
         guard session == nil else { return }
@@ -166,8 +213,14 @@ public class CameraService {
             "No video devices available for position : \(config.cameraPosition).".le(T)
             throw AppError.generalError("Cannot initialize camera.")
         }
-        self.videoDevice = videoDevice
         "VIDEO DEVICE : \(videoDevice)".ld(T)
+        if config.resolution != .default, let bestFormat = findBestFormat(for: videoDevice, targetWidthHeight: config.resolution.rawValue) {
+            "FORMAT : \(bestFormat)".ld(T)
+            try videoDevice.lockForConfiguration()
+            videoDevice.activeFormat = bestFormat
+            videoDevice.unlockForConfiguration()
+        }
+        self.videoDevice = videoDevice
 
         do {
             let videoInput = try AVCaptureDeviceInput(device: videoDevice)
@@ -176,6 +229,10 @@ public class CameraService {
                 throw AppError.generalError("Cannot initialize camera.")
             }
             session.addInput(videoInput)
+            
+            if config.resolution != .default, session.canSetSessionPreset(config.resolution.sessionPreset) {
+                session.sessionPreset = config.resolution.sessionPreset
+            }
         } catch {
             "Failed to add video input : \(error)".le(T)
             throw AppError(error)
