@@ -100,6 +100,16 @@
         }
       }
     },
+    "Capture Image" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "촬영하기"
+          }
+        }
+      }
+    },
     "Capture Note" : {
       "localizations" : {
         "ko" : {
@@ -253,6 +263,16 @@
         }
       }
     },
+    "Note Image" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "노트 이미지"
+          }
+        }
+      }
+    },
     "Note title" : {
       "localizations" : {
         "ko" : {
@@ -320,6 +340,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "노트 필기의 사진을 촬영하세요.\nAI로 문제를 생성해서 자습할 수 있고, 커뮤니티에 공유할 수 있습니다."
+          }
+        }
+      }
+    },
+    "Pick Image from Library" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "라이브러리에서 가져오기"
           }
         }
       }

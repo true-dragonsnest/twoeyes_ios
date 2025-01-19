@@ -12,6 +12,8 @@ private let T = #fileID
 struct NoteCaptureView: View {
     @EnvironmentObject var myHomeViewModel: MyHomeViewModel
     
+    @Bindable var model: NoteModel
+    
     @StateObject var cameraPreviewModel = ZoomCameraPreviewModel(aspectRatio: 9 / 16, resolution: .UHD)
     @State var capturedImage: UIImage?
     @State var sendMode = false
@@ -143,7 +145,6 @@ extension NoteCaptureView {
     }
     
     func send() {
-        let model = NoteModel()
         model.image = capturedImage
         myHomeViewModel.navPush(.init(viewType: .noteEdit(model: model)))
     }
