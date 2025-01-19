@@ -11,7 +11,7 @@ struct CardView: View {
     let card: EntityCard
     
     @State var isFront = true
-    @State var frontDegree: CGFloat = 0
+    @State var frontDegree: CGFloat = 0.001
     @State var backDegree: CGFloat = -90
     let flipDuration: CGFloat = 0.3
     
@@ -22,9 +22,9 @@ struct CardView: View {
     var contentView: some View {
         ZStack {
             frontView
-                .rotation3DEffect(.degrees(frontDegree), axis: (x: 0, y: 1, z: 0))
+                .rotation3DEffect(.degrees(frontDegree), axis: (x: 0.001, y: 1, z: 0.001))
             backView
-                .rotation3DEffect(.degrees(backDegree), axis: (x: 0, y: 1, z: 0))
+                .rotation3DEffect(.degrees(backDegree), axis: (x: 0.001, y: 1, z: 0.001))
             
         }
         .contentShape(.rect)

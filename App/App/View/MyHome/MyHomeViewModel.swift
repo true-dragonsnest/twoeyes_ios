@@ -44,7 +44,7 @@ extension MyHomeViewModel {
         }
         
         enum ViewType {
-            case noteCapture
+            case noteCapture(model: NoteModel)
             case noteEdit(model: NoteModel)
             case cardList(note: EntityNote)
             case study

@@ -12,7 +12,7 @@ extension UseCases {
         static func execute(fileName: String, key: String) -> String {
             guard let filePath = Bundle.main.path(forResource: fileName, ofType: "plist")
             else {
-                fatalError("Couldn't find file 'GenerativeAI-Info.plist'.")
+                fatalError("Couldn't find file '\(fileName).plist'.")
             }
             let plist = NSDictionary(contentsOfFile: filePath)
             guard let value = plist?.object(forKey: key) as? String else {

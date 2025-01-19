@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PhotosUI
 import MarkdownUI
 
 struct NoteEditView: View {
@@ -16,8 +17,12 @@ struct NoteEditView: View {
     
     @State var tagInputFocused: Bool? = false
     
-    @State var progressMessage: String?
+    @State var showImageAction = false
+    @State var showPhotoPicker = false
+    @State var selectedPhotoItem: PhotosPickerItem?
     @State var showAlert = false
+    
+    @State var progressMessage: String?
     
     var body: some View {
         contentView
@@ -33,13 +38,6 @@ struct NoteEditView: View {
                     secondaryButton: .default(Text("Skip"))
                 )
             }
-            .onAppear {
-                guard model.image != nil else {
-                    ContentViewModel.shared.error = AppError.notInited("Wrong note image".le())
-                    myHomeViewModel.navPop()
-                    return
-                }
-            }
     }
     
     var contentView: some View {
@@ -54,6 +52,7 @@ struct NoteEditView: View {
                     noteTypeView
                     tagView
                         .padding(.horizontal, 16)
+                    Divider()
                     aiView
                     Divider()
                     actionButton
@@ -72,15 +71,50 @@ struct NoteEditView: View {
         }
     }
     
-    @ViewBuilder
     var imageView: some View {
-        if let image = model.image {
-            Image(uiImage: image)
-                .resizable()
-                .scaledToFit()
-                .frame(height: 200)
-                .clipShape(.rect(cornerRadius: 8))
-        }
+        Color.secondaryFill
+            .frame(maxWidth: .infinity)
+            .frame(height: 200)
+            .clipShape(.rect(cornerRadius: 16))
+            .overlay {
+                "plus.circle.fill".iconButton(font: .title, palette: .white, .appPrimary)
+            }
+            .overlay {
+                if let image = model.image {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
+                }
+            }
+            .contentShape(.rect)
+            .onTapGesture {
+                showImageAction = true
+            }
+            .padding(.horizontal, 16)
+            .confirmationDialog("Note Image", isPresented: $showImageAction) {
+                Button("Pick Image from Library") {
+                    showPhotoPicker = true
+                }
+                Button("Capture Image") {
+                    
+                }
+                Button("Cancel", role: .cancel) {
+                }
+            }
+            .photosPicker(isPresented: $showPhotoPicker, selection: $selectedPhotoItem)
+            .onChange(of: selectedPhotoItem) {
+                Task {
+                    do {
+                        let loaded = try await selectedPhotoItem?.loadTransferable(type: Image.self)
+                        await MainActor.run {
+                            model.image = loaded?.getUIImage()
+                        }
+                    } catch {
+                        "Failed to load image : \(error)".le()
+                        ContentViewModel.shared.error = error
+                    }
+                }
+            }
     }
     
     var infoView: some View {
@@ -169,7 +203,7 @@ struct NoteEditView: View {
     }
     
     var aiView: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 16) {
             VStack(spacing: 4) {
                 HStack {
                     Text("AI flashcard")
@@ -249,7 +283,7 @@ struct NoteEditView: View {
     
     var actionButton: some View {
         ActionButton(text: "Done".localized,
-                     disabled: false)
+                     disabled: model.image != nil)
         {
             if model.cards.isEmpty {
                 showAlert = true

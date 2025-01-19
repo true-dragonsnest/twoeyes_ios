@@ -61,7 +61,7 @@ struct MyNoteListView: View {
         }
         .contentShape(.rect)
         .onTapGesture {
-            myHomeViewModel.navPush(.init(viewType: .noteCapture))
+            myHomeViewModel.navPush(.init(viewType: .noteEdit(model: .init())))
         }
     }
 }

@@ -20,7 +20,9 @@ struct ActionButton: View {
             .background(disabled ? .secondaryFill : .appPrimary)
             .clipShape(.capsule)
             .onTapGesture {
-                onTap()
+                if disabled == false {
+                    onTap()
+                }
             }
     }
 }

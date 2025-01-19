@@ -18,17 +18,17 @@ struct MyHomeView: View {
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         "plus.circle.fill".iconButton(font: .headline, monochrome: .appPrimary) {
-                            viewModel.navPush(.init(viewType: .noteCapture))
+                            viewModel.navPush(.init(viewType: .noteEdit(model: .init())))
                         }
                     }
                 }
                 .navigationDestination(for: MyHomeViewModel.NavPath.self) { path in
                     switch path.viewType {
-                    case .noteCapture:
-                        NoteCaptureView()
-                            .environmentObject(viewModel)
                     case .noteEdit(let model):
                         NoteEditView(model: model)
+                            .environmentObject(viewModel)
+                    case .noteCapture(let model):
+                        NoteCaptureView(model: model)
                             .environmentObject(viewModel)
                     case .cardList(let note):
                         CardListView(note: note)
