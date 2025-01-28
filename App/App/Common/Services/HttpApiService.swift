@@ -64,13 +64,13 @@ public actor HttpApiService {
     /// shared instance
     public static let shared = HttpApiService()
 
-    private init() {
+    init() {
         commonHeaders["Content-Type"] = "application/json"
     }
     
     public lazy var encoder: JSONEncoder = {
         let encoder = JSONEncoder()
-//        encoder.keyEncodingStrategy = .convertToSnakeCase
+        encoder.keyEncodingStrategy = .convertToSnakeCase
         return encoder
     }()
     

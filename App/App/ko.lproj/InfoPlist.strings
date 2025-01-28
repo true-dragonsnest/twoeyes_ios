@@ -6,4 +6,7 @@
   
 */
 
-NSCameraUsageDescription = "노트를 촬영하여 공유하고 문제를 생성하기 위해서 카메라 접근이 필요합니다.";
+NSCameraUsageDescription = "프로필 사진 촬영을 위해 카메라 권한이 필요합니다.";
+NSSpeechRecognitionUsageDescription = "외국어 말하기 인식을 위해 권한 승인이 필요합니다.";
+NSMicrophoneUsageDescription = "말하기 인식을 위해 마이크 권한이 필요합니다.";
+NSPhotoLibraryUsageDescription = "프로필 사진과 음성 샘플을 위해 라이브러리 권한이 필요합니다.";

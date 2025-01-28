@@ -7,7 +7,18 @@
 
 import SwiftUI
 
+class MainViewModel: ObservableObject {
+    enum Tab: String {
+        case explore
+        case home
+        case settings
+    }
+    @Published var tab: Tab = .home
+}
+
 struct MainView: View {
+    @StateObject var viewModel = MainViewModel()
+    
     var body: some View {
         contentView
             .onAppear {
@@ -22,27 +33,27 @@ struct MainView: View {
     }
     
     var tabView: some View {
-        TabView {
+        TabView(selection: $viewModel.tab) {
             Text("Explore")
                 .tabItem {
                     Image(systemName: "safari.fill")
                     Text("Explore")
                 }
-            MyHomeView()
+                .tag(MainViewModel.Tab.explore)
+
+            HomeView()
                 .tabItem {
-                    Image(systemName: "book.fill")
-                    Text("My Notes")
+                    Image(systemName: "house.fill")
+                    Text("Home")
                 }
-            Text("Study History")
-                .tabItem {
-                    Image(systemName: "calendar")
-                    Text("History")
-                }
+                .tag(MainViewModel.Tab.home)
+
             SettingsView()
                 .tabItem {
                     Image(systemName: "gear")
                     Text("Settings")
                 }
+                .tag(MainViewModel.Tab.settings)
         }
         .font(.headline)
     }

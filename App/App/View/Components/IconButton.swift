@@ -84,4 +84,32 @@ extension String {
                 }
             }
     }
+    
+    func navbarButton(background: AnyShapeStyle = AnyShapeStyle(.regularMaterial),
+                      disabled: Bool = false,
+                      onTap: (() -> Void)? = nil) -> some View {
+        iconButton(font: .title3,
+                   renderMode: .palette,
+                   foregroundStyle: disabled ? Color.label3.any : Color.label1.any, background)
+        //.frame(width: 24, height: 24)
+        .contentShape(.rect)
+        .onTapGesture {
+            guard disabled == false else { return }
+            onTap?()
+        }
+    }
+    
+    func navbarButtonApp(disabled: Bool = false,
+                         onTap: (() -> Void)? = nil) -> some View {
+        iconButton(font: .title3,
+                   renderMode: .palette,
+                   foregroundStyle: disabled ? Color.label3.any : Color.white.any,
+                        disabled ? AnyShapeStyle(.regularMaterial) : Color.appPrimary.any)
+        //.frame(width: 24, height: 24)
+        .contentShape(.rect)
+        .onTapGesture {
+            guard disabled == false else { return }
+            onTap?()
+        }
+    }
 }

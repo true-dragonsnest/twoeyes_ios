@@ -5,6 +5,8 @@
 //  Created by Yongsik Kim on 12/22/24.
 //
 
+// FIXME: delete this
+
 import Foundation
 
 struct EntityCard: Codable, Identifiable, Equatable {

@@ -122,7 +122,8 @@ extension UseCases {
 //                )
 //            )
 //            let url = "https://generativelanguage.googleapis.com/v1beta/models/\(model):generateContent?key=\(AppKey.geminiApiKey)"
-//            
+//
+//            // FIXME: use custom encoder without `convertFromSnakeCase` option
 //            let response: Response = try await HttpApiService.shared.post(entity: request, to: url, logLevel: 2)
 //            "Response : \(o: response.jsonPrettyPrinted)".ld(T)
 //            guard let text = response.candidates.first?.content.parts.first?.text else {

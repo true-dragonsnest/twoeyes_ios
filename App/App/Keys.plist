@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>gptAuthKey</key>
+	<string>Bearer sk-proj-5vPVsWU9OjBrMdxd3PZtT3BlbkFJJcAEpXKCuWzxWClAxqZY</string>
 	<key>s3Endpoint</key>
 	<string>https://7dc29b549999a730704a07f96d570cbc.r2.cloudflarestorage.com</string>
 	<key>s3SecretKey</key>
@@ -12,7 +14,7 @@
 	<string>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJnbnltc3hkdXdmcmF1aWRvd3h4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ4NTQ5MTIsImV4cCI6MjA1MDQzMDkxMn0.psT8h0TtBT9RuhS0pAI9y3CKV7Ytf4kxHRFNBAuqP8o</string>
 	<key>supabaseProjectUrl</key>
 	<string>https://bgnymsxduwfrauidowxx.supabase.co</string>
-	<key>GeminiApiKey</key>
+	<key>geminiApiKey</key>
 	<string>AIzaSyDu3I3SS0LycnAucptzA60dp15Q9vQZ6xs</string>
 </dict>
 </plist>

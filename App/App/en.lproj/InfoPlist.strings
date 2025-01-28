@@ -6,4 +6,7 @@
   
 */
 
-NSCameraUsageDescription = "You need camera access to capture and share the notes, as well as generate problems.";
+NSCameraUsageDescription = "Camera access is required to take a profile picture.";
+NSSpeechRecognitionUsageDescription = "Permission approval is required for foreign language speech recognition.";
+NSMicrophoneUsageDescription = "Microphone access is required for speech recognition.";
+NSPhotoLibraryUsageDescription = "Access to photo library is required for the profile picture and voice sample.";

@@ -1,0 +1,74 @@
+//
+//  HomeView.swift
+//  App
+//
+//  Created by Yongsik Kim on 1/27/25.
+//
+
+import SwiftUI
+import AVFoundation
+import PhotosUI
+
+struct HomeView: View {
+    @StateObject var viewModel = HomeViewModel()
+    
+    var body: some View {
+        NavigationStack(path: $viewModel.navPath) {
+            contentView
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        "plus.circle.fill".navbarButtonApp {
+                            viewModel.navPush(.init(viewType: .talk))
+                        }
+                    }
+                }
+                .navigationDestination(for: HomeViewModel.NavPath.self) { path in
+                    switch path.viewType {
+                    case .talk:
+                        TalkView()
+                            .environmentObject(viewModel)
+                    }
+                }
+        }
+    }
+    
+    var contentView: some View {
+        ZStack {
+            Color.background.ignoresSafeArea()
+            VStack {
+                Text("home")
+                testView
+            }
+        }
+    }
+    
+    @State var showingPicker = false
+    @State var selectedItem: PhotosPickerItem?
+    @State var player: AVPlayer?
+    
+    var testView: some View {
+        Button(action: {
+            showingPicker = true
+        }) {
+            Label("Select Video", systemImage: "video.badge.plus")
+                .font(.headline)
+                .padding()
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+        }
+        .photosPicker(isPresented: $showingPicker, selection: $selectedItem, matching: .videos, photoLibrary: .shared())
+        .onChange(of: selectedItem) { _, item in
+            guard let item else { return }
+            Task {
+                if let identifier = item.itemIdentifier,
+                   let asset = PHAsset.fetchAssets(withLocalIdentifiers: [identifier], options: nil).firstObject,
+                   let url = try? await UseCases.AudioExtract.extract(from: asset) {
+                    player = AVPlayer(url: url)
+                    player?.play()
+                }
+            }
+        }
+    }
+}
+

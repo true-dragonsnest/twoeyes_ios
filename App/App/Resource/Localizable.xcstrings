@@ -193,6 +193,7 @@
       }
     },
     "History" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -201,6 +202,12 @@
           }
         }
       }
+    },
+    "home" : {
+
+    },
+    "Home" : {
+
     },
     "ID" : {
       "localizations" : {
@@ -375,6 +382,9 @@
         }
       }
     },
+    "Select Video" : {
+
+    },
     "Settings" : {
       "localizations" : {
         "ko" : {
@@ -418,10 +428,14 @@
         }
       }
     },
+    "Speak now" : {
+
+    },
     "SPLASH" : {
       "shouldTranslate" : false
     },
     "Study History" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ko" : {
           "stringUnit" : {

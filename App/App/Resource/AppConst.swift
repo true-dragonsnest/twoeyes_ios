@@ -15,7 +15,9 @@ enum AppKey {
     static let s3SecretKey = UseCases.ReadPlist.execute(fileName: "Keys", key: "s3SecretKey")
     static let s3Endpoint = UseCases.ReadPlist.execute(fileName: "Keys", key: "s3Endpoint")
     
-    static let geminiApiKey: String = UseCases.ReadPlist.execute(fileName: "Keys", key: "GeminiApiKey")
+    static let geminiApiKey: String = UseCases.ReadPlist.execute(fileName: "Keys", key: "geminiApiKey")
+    
+    static let gptAuthKey: String = UseCases.ReadPlist.execute(fileName: "Keys", key: "gptAuthKey")
 }
 
 enum AppConst {
