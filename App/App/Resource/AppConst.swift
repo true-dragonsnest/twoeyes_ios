@@ -18,6 +18,10 @@ enum AppKey {
     static let geminiApiKey: String = UseCases.ReadPlist.execute(fileName: "Keys", key: "geminiApiKey")
     
     static let gptAuthKey: String = UseCases.ReadPlist.execute(fileName: "Keys", key: "gptAuthKey")
+    
+    static let elevenLabsApiKey: String = UseCases.ReadPlist.execute(fileName: "Keys", key: "elevenLabsApiKey")
+    static let playHtUserId: String = UseCases.ReadPlist.execute(fileName: "Keys", key: "playHtUserId")
+    static let playHtApiKey: String = UseCases.ReadPlist.execute(fileName: "Keys", key: "playHtApiKey")
 }
 
 enum AppConst {

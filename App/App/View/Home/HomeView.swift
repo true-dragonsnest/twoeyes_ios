@@ -63,9 +63,15 @@ struct HomeView: View {
             Task {
                 if let identifier = item.itemIdentifier,
                    let asset = PHAsset.fetchAssets(withLocalIdentifiers: [identifier], options: nil).firstObject,
-                   let url = try? await UseCases.AudioExtract.extract(from: asset) {
+                   let url = try? await UseCases.AudioExtract.extract(from: asset)
+                {
                     player = AVPlayer(url: url)
                     player?.play()
+                    do {
+                        _ = try? await UseCases.VoiceGen.cloneVoice(name: "iu_test_x", file: url)
+                    } catch {
+                        ContentViewModel.shared.error = error
+                    }
                 }
             }
         }

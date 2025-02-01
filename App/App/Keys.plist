@@ -2,6 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>playHtApiKey</key>
+	<string>886d8159761c4d9a8135a5e4af29fc20</string>
+	<key>playHtUserId</key>
+	<string>htWejVKMzDWRMBwGxhytp2gqU9E3</string>
+	<key>elevenLabsApiKey</key>
+	<string>sk_fa5dc16009e887e6178a0cbfc5bb029e3008b4041b7de35f</string>
 	<key>gptAuthKey</key>
 	<string>Bearer sk-proj-5vPVsWU9OjBrMdxd3PZtT3BlbkFJJcAEpXKCuWzxWClAxqZY</string>
 	<key>s3Endpoint</key>
