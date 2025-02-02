@@ -81,6 +81,107 @@ extension UseCases {
             return voiceId
         }
         
-        
+        static func genVoice(voiceId: String, text: String) async throws -> Data {
+            struct Request: Codable {
+                let text: String
+                let voice: String
+                
+                let quality: Quality?
+                let speed: Double?  // 0 to 5.0
+                
+                let temperature: Double?    // 0 to 2.0
+                let voiceEngine: VoiceEngine?
+                let emotion: Emotion?
+                let language: Language?
+                
+                enum Quality: String, Codable {
+                    case draft
+                    case low
+                    case medium
+                    case high
+                    case premium
+                }
+                
+                enum VoiceEngine: String, Codable {
+                    case play3Mini = "Play3.0-mini"
+                    case playDialog = "PlayDialog"
+                    case playHT2Turbo = "PlayHT2.0-turbo"
+                    case playHT2 = "PlayHT2.0"
+                    case playHT1 = "PlayHT1.0"
+                }
+                
+                enum Emotion: String, Codable {
+                    case femaleHappy
+                    case femaleSad
+                    case femaleAngry
+                    case femaleFearful
+                    case femaleDisgust
+                    case femaleSurprised
+                    case maleHappy
+                    case maleSad
+                    case maleAngry
+                    case maleFearful
+                    case maleDisgust
+                    case maleSurprised
+                }
+                
+                enum Language: String, Codable {
+                    case afrikaans
+                    case albanian
+                    case amharic
+                    case arabic
+                    case bengali
+                    case bulgarian
+                    case catalan
+                    case croatian
+                    case czech
+                    case danish
+                    case dutch
+                    case english
+                    case french
+                    case galician
+                    case german
+                    case greek
+                    case hebrew
+                    case hindi
+                    case hungarian
+                    case indonesian
+                    case italian
+                    case japanese
+                    case korean
+                    case malay
+                    case mandarin
+                    case polish
+                    case portuguese
+                    case russian
+                    case serbian
+                    case spanish
+                    case swedish
+                    case tagalog
+                    case thai
+                    case turkish
+                    case ukrainian
+                    case urdu
+                    case xhosa
+                }
+            }
+            
+            let request = Request(text: text, voice: voiceId,
+                                  quality: nil, speed: nil, temperature: nil,
+                                  voiceEngine: .playDialog,
+                                  emotion: nil, language: nil)
+            
+            let http = HttpApiService()
+            await http.setCommomHeader(forKey: "X-USER-ID", value: AppKey.playHtUserId)
+            await http.setCommomHeader(forKey: "AUTHORIZATION", value: AppKey.playHtApiKey)
+            
+            do {
+                let data: Data = try await http.post(request, to: "https://api.play.ht/api/v2/tts/stream", logLevel: 2)
+                return data
+            } catch {
+                "failed to generate voice : \(error)".le(T)
+                throw error
+            }
+        }
     }
 }

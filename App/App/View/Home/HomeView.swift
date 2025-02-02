@@ -45,6 +45,7 @@ struct HomeView: View {
     @State var showingPicker = false
     @State var selectedItem: PhotosPickerItem?
     @State var player: AVPlayer?
+    @State var audioPlayer: AVAudioPlayer?
     
     var testView: some View {
         Button(action: {
@@ -65,11 +66,26 @@ struct HomeView: View {
                    let asset = PHAsset.fetchAssets(withLocalIdentifiers: [identifier], options: nil).firstObject,
                    let url = try? await UseCases.AudioExtract.extract(from: asset)
                 {
-                    player = AVPlayer(url: url)
-                    player?.play()
+//                    player = AVPlayer(url: url)
+//                    player?.play()
+//                    do {
+//                        _ = try? await UseCases.VoiceGen.cloneVoice(name: "iu_test_x", file: url)
+//                    } catch {
+//                        ContentViewModel.shared.error = error
+//                    }
+                    
                     do {
-                        _ = try? await UseCases.VoiceGen.cloneVoice(name: "iu_test_x", file: url)
+                        let voiceData = try await UseCases.VoiceGen.genVoice(
+                            voiceId: "s3://voice-cloning-zero-shot/deba4db7-d3c5-4b54-843e-d6eec7e37d25/original/manifest.json",
+                            text: "Hey there! I'm doing well, thanks for asking. How about you? Anything exciting happening in your world today?")
+                        
+                        audioPlayer = try AVAudioPlayer(data: voiceData)
+                        try AVAudioSession.sharedInstance().setCategory(.playback)
+                        try AVAudioSession.sharedInstance().setActive(true)
+                        audioPlayer?.prepareToPlay()
+                        audioPlayer?.play()
                     } catch {
+                        "failed to generate voice : \(error)".le()
                         ContentViewModel.shared.error = error
                     }
                 }

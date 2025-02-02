@@ -178,4 +178,13 @@ public actor HttpApiService {
         }
         return try decoder.decode(N.self, from: data)
     }
+    
+    public func post<M: Encodable>(_ entity: M, to urlStr: String, logLevel: Int = 1) async throws -> Data {
+        let bodyData = try encoder.encode(entity)
+        let (data, code) = try await performUrlRequest(method: .post, urlStr: urlStr, bodyData: bodyData, logLevel: logLevel)
+        guard code.isSuccess else {
+            throw AppError.httpError(code)
+        }
+        return data
+    }
 }
