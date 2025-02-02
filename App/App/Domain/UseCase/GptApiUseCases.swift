@@ -65,7 +65,7 @@ extension UseCases {
             topP: Double = 1,
             maxTokens: Double = 2048
         ) async throws -> String {
-            let messages = chats.map { Message(role: $0.role == .assistant ? .assistant : .user, content: $0.content) }
+            let messages = chats.map { Message(role: $0.role == .assistant ? .assistant : .user, content: $0.message) }
             let systemMsg = Message(role: .system, content: systemPrompt)
             let request = Request(model: model,
                                   messages: [systemMsg] + messages,

@@ -106,14 +106,14 @@ enum BackEnd {
         
         var bucket: String {
             switch self {
-            case .data: return "note-data"
+            case .data: return "talk-data"
             }
         }
         
         var endpoint: String {
             switch self {
             case .data: return
-                "https://pub-79e487131f6b4d7d89310a2eff5e06a2.r2.dev"
+                "https://pub-617f65a224a8486fbda149467b24a700.r2.dev"
             }
         }
         

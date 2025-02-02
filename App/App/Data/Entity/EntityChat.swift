@@ -7,12 +7,17 @@
 
 import Foundation
 
-struct EntityChat: Codable {
+struct EntityChat: Codable, Identifiable {
+    var id: UUID
+    
     enum Role: String, Codable {
         case user
         case assistant
     }
-
     var role: Role
-    var content: String
+    
+    var message: String
+    var description: String?
+    
+    var voiceUrl: String?
 }

@@ -16,7 +16,9 @@ struct TalkView: View {
     
     @State var model = TalkModel()
     
-    @State var speaking = true
+    @State var speaking = false
+    @State var speakInput: String = ""
+    
     @State var inProgress = false
     @State var errorMessage: String?
     
@@ -35,6 +37,14 @@ struct TalkView: View {
 //                }
 //            }
             .preferredColorScheme(.dark)
+            .onAppear {
+                Task { @MainActor in
+                    try? await Task.sleep(for: .seconds(3))
+                    withAnimation {
+                        speaking = true
+                    }
+                }
+            }
     }
     
     @ViewBuilder
@@ -67,11 +77,12 @@ struct TalkView: View {
                     .edgesIgnoringSafeArea([.bottom])
                     .layoutPriority(1)
             }
-        }
-        .overlay(alignment: .top) {
-            if speaking {
-                SpeakAlertView()
+            
+            VStack {
+                Spacer()
+                controlView
             }
+            .edgesIgnoringSafeArea(.bottom)
         }
     }
     
@@ -84,30 +95,6 @@ struct TalkView: View {
 //                    .frame(height: sceneSize.height + safeAreaInsets.top + safeAreaInsets.bottom)
             }
             .ignoresSafeArea()
-    }
-}
-
-private struct SpeakAlertView: View {
-    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-    @State var count = 0
-
-    var body: some View {
-        HStack {
-            "microphone.circle.fill".iconButton(font: .headline, palette: .label1, .red)
-            Text("Speak now")
-                .font(.headline)
-                .foregroundStyle(.label1)
-        }
-        .padding()
-        .background(.regularMaterial)
-        .clipShape(.capsule)
-        .opacity(count % 3 == 2 ? 0 : 1)
-        .onReceive(timer) { val in
-            "\(val)".ld(T)
-            withAnimation {
-                count += 1
-            }
-        }
     }
 }
 
@@ -146,7 +133,7 @@ extension TalkView {
     
     func opponentChatView(_ chat: EntityChat, index: Int) -> some View {
         HStack {
-            Text("\(index) : " + chat.content)
+            Text("\(index) : " + chat.message)
                 .font(.title2)
                 .fontWeight(.medium)
                 .foregroundStyle(Color.label1)
@@ -162,7 +149,7 @@ extension TalkView {
     func userChatView(_ chat: EntityChat, index: Int) -> some View {
         HStack {
             Spacer()
-            Text("\(index) : " + chat.content)
+            Text("\(index) : " + chat.message)
                 .font(.title2)
                 .fontWeight(.medium)
                 .foregroundStyle(Color.white)
@@ -172,5 +159,69 @@ extension TalkView {
                 .clipShape(.rect(cornerRadius: 16))
         }
         .padding(.horizontal)
+    }
+}
+
+// MARK: - control view
+extension TalkView {
+    var controlView: some View {
+        VStack(spacing: 0) {
+            VStack {
+                if speaking {
+                    HStack {
+                        Spacer()
+                        hintButton
+                    }
+                    .overlay {
+                        SpeakAlertView()
+                    }
+                    Text(speakInput)
+                        .font(.title3)
+                        .foregroundStyle(Color.label1)
+                        .multilineTextAlignment(.center)
+                        .frame(minHeight: 64)
+                        .overlay {
+                            "ellipsis".iconButton(font: .title, monochrome: .label2)
+                                .symbolEffect(.variableColor)
+                        }
+                }
+            }
+            .padding(.top)
+            .padding(.horizontal)
+            
+            Color.clear.frame(height: safeAreaInsets.bottom)
+        }
+        .frame(maxWidth: .infinity)
+        .background(.ultraThinMaterial)
+        .clipShape(.rect(cornerRadius: 32))
+        .shadow(color: .black.opacity(0.3), radius: 4)
+    }
+    
+    var hintButton: some View {
+        "questionmark.circle.fill".iconButton(font: .title, palette: .label1, .appPrimary)
+    }
+}
+
+private struct SpeakAlertView: View {
+    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    @State var count = 0
+
+    var body: some View {
+        HStack {
+            "microphone.circle.fill".iconButton(font: .title3, palette: .label1, .red)
+            Text("Speak now")
+                .font(.headline)
+                .foregroundStyle(.label1)
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .background(.regularMaterial)
+        .clipShape(.capsule)
+        .opacity(count % 3 == 2 ? 0 : 1)
+        .onReceive(timer) { val in
+            withAnimation {
+                count += 1
+            }
+        }
     }
 }

@@ -37,11 +37,12 @@ struct HomeView: View {
             Color.background.ignoresSafeArea()
             VStack {
                 Text("home")
-                testView
+                //testView
             }
         }
     }
     
+    /*
     @State var showingPicker = false
     @State var selectedItem: PhotosPickerItem?
     @State var player: AVPlayer?
@@ -92,5 +93,6 @@ struct HomeView: View {
             }
         }
     }
+    */
 }
 
