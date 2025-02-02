@@ -10,7 +10,6 @@ import AVFoundation
 import Speech
 import SwiftUI
 
-
 /// A helper for transcribing speech to text using SFSpeechRecognizer and AVAudioEngine.
 actor SpeechRecognizer: ObservableObject {
     enum RecognizerError: Error {
@@ -29,7 +28,8 @@ actor SpeechRecognizer: ObservableObject {
         }
     }
     
-    @MainActor var transcript: String = ""
+    //@MainActor var transcript: String = ""
+    @Published @MainActor var transcript: String = ""
     
     private var audioEngine: AVAudioEngine?
     private var request: SFSpeechAudioBufferRecognitionRequest?
@@ -40,8 +40,8 @@ actor SpeechRecognizer: ObservableObject {
      Initializes a new speech recognizer. If this is the first time you've used the class, it
      requests access to the speech recognizer and the microphone.
      */
-    init() {
-        recognizer = SFSpeechRecognizer()
+    init(locale: Locale) {
+        recognizer = SFSpeechRecognizer(locale: locale)
         guard recognizer != nil else {
             transcribe(RecognizerError.nilRecognizer)
             return

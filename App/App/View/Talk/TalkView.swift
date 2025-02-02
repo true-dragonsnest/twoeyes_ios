@@ -15,9 +15,10 @@ struct TalkView: View {
     @Environment(\.safeAreaInsets) var safeAreaInsets
     
     @State var model = TalkModel()
+    @StateObject var stt = SpeechRecognizer(locale: Locale(identifier: "en-US"))
     
     @State var speaking = false
-    @State var speakInput: String = ""
+    @State var speakInput = ""
     
     @State var inProgress = false
     @State var errorMessage: String?
@@ -39,10 +40,8 @@ struct TalkView: View {
             .preferredColorScheme(.dark)
             .onAppear {
                 Task { @MainActor in
-                    try? await Task.sleep(for: .seconds(3))
-                    withAnimation {
-                        speaking = true
-                    }
+                    try? await Task.sleep(for: .seconds(1.5))
+                    startSpeak()
                 }
             }
     }
@@ -166,7 +165,7 @@ extension TalkView {
 extension TalkView {
     var controlView: some View {
         VStack(spacing: 0) {
-            VStack {
+            VStack(spacing: 16) {
                 if speaking {
                     HStack {
                         Spacer()
@@ -183,11 +182,15 @@ extension TalkView {
                         .overlay {
                             "ellipsis".iconButton(font: .title, monochrome: .label2)
                                 .symbolEffect(.variableColor)
+                                .opacity(speakInput.isEmpty ? 1 : 0)
                         }
                 }
             }
             .padding(.top)
             .padding(.horizontal)
+            .onChange(of: stt.transcript) { _, val in
+                speakInput = val
+            }
             
             Color.clear.frame(height: safeAreaInsets.bottom)
         }
@@ -199,6 +202,16 @@ extension TalkView {
     
     var hintButton: some View {
         "questionmark.circle.fill".iconButton(font: .title, palette: .label1, .appPrimary)
+    }
+    
+    @MainActor
+    func startSpeak() {
+        withAnimation {
+            speaking = true
+        }
+        
+        stt.resetTranscript()
+        stt.startTranscribing()
     }
 }
 
