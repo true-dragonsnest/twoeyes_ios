@@ -13,7 +13,7 @@ extension UseCases {
     enum Gpt {
         static let model = "gpt-4o-mini"
 
-        private struct Message: Codable {
+        struct Message: Codable {
             enum Role: String, Codable {
                 case system
                 case user
@@ -60,12 +60,11 @@ extension UseCases {
         
         static func completeChat(
             systemPrompt: String,
-            chats: [EntityChat],
+            messages: [Message],
             temperature: Double = 0.9,
             topP: Double = 1,
             maxTokens: Double = 2048
         ) async throws -> String {
-            let messages = chats.map { Message(role: $0.role == .assistant ? .assistant : .user, content: $0.message) }
             let systemMsg = Message(role: .system, content: systemPrompt)
             let request = Request(model: model,
                                   messages: [systemMsg] + messages,
@@ -74,7 +73,7 @@ extension UseCases {
                                   maxCompletionTokens: maxTokens)
     
             let http = HttpApiService()
-            await http.setCommomHeader(forKey: "Authorization", value: AppKey.gptAuthKey)
+            await http.setCommomHeader(forKey: "Authorization", value: AppEnvironment.Gpt.authKey)
             let response: Response = try await http.post(entity: request, to: "https://api.openai.com/v1/chat/completions", logLevel: 2)
             guard let content: String = response.choices[safe: 0]?.message.content else {
                 throw AppError.invalidResponse("invalid response : \(response)".le(T) )

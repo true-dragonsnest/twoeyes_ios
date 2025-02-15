@@ -21,7 +21,7 @@ enum BackEnd {
         var query: PostgrestBuilder? {
             switch self {
             case .fetch:
-                return Self.rootQueryBuilder?.select().order("updatedAt", ascending: false)
+                return Self.rootQueryBuilder?.select().order("updated_at", ascending: false)
             }
         }
     }
@@ -50,6 +50,7 @@ enum BackEnd {
         }
     }
     
+    /* FIXME: delete
     enum Notes {
         static let table = "notes"
         static var rootQueryBuilder: PostgrestQueryBuilder? {
@@ -100,20 +101,21 @@ enum BackEnd {
             }
         }
     }
+    */
     
     enum Storage {
-        case data
+        case userData
         
         var bucket: String {
             switch self {
-            case .data: return "talk-data"
+            case .userData: return "user-data"
             }
         }
         
         var endpoint: String {
             switch self {
-            case .data: return
-                "https://pub-617f65a224a8486fbda149467b24a700.r2.dev"
+            case .userData: return
+                "https://pub-e4545979b43b4c29bab599ad249c9b8f.r2.dev"
             }
         }
         

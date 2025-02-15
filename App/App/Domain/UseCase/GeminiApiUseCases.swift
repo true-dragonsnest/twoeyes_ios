@@ -33,7 +33,7 @@ extension UseCases {
                                           maxOutputTokens: 8192 * 4,
                                           responseMIMEType: responseMIMEType)
             let genModel = GenerativeModel(name: model,
-                                           apiKey: AppKey.geminiApiKey,
+                                           apiKey: AppEnvironment.Gemini.apiKey,
                                            generationConfig: config,
                                            systemInstruction: systemPrompt)
             let response = try await genModel.generateContent(userPrompt, image)
@@ -121,7 +121,7 @@ extension UseCases {
 //                    topK: 40
 //                )
 //            )
-//            let url = "https://generativelanguage.googleapis.com/v1beta/models/\(model):generateContent?key=\(AppKey.geminiApiKey)"
+//            let url = "https://generativelanguage.googleapis.com/v1beta/models/\(model):generateContent?key=\(AppEnvironment.geminiApiKey)"
 //
 //            // FIXME: use custom encoder without `convertFromSnakeCase` option
 //            let response: Response = try await HttpApiService.shared.post(entity: request, to: url, logLevel: 2)

@@ -19,4 +19,3 @@ struct EntityIntro: Codable {
 //    }
 //    var assets: Assets?
 }
-

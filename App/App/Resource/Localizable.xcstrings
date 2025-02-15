@@ -30,6 +30,7 @@
       }
     },
     "Add Note" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -40,6 +41,7 @@
       }
     },
     "AI flashcard" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -78,6 +80,7 @@
       }
     },
     "Are you sure to skip AI flashcard generation?" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -91,6 +94,7 @@
       "shouldTranslate" : false
     },
     "Cancel" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -101,6 +105,7 @@
       }
     },
     "Capture Image" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -111,6 +116,7 @@
       }
     },
     "Capture Note" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -121,6 +127,7 @@
       }
     },
     "Card List" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -131,6 +138,7 @@
       }
     },
     "Confirm" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -162,6 +170,7 @@
       }
     },
     "Edit Note" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -231,6 +240,7 @@
       }
     },
     "Input note title" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -251,6 +261,7 @@
       }
     },
     "My Notes" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -271,6 +282,7 @@
       }
     },
     "Note Image" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -281,6 +293,7 @@
       }
     },
     "Note title" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -291,6 +304,7 @@
       }
     },
     "Note type" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -352,6 +366,7 @@
       }
     },
     "Pick Image from Library" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -416,6 +431,7 @@
       "shouldTranslate" : false
     },
     "Skip" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -424,9 +440,6 @@
           }
         }
       }
-    },
-    "Speak now" : {
-
     },
     "SPLASH" : {
       "shouldTranslate" : false
@@ -443,6 +456,7 @@
       }
     },
     "Tags" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ko" : {
           "stringUnit" : {

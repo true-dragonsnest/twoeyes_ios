@@ -41,28 +41,6 @@ extension UseCases {
             }
             return user
         }
-        
-        static func notes(userId: UUID) async throws -> [EntityNote] {
-            let notes: [EntityNote]
-            do {
-                notes = try await SupabaseService.shared.fetch(from: BackEnd.Notes.list(userId).query)
-                return notes
-            } catch {
-                "failed to fetch notes in user \(userId): \(error)".le(T)
-                throw error
-            }
-        }
-        
-        static func noteCards(noteId: Int) async throws -> [EntityCard] {
-            let cards: [EntityCard]
-            do {
-                cards = try await SupabaseService.shared.fetch(from: BackEnd.Cards.fetch(noteId: noteId).query)
-            } catch {
-                "failed to fetch cards in note \(noteId): \(error)".le(T)
-                throw error
-            }
-            return cards
-        }
     }
 }
 

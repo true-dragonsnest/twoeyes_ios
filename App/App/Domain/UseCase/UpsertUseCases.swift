@@ -14,6 +14,7 @@ extension UseCases {
 }
 
 extension UseCases.Upsert {
+    /* FIXME: delete
     /// returns created `noteId`
     static func insert(note: EntityNote) async throws -> Int {
         do {
@@ -45,4 +46,5 @@ extension UseCases.Upsert {
             throw error
         }
     }
+    */
 }

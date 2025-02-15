@@ -7,21 +7,34 @@
 
 import SwiftUI
 
-enum AppKey {
-    static let supabaseProjectUrl = UseCases.ReadPlist.execute(fileName: "Keys", key: "supabaseProjectUrl")
-    static let supabaseApiKey = UseCases.ReadPlist.execute(fileName: "Keys", key: "supabaseApiKey")
+enum AppEnvironment {
+    enum Supabase {
+        static let projectUrl = UseCases.ReadPlist.execute(fileName: "Environment", key: "supabaseProjectUrl")
+        static let apiKey = UseCases.ReadPlist.execute(fileName: "Environment", key: "supabaseApiKey")
+    }
     
-    static let s3AccessKey = UseCases.ReadPlist.execute(fileName: "Keys", key: "s3AccessKey")
-    static let s3SecretKey = UseCases.ReadPlist.execute(fileName: "Keys", key: "s3SecretKey")
-    static let s3Endpoint = UseCases.ReadPlist.execute(fileName: "Keys", key: "s3Endpoint")
+    enum S3 {
+        static let accessKey = UseCases.ReadPlist.execute(fileName: "Environment", key: "s3AccessKey")
+        static let secretKey = UseCases.ReadPlist.execute(fileName: "Environment", key: "s3SecretKey")
+        static let endpoint = UseCases.ReadPlist.execute(fileName: "Environment", key: "s3Endpoint")
+    }
     
-    static let geminiApiKey: String = UseCases.ReadPlist.execute(fileName: "Keys", key: "geminiApiKey")
+    enum Gemini {
+        static let apiKey: String = UseCases.ReadPlist.execute(fileName: "Environment", key: "geminiApiKey")
+    }
     
-    static let gptAuthKey: String = UseCases.ReadPlist.execute(fileName: "Keys", key: "gptAuthKey")
+    enum Gpt {
+        static let authKey: String = UseCases.ReadPlist.execute(fileName: "Environment", key: "gptAuthKey")
+    }
     
-    static let elevenLabsApiKey: String = UseCases.ReadPlist.execute(fileName: "Keys", key: "elevenLabsApiKey")
-    static let playHtUserId: String = UseCases.ReadPlist.execute(fileName: "Keys", key: "playHtUserId")
-    static let playHtApiKey: String = UseCases.ReadPlist.execute(fileName: "Keys", key: "playHtApiKey")
+    enum ElevenLabs {
+        static let apiKey: String = UseCases.ReadPlist.execute(fileName: "Environment", key: "elevenLabsApiKey")
+    }
+    
+    enum PlayHt {
+        static let userId: String = UseCases.ReadPlist.execute(fileName: "Environment", key: "playHtUserId")
+        static let apiKey: String = UseCases.ReadPlist.execute(fileName: "Environment", key: "playHtApiKey")
+    }
 }
 
 enum AppConst {

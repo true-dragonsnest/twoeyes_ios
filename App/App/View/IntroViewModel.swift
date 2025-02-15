@@ -30,11 +30,11 @@ class IntroViewModel: ObservableObject {
         Task {
             do {
                 "trying to setup Supabase backend...".ld(T)
-                try await SupabaseService.setup(.init(projectUrl: AppKey.supabaseProjectUrl, apiKey: AppKey.supabaseApiKey))
+                try await SupabaseService.setup(.init(projectUrl: AppEnvironment.Supabase.projectUrl, apiKey: AppEnvironment.Supabase.apiKey))
                 await AssetRepository.shared.loadIntro()
                 
                 "trying to setup S3 backend...".ld(T)
-                S3StorageService.setup(.init(accessKey: AppKey.s3AccessKey, secretKey: AppKey.s3SecretKey, endpoint: AppKey.s3Endpoint))
+                S3StorageService.setup(.init(accessKey: AppEnvironment.S3.accessKey, secretKey: AppEnvironment.S3.secretKey, endpoint: AppEnvironment.S3.endpoint))
                 try? await S3StorageService.shared.setup()
                 
                 "trying to start to observe auth...".ld(T)

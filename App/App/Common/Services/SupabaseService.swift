@@ -56,7 +56,7 @@ public actor SupabaseService {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         decoder.dateDecodingStrategy = .formatted(Self.dateFormatter)
-        //decoder.keyDecodingStrategy = .convertFromSnakeCase
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
         return decoder
     }()
     
@@ -64,7 +64,7 @@ public actor SupabaseService {
         let encoder = JSONEncoder()
         //decoder.dateDecodingStrategy = .iso8601
         encoder.dateEncodingStrategy = .formatted(Self.dateFormatter)
-        //encoder.keyEncodingStrategy = .convertToSnakeCase
+        encoder.keyEncodingStrategy = .convertToSnakeCase
         return encoder
     }()
     
@@ -288,11 +288,11 @@ public extension Date {
 public extension Decodable {
     static func map(from supabaseDict: [String: AnyJSON]) -> Self? {
         var dict = supabaseDict.mapValues(\.value)
-        if let val = supabaseDict["createdAt"]?.stringValue, let date = SupabaseService.dateFormatter.date(from: val) {
-            dict["createdAt"] = date.timeIntervalSince1970 * 1000
+        if let val = supabaseDict["created_at"]?.stringValue, let date = SupabaseService.dateFormatter.date(from: val) {
+            dict["created_at"] = date.timeIntervalSince1970 * 1000
         }
-        if let val = supabaseDict["updatedAt"]?.stringValue, let date = SupabaseService.dateFormatter.date(from: val) {
-            dict["updatedAt"] = date.timeIntervalSince1970 * 1000
+        if let val = supabaseDict["updated_at"]?.stringValue, let date = SupabaseService.dateFormatter.date(from: val) {
+            dict["updated_at"] = date.timeIntervalSince1970 * 1000
         }
         do {
             let entity: Self = try Self.decode(fromJsonDic: dict, decoder: SupabaseService.shared.decoder)

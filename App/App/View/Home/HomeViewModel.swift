@@ -26,7 +26,7 @@ extension HomeViewModel {
         }
         
         enum ViewType {
-            case talk
+            case dummy
         }
         
         let id = UUID()
