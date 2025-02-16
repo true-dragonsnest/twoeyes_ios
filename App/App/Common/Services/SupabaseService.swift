@@ -48,13 +48,13 @@ public actor SupabaseService {
         let formatter = DateFormatter()
         formatter.timeZone = .init(secondsFromGMT: 0)
         //formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
         return formatter
     }()
     
     nonisolated public lazy var decoder: JSONDecoder = {
         let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
+        //decoder.dateDecodingStrategy = .iso8601
         decoder.dateDecodingStrategy = .formatted(Self.dateFormatter)
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         return decoder
