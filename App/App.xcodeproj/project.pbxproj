@@ -23,6 +23,7 @@
 		B55906EA2D17264B00CC17F2 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = B55906E92D17264B00CC17F2 /* FirebaseMessaging */; };
 		B55907312D1B038900CC17F2 /* GoogleGenerativeAI in Frameworks */ = {isa = PBXBuildFile; productRef = B55907302D1B038900CC17F2 /* GoogleGenerativeAI */; };
 		B5E09A922D33B88100070103 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = B5E09A912D33B88100070103 /* MarkdownUI */; };
+		B5F1D7282D620AE10090F652 /* Reeeed in Frameworks */ = {isa = PBXBuildFile; productRef = B5F1D7272D620AE10090F652 /* Reeeed */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -56,6 +57,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B55907312D1B038900CC17F2 /* GoogleGenerativeAI in Frameworks */,
+				B5F1D7282D620AE10090F652 /* Reeeed in Frameworks */,
 				B55906C42D17093C00CC17F2 /* Supabase in Frameworks */,
 				B55906B82D1708CB00CC17F2 /* AWSS3 in Frameworks */,
 				B55906EA2D17264B00CC17F2 /* FirebaseMessaging in Frameworks */,
@@ -137,6 +139,7 @@
 				B55906E92D17264B00CC17F2 /* FirebaseMessaging */,
 				B55907302D1B038900CC17F2 /* GoogleGenerativeAI */,
 				B5E09A912D33B88100070103 /* MarkdownUI */,
+				B5F1D7272D620AE10090F652 /* Reeeed */,
 			);
 			productName = App;
 			productReference = B53089352D16F1C60014D4AD /* App.app */;
@@ -177,6 +180,7 @@
 				B55906D42D170D7C00CC17F2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				B559072F2D1B038900CC17F2 /* XCRemoteSwiftPackageReference "generative-ai-swift" */,
 				B5E09A902D33B88100070103 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */,
+				B5F1D7262D620AE10090F652 /* XCRemoteSwiftPackageReference "reeeed" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B53089362D16F1C60014D4AD /* Products */;
@@ -513,6 +517,14 @@
 				minimumVersion = 2.4.1;
 			};
 		};
+		B5F1D7262D620AE10090F652 /* XCRemoteSwiftPackageReference "reeeed" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/nate-parrott/reeeed";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -595,6 +607,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B5E09A902D33B88100070103 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */;
 			productName = MarkdownUI;
+		};
+		B5F1D7272D620AE10090F652 /* Reeeed */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B5F1D7262D620AE10090F652 /* XCRemoteSwiftPackageReference "reeeed" */;
+			productName = Reeeed;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

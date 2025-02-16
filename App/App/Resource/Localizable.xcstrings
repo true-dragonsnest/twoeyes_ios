@@ -7,46 +7,19 @@
     "#" : {
       "shouldTranslate" : false
     },
-    "✨ AI Gen" : {
+    "add.news.prompt" : {
       "extractionState" : "manual",
       "localizations" : {
-        "ko" : {
+        "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "✨AI 생성"
+            "value" : "What news would you like to share with the world?"
           }
-        }
-      }
-    },
-    "🔄 Re-Gen" : {
-      "extractionState" : "manual",
-      "localizations" : {
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "🔄 다시 생성"
-          }
-        }
-      }
-    },
-    "Add Note" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "노트 추가"
-          }
-        }
-      }
-    },
-    "AI flashcard" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AI 플래시 카드"
+            "value" : "어떤 뉴스를 세상에 알려주실 껀가요?"
           }
         }
       }
@@ -68,28 +41,6 @@
         }
       }
     },
-    "Apply Changes" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "변경사항 적용"
-          }
-        }
-      }
-    },
-    "Are you sure to skip AI flashcard generation?" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "정말로 AI 플래시 카드 생성을 건너뛰시겠습니까?"
-          }
-        }
-      }
-    },
     "banner area" : {
       "shouldTranslate" : false
     },
@@ -100,39 +51,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "취소"
-          }
-        }
-      }
-    },
-    "Capture Image" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "촬영하기"
-          }
-        }
-      }
-    },
-    "Capture Note" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "노트 촬영"
-          }
-        }
-      }
-    },
-    "Card List" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "카드 목록"
           }
         }
       }
@@ -169,45 +87,12 @@
         }
       }
     },
-    "Edit Note" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "노트 편집"
-          }
-        }
-      }
-    },
     "Explore" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "탐색"
-          }
-        }
-      }
-    },
-    "Generating AI flashcards..." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AI 플래시 카드를 생성중 입니다..."
-          }
-        }
-      }
-    },
-    "History" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "학습 이력"
           }
         }
       }
@@ -239,17 +124,6 @@
         }
       }
     },
-    "Input note title" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "노트 제목을 입력하세요"
-          }
-        }
-      }
-    },
     "Logout" : {
       "localizations" : {
         "ko" : {
@@ -260,107 +134,12 @@
         }
       }
     },
-    "My Notes" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "내 노트"
-          }
-        }
-      }
-    },
     "Next" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "다음"
-          }
-        }
-      }
-    },
-    "Note Image" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "노트 이미지"
-          }
-        }
-      }
-    },
-    "Note title" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "노트 제목"
-          }
-        }
-      }
-    },
-    "Note type" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "노트 종류"
-          }
-        }
-      }
-    },
-    "note.ai.generation.guide" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AI creates flashcards based on the content of your notes.\nYou can use the flashcards to study the content of your notes and also do self-tests."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AI가 노트의 내용을 바탕으로 플래시 카드를 생성합니다.\n플래시 카드를 사용해서 노트의 내용을 학습 할 수 있고, 셀프 테스트도 할 수 있습니다."
-          }
-        }
-      }
-    },
-    "note.ai.generation.user.prompt.guide" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Please explain the rules for generating problems to the AI."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "문제 생성을 위한 규칙을 AI에게 설명해주세요"
-          }
-        }
-      }
-    },
-    "note.capture.guide" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Take a photo of your note.\nYou can generate problems with AI for self-study and share them with the community."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "노트 필기의 사진을 촬영하세요.\nAI로 문제를 생성해서 자습할 수 있고, 커뮤니티에 공유할 수 있습니다."
           }
         }
       }
@@ -382,17 +161,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "아이디를 입력하세요"
-          }
-        }
-      }
-    },
-    "Post Note" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "노트 게시"
           }
         }
       }
@@ -443,39 +211,6 @@
     },
     "SPLASH" : {
       "shouldTranslate" : false
-    },
-    "Study History" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "학습 이력"
-          }
-        }
-      }
-    },
-    "Tags" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "태그"
-          }
-        }
-      }
-    },
-    "Vocabulary" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "단어장"
-          }
-        }
-      }
     }
   },
   "version" : "1.0"
