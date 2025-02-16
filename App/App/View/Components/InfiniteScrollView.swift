@@ -137,13 +137,15 @@ private extension UIView {
 }
 
 
-// MARK: - preview
+// MARK: - auto scroll + preview
 private struct CardCarouselView: View {
     let cards: [String] = ["111111", "222222", "333333", "444444", "555555", "666666"]
     
     @State var scrollPosition: ScrollPosition = .init()
     @State var currentScrollOffset: CGFloat = 0
     @State var timer = Timer.publish(every: 0.01, on: .current, in: .default).autoconnect()
+    
+    @State var scrollPhase: ScrollPhase = .idle
     
     var body: some View {
         VStack {
@@ -161,19 +163,31 @@ private struct CardCarouselView: View {
             }
             .scrollPosition($scrollPosition)
             .scrollIndicators(.hidden)
+            .scrollClipDisabled()
             .containerRelativeFrame(.vertical) { value, _ in
                 value * 0.45
+            }
+            .onScrollPhaseChange { _, newPhase in
+                scrollPhase = newPhase
             }
             .onScrollGeometryChange(for: CGFloat.self) {
                 $0.contentOffset.x + $0.contentInsets.leading
             } action: { oldValue, newValue in
                 currentScrollOffset = newValue
+                
+                if scrollPhase != .decelerating || scrollPhase != .animating {
+                    // FIXME: 220 to item width
+                    let activeIndex = Int((currentScrollOffset / 220).rounded()) % cards.count
+                }
             }
         }
         .safeAreaPadding(15)
         .onReceive(timer) { _ in
             currentScrollOffset += 0.35
             scrollPosition.scrollTo(x: currentScrollOffset)
+        }
+        .onDisappear {
+            timer.upstream.connect().cancel()
         }
     }
     

@@ -41,7 +41,7 @@ struct MainView: View {
                 }
                 .tag(MainViewModel.Tab.explore)
 
-            HomeView()
+            AddNewsView()
                 .tabItem {
                     Image(systemName: "house.fill")
                     Text("Home")
