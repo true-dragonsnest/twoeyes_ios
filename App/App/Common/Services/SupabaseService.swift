@@ -54,19 +54,20 @@ public actor SupabaseService {
     
     nonisolated public lazy var decoder: JSONDecoder = {
         let decoder = JSONDecoder()
-        //decoder.dateDecodingStrategy = .iso8601
+//        //decoder.dateDecodingStrategy = .iso8601
         decoder.dateDecodingStrategy = .formatted(Self.dateFormatter)
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         return decoder
     }()
     
-    nonisolated public lazy var encoder: JSONEncoder = {
-        let encoder = JSONEncoder()
-        //decoder.dateDecodingStrategy = .iso8601
-        encoder.dateEncodingStrategy = .formatted(Self.dateFormatter)
-        encoder.keyEncodingStrategy = .convertToSnakeCase
-        return encoder
-    }()
+// FIXME: not used. delete
+//    nonisolated public lazy var encoder: JSONEncoder = {
+//        let encoder = JSONEncoder()
+//        //decoder.dateDecodingStrategy = .iso8601
+//        encoder.dateEncodingStrategy = .formatted(Self.dateFormatter)
+//        encoder.keyEncodingStrategy = .convertToSnakeCase
+//        return encoder
+//    }()
     
     private func initSDKIfNeeded() throws {
         guard client == nil else {
@@ -80,7 +81,16 @@ public actor SupabaseService {
             throw AppError.invalidRequest("invalid project URL : \(config.projectUrl)".le(T))
         }
         
-        clientPub.send(SupabaseClient(supabaseURL: projectUrl, supabaseKey: config.apiKey))
+        let options = SupabaseClientOptions(db: .init(
+            encoder: {
+                let encoder = JSONEncoder()
+                encoder.keyEncodingStrategy = .convertToSnakeCase
+                encoder.dateEncodingStrategy = .formatted(Self.dateFormatter)
+                return encoder
+            }()
+        ))
+        
+        clientPub.send(SupabaseClient(supabaseURL: projectUrl, supabaseKey: config.apiKey, options: options))
         "Supabase inited".ld(T)
     }
     
@@ -112,8 +122,8 @@ public actor SupabaseService {
         guard let client else {
             throw AppError.notInited()
         }
-        let channel = await client.channel(channelName)
-        let changeStream = await channel.postgresChange(AnyAction.self, schema: "public", table: name, filter: filter)
+        let channel = client.channel(channelName)
+        let changeStream = channel.postgresChange(AnyAction.self, schema: "public", table: name, filter: filter)
         
         "starting observation to \(name) as channel \(channelName)".ld(T)
         await channel.subscribe()
