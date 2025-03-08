@@ -41,6 +41,16 @@ extension UseCases {
             }
             return user
         }
+        
+        static func articles() async throws -> [EntityArticle] {
+            do {
+                let articles: [EntityArticle] = try await SupabaseService.shared.fetch(from: BackEnd.Articles.fetch.query)
+                return articles
+            } catch {
+                "failed to fetch articles : \(error)".le(T)
+                throw error
+            }
+        }
     }
 }
 

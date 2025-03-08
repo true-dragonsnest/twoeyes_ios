@@ -13,7 +13,7 @@ class MainViewModel: ObservableObject {
         case home
         case settings
     }
-    @Published var tab: Tab = .home
+    @Published var tab: Tab = .explore
 }
 
 struct MainView: View {
@@ -34,7 +34,7 @@ struct MainView: View {
     
     var tabView: some View {
         TabView(selection: $viewModel.tab) {
-            Text("Explore")
+            ExploreView()
                 .tabItem {
                     Image(systemName: "safari.fill")
                     Text("Explore")

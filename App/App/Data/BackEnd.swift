@@ -50,6 +50,22 @@ enum BackEnd {
         }
     }
     
+    enum Articles {
+        static let table = "articles"
+        static var rootQueryBuilder: PostgrestQueryBuilder? {
+            SupabaseService.shared.client?.from(Self.table)
+        }
+        
+        case fetch
+        
+        var query: PostgrestBuilder? {
+            switch self {
+            case .fetch:
+                return Self.rootQueryBuilder?.select().order("updated_at", ascending: false)
+            }
+        }
+    }
+    
     /* FIXME: delete
     enum Notes {
         static let table = "notes"

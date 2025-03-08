@@ -22,6 +22,7 @@ struct AddNewsView: View {
             Color.background.ignoresSafeArea()
             VStack(spacing: 40) {
                 Text("Share a news")
+                    .font(.headline)
                     .fontWeight(.semibold)
                     .foregroundStyle(Color.label2)
                     .blurOpacityEffect(initialAnimation)
