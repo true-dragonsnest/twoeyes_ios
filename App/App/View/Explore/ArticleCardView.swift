@@ -16,43 +16,6 @@ struct ArticleCardView: View {
     
     var body: some View {
         cardView
-//            .overlay(
-//                ZStack {
-//                    // Horizontal swipe overlays
-//                    Image(systemName: "hand.thumbsdown.circle")
-//                        .symbolRenderingMode(.palette)
-//                        .foregroundStyle(.label1, .red)
-//                        .font(.system(size: 100))
-//                        .opacity(swipeStatus == .left ? min(abs(translation.width) / 100, 1.0) : 0)
-//                        .padding(.leading, 16)
-//                        .frame(maxWidth: .infinity, alignment: .leading)
-//                    
-//                    Image(systemName: "hand.thumbsup.circle")
-//                        .symbolRenderingMode(.palette)
-//                        .foregroundStyle(.label1, .green)
-//                        .font(.system(size: 100))
-//                        .opacity(swipeStatus == .right ? min(translation.width / 100, 1.0) : 0)
-//                        .padding(.trailing, 16)
-//                        .frame(maxWidth: .infinity, alignment: .trailing)
-//                    
-//                    // Vertical swipe overlays
-//                    Image(systemName: "arrow.up.circle")
-//                        .symbolRenderingMode(.palette)
-//                        .foregroundStyle(.label1, .blue)
-//                        .font(.system(size: 100))
-//                        .opacity(swipeStatus == .up ? min(abs(translation.height) / 100, 1.0) : 0)
-//                        .padding(.top, 16)
-//                        .frame(maxHeight: .infinity, alignment: .top)
-//                    
-//                    Image(systemName: "arrow.down.circle")
-//                        .symbolRenderingMode(.palette)
-//                        .foregroundStyle(.label1, .purple)
-//                        .font(.system(size: 100))
-//                        .opacity(swipeStatus == .down ? min(abs(translation.height) / 100, 1.0) : 0)
-//                        .padding(.bottom, 16)
-//                        .frame(maxHeight: .infinity, alignment: .bottom)
-//                }
-//            )
     }
     
     var cardView: some View {

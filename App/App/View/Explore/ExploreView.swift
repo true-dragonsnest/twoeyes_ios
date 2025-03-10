@@ -18,6 +18,13 @@ struct ExploreView: View {
     @State var selectedIndex = 0
     @State var containerSize = CGSize.zero
     
+    @State var verticalOffset: CGFloat = 0
+    @State var hasPassedReactionThreshold = false
+    
+    let minReactionDistance: CGFloat = 50
+    let reactionThreshold: CGFloat = 150
+    let reactionImpact = UIImpactFeedbackGenerator(style: .heavy)
+    
     var body: some View {
         contentView
     }
@@ -40,6 +47,10 @@ struct ExploreView: View {
                             .scaleEffect(scale(for: index))
                             .rotationEffect(.degrees(rotation(for: index)))
                             .shadow(color: shadow(for: index), radius: 30, y: 20)
+                            .offset(y: index == selectedIndex ? verticalOffset : 0)
+                            .overlay {
+                                likeOverlay
+                            }
                     }
                 }
             }
@@ -47,17 +58,55 @@ struct ExploreView: View {
                 containerSize = $0
             }
             .highPriorityGesture(gesture)
+            .sensoryFeedback(.impact(flexibility: .rigid), trigger: selectedIndex)
         }
+    }
+    
+    @ViewBuilder
+    var likeOverlay: some View {
+        let amount = min((abs(verticalOffset) - minReactionDistance) / reactionThreshold, 1.0)
+        ZStack {
+            Image(systemName: "hand.thumbsup.circle")
+                .symbolRenderingMode(.palette)
+                .foregroundStyle(.label1, .green)
+                .font(.system(size: 100))
+                .opacity(verticalOffset < -minReactionDistance ? amount : 0)
+                .scaleEffect(amount)
+            
+            Image(systemName: "hand.thumbsdown.circle")
+                .symbolRenderingMode(.palette)
+                .foregroundStyle(.label1, .red)
+                .font(.system(size: 100))
+                .opacity(verticalOffset > minReactionDistance ? amount : 0)
+                .scaleEffect(amount)
+        }
+        .offset(y: verticalOffset)
     }
     
     var gesture: some Gesture {
         DragGesture(minimumDistance: 5)
             .onChanged { value in
                 self.dragProgress = -(value.translation.width / containerSize.width)
+                
+                let verticalAmount = value.translation.height
+                self.verticalOffset = verticalAmount
+                
+                checkReactionThresholdCrossing()
             }
             .onEnded { value in
                 snapToNearestIndex()
+                hasPassedReactionThreshold = false
             }
+    }
+    
+    func checkReactionThresholdCrossing() {
+        let offset = abs(verticalOffset)
+        if offset > reactionThreshold && !hasPassedReactionThreshold {
+            hasPassedReactionThreshold = true
+            reactionImpact.impactOccurred()
+        } else if offset < reactionThreshold && hasPassedReactionThreshold {
+            hasPassedReactionThreshold = false
+        }
     }
     
     func snapToNearestIndex() {
@@ -65,12 +114,12 @@ struct ExploreView: View {
         if abs(dragProgress) < threshold {
             withAnimation(.bouncy) {
                 self.dragProgress = 0.0
+                self.verticalOffset = 0
             }
         } else {
             let direction = dragProgress < 0 ? -1 : 1
             withAnimation(.smooth(duration: 0.25)) {
                 go(to: selectedIndex + direction)
-                self.dragProgress = 0.0
             }
         }
     }
@@ -85,6 +134,7 @@ struct ExploreView: View {
             self.selectedIndex = index
         }
         self.dragProgress = 0
+        self.verticalOffset = 0
     }
     
     var progressIndex: Double {
