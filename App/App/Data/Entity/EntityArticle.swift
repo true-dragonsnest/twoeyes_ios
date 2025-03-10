@@ -27,6 +27,9 @@ struct EntityArticle: Codable {
     var keywords: [String]?
     var likeKeywords: [String]?
     var hateKeywords: [String]?
+    
+    // internal use only
+    var index: Int?
 }
 
 extension EntityArticle: Identifiable, Hashable {}

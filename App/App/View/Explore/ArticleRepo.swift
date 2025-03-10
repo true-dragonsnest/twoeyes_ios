@@ -21,7 +21,12 @@ class ArticleRepo {
     func fetch() {
         Task { @MainActor in
             do {
-                articles = try await UseCases.Fetch.articles()
+                let articles = try await UseCases.Fetch.articles()
+                self.articles = (0..<articles.count).map { i in
+                    var updated = articles[i]
+                    updated.index = i
+                    return updated
+                }
             } catch {
                 ContentViewModel.shared.error = error
             }
