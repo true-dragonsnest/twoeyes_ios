@@ -50,38 +50,91 @@ struct ArticleCardView: View {
     
     var contentView: some View {
         VStack {
-            if let imageUrl = URL(fromString: article.image) {
-                let width = max(0, self.width - 4 * 2)
-                KFImage(imageUrl)
-                    .backgroundDecode(true)
-                    .resizable()
-                    .placeholder {
-                        Color.red
-                    }
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: width, height: width)
-                    .clipShape(.rect(cornerRadius: 20))
-                    .padding(4)
-            }
+            imageView
+                .overlay(alignment: .bottom) {
+                    subjectView
+                        .padding()
+                }
             
-            titleView
+            summaryView
                 .padding(.horizontal)
+                .padding(.top, 8)
             
             Spacer()
+            
+            sourceView
+                .padding(.horizontal)
+                .padding(.bottom, 8)
         }
         .aspectRatio(9 / 16, contentMode: .fit)
     }
     
-    var titleView: some View {
+    @ViewBuilder
+    var imageView: some View {
+        if let imageUrl = URL(fromString: article.image) {
+            let width = max(0, self.width - 4 * 2)
+            KFImage(imageUrl)
+                .backgroundDecode(true)
+                .resizable()
+                .placeholder {
+                    Color.red
+                }
+                .aspectRatio(contentMode: .fill)
+                .frame(width: width, height: width)
+                .clipShape(.rect(cornerRadius: 20))
+                .padding(4)
+        }
+    }
+    
+    @ViewBuilder
+    var subjectView: some View {
+        if let subject = article.mainSubject {
+            HStack {
+                if let sentimentIcon = article.sentiment?.icon {
+                    sentimentIcon.iconButton(font: .headline, monochrome: article.sentiment?.color ?? .clear)
+                }
+                Text(subject)
+                    .font(.headline)
+                    .foregroundStyle(.secondary)
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 8)
+            .background((article.sentiment?.color ?? .clear).opacity(0.1))
+            .background(.ultraThinMaterial)
+            .clipShape(.rect(cornerRadius: 12))
+        }
+    }
+    
+    @ViewBuilder
+    var summaryView: some View {
+        if let summary = article.summary {
+            HStack {
+                Text(summary)
+                    .font(.title2)
+                    .multilineTextAlignment(.leading)
+                Spacer()
+            }
+        }
+    }
+    
+    var sourceView: some View {
         HStack {
-            Text(article.title ?? "")
-                .font(.title2)
-                .bold()
-                .foregroundStyle(.label1)
             Spacer()
+            if let source = article.source {
+                Text(source)
+                    .font(.footnote)
+                    .bold()
+                    .foregroundStyle(.label2)
+            }
+            
+            Text(article.title ?? "")
+                .font(.footnote)
+                .foregroundStyle(.label2)
+                .lineLimit(1)
         }
     }
 }
+
 
 /*
 extension ArticleCardView {
@@ -127,3 +180,23 @@ extension UIImage {
     }
 }
 */
+
+#Preview {
+    ArticleCardView(article: entity)
+}
+
+
+private let entity = EntityArticle(
+    id: 0,
+    createdAt: .now,
+    updatedAt: .now,
+    title: "달러·원, 관세 여파로 낙폭 확대...1,453원대 마감",
+    url: "https://www.ytn.co.kr/_ln/0104_202504040413011740",
+    image: "https://image.ytn.co.kr/general/jpg/2025/0404/202504040413011740_t.jpg",
+    description: "트럼프 미국 대통령의 상호 관세 폭탄으로 미국의 경기 침체 우려가 고조되면서 달러 약세를 끌어내 달러-원 환율이 야간 시간대 낙폭을 더욱 확대해 1,453원대에 마감했...",
+    summary: "트럼프 미국 대통령의 상호 관세 폭탄으로 미국의 경기 침체 우려가 고조되면서 달러 약세가 발생하여 달러-원 환율이 1,453원대에 마감했다. 달러-원 환율은 전날보다 13.1원 하락했으며, 미국의 경기 침체 공포로 인해 한때 1,450.5원까지 떨어졌다. 주요 통화에 대한 달러 가치는 2.5% 급락하며 101.261로 내려갔고, 다른 통화 환율도 변동을 보였다.",
+    author: .init(),
+    mainSubject: "트럼프 관세로 인한 달러 약세",
+    sentiment: .negative,
+    source: "YTN"
+)
