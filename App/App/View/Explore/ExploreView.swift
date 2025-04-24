@@ -88,8 +88,9 @@ struct ExploreView: View {
             .onChanged { value in
                 self.dragProgress = -(value.translation.width / containerSize.width)
                 
-                let verticalAmount = value.translation.height
-                self.verticalOffset = verticalAmount
+// FUCK
+//                let verticalAmount = value.translation.height
+//                self.verticalOffset = verticalAmount
                 
                 checkReactionThresholdCrossing()
             }
@@ -109,6 +110,7 @@ struct ExploreView: View {
         }
     }
     
+    // FIXME: here, Invalid sample AnimatablePair
     func snapToNearestIndex() {
         let threshold = 0.3
         if abs(dragProgress) < threshold {
