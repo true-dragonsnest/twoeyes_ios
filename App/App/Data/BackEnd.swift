@@ -56,12 +56,28 @@ enum BackEnd {
             SupabaseService.shared.client?.from(Self.table)
         }
         
-        case fetch
+        case fetch(start: Int?, limit: Int)
         
         var query: PostgrestBuilder? {
             switch self {
-            case .fetch:
-                return Self.rootQueryBuilder?.select().order("updated_at", ascending: false)
+            case let .fetch(start, limit):
+                var ret = Self.rootQueryBuilder?.select()
+                if let start {
+                    ret = ret?.lt("id", value: start)
+                }
+                return ret?.order("id", ascending: false).limit(limit)
+            }
+        }
+    }
+    
+    enum Functions {
+        static let endpoint = "https://bgnymsxduwfrauidowxx.supabase.co/functions/v1"
+        
+        case addArticle
+        
+        var url: String {
+            switch self {
+            case .addArticle: Self.endpoint + "/add-article"
             }
         }
     }

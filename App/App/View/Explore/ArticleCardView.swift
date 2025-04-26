@@ -10,9 +10,12 @@ import Kingfisher
 
 struct ArticleCardView: View {
     let article: EntityArticle
+    let selected: Bool
     
     @State var width: CGFloat = 0
     @State var bgColor: Color = .clear
+    
+    @State var showSummary = false
     
     var body: some View {
         cardView
@@ -42,6 +45,17 @@ struct ArticleCardView: View {
             }
             .readSize {
                 width = $0.width
+            }
+            .onChange(of: selected) { _, val in
+                if val {
+                    withAnimation(.smooth(duration: 0.5)) {
+                        showSummary = true
+                    }
+                } else {
+                    withAnimation(.smooth(duration: 0.5)) {
+                        showSummary = false
+                    }
+                }
             }
             .onAppear {
                 //loadColorIfNeeded()
@@ -90,8 +104,12 @@ struct ArticleCardView: View {
     var subjectView: some View {
         if let subject = article.mainSubject {
             HStack {
+//                if let sentimentIcon = article.sentiment?.icon {
+//                    sentimentIcon.iconButton(font: .headline, monochrome: article.sentiment?.color ?? .clear)
+//                }
                 if let sentimentIcon = article.sentiment?.icon {
-                    sentimentIcon.iconButton(font: .headline, monochrome: article.sentiment?.color ?? .clear)
+                    Text(sentimentIcon)
+                        .font(.title)
                 }
                 Text(subject)
                     .font(.headline)
@@ -107,13 +125,13 @@ struct ArticleCardView: View {
     
     @ViewBuilder
     var summaryView: some View {
-        if let summary = article.summary {
-            HStack {
-                Text(summary)
-                    .font(.title2)
-                    .multilineTextAlignment(.leading)
-                Spacer()
-            }
+        if let summary = article.summary, showSummary {
+            Text(summary)
+                .customAttribute(EmphasisAttribute())
+                .font(.title2)
+                .multilineTextAlignment(.leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .transition(AppearanceTextTransition())
         }
     }
     
@@ -182,7 +200,7 @@ extension UIImage {
 */
 
 #Preview {
-    ArticleCardView(article: entity)
+    ArticleCardView(article: entity, selected: true)
 }
 
 
@@ -193,10 +211,10 @@ private let entity = EntityArticle(
     title: "달러·원, 관세 여파로 낙폭 확대...1,453원대 마감",
     url: "https://www.ytn.co.kr/_ln/0104_202504040413011740",
     image: "https://image.ytn.co.kr/general/jpg/2025/0404/202504040413011740_t.jpg",
+    author: .init(),
+    source: "YTN",
     description: "트럼프 미국 대통령의 상호 관세 폭탄으로 미국의 경기 침체 우려가 고조되면서 달러 약세를 끌어내 달러-원 환율이 야간 시간대 낙폭을 더욱 확대해 1,453원대에 마감했...",
     summary: "트럼프 미국 대통령의 상호 관세 폭탄으로 미국의 경기 침체 우려가 고조되면서 달러 약세가 발생하여 달러-원 환율이 1,453원대에 마감했다. 달러-원 환율은 전날보다 13.1원 하락했으며, 미국의 경기 침체 공포로 인해 한때 1,450.5원까지 떨어졌다. 주요 통화에 대한 달러 가치는 2.5% 급락하며 101.261로 내려갔고, 다른 통화 환율도 변동을 보였다.",
-    author: .init(),
     mainSubject: "트럼프 관세로 인한 달러 약세",
     sentiment: .negative,
-    source: "YTN"
 )

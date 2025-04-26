@@ -10,9 +10,68 @@ import SwiftUI
 private let T = #fileID
 
 struct ExploreView: View {
+    var body: some View {
+        FullscreenList()
+    }
+}
+
+// MARK: - full screen list
+private struct FullscreenList: View {
+    @State var list = PaginatedList<EntityArticle, Int>(pageSize: 10, triggerOffset: 5) { nextToken, pageSize in
+        let articles = try await UseCases.Articles.fetch(from: nextToken, limit: pageSize)
+        return (articles, articles.last?.id)
+    }
+    
+    @State var scrollPosition = ScrollPosition(id: 0)
+    @State var height: CGFloat = 1
+    
+    var body: some View {
+        if list.items.isEmpty {
+            ProgressView()
+                .progressViewStyle(CircularProgressViewStyle(tint: .label3))
+                .onAppear {
+                    list.prefetchIfNeeded(at: 0)
+                }
+        } else {
+            content
+        }
+    }
+    
+    var content: some View {
+        ScrollView(.vertical, showsIndicators: false) {
+            LazyVStack(spacing: 0) {
+                ForEach(Array(list.items.enumerated()), id: \.0) { index, article in
+                    ArticleCardView(article: article, selected: index == scrollPosition.viewID(type: Int.self))
+                        .frame(maxWidth: .infinity)
+                        .frame(height: height)
+                        .scrollTransition(axis: .vertical) { content, phase in
+                            content
+                                .scaleEffect(1 - abs(phase.value * 0.05))
+                                .opacity(1 - abs(phase.value * 0.7))
+                        }
+                        .onAppear {
+                            list.prefetchIfNeeded(at: index)
+                        }
+                        .id(index)
+                }
+            }
+            .scrollTargetLayout()
+        }
+        .contentMargins(.top, 16)
+        .scrollTargetBehavior(.viewAligned(limitBehavior: .alwaysByOne))
+        .readSize { height = $0.height - 60 }
+        .scrollPosition($scrollPosition)
+    }
+}
+
+// MARK: - card list
+private struct CardListView: View {
     @Environment(\.safeAreaInsets) var safeAreaInsets
     
-    @State var repo: ArticleRepo = .init()
+    @State var list = PaginatedList<EntityArticle, Int>(pageSize: 10, triggerOffset: 5) { nextToken, pageSize in
+        let articles = try await UseCases.Articles.fetch(from: nextToken, limit: pageSize)
+        return (articles, articles.last?.id)
+    }
     
     @State var dragProgress = 0.0
     @State var selectedIndex = 0
@@ -25,21 +84,22 @@ struct ExploreView: View {
     let reactionThreshold: CGFloat = 150
     let reactionImpact = UIImpactFeedbackGenerator(style: .heavy)
     
+    
     var body: some View {
         contentView
     }
     
     @ViewBuilder
     var contentView: some View {
-        if repo.articles.isEmpty {
+        if list.items.isEmpty {
             ProgressView()
                 .progressViewStyle(CircularProgressViewStyle(tint: .label3))
         } else {
             ZStack {
-                ForEach(repo.articles) { article in
+                ForEach(list.items) { article in
                     let index = article.index ?? 0
                     if abs(selectedIndex - index) < 5 {
-                        ArticleCardView(article: article)
+                        ArticleCardView(article: article, selected: index == selectedIndex)
                             .frame(maxWidth: .infinity)
                             .padding(40)
                             .zIndex(zIndex(for: index))
@@ -127,7 +187,7 @@ struct ExploreView: View {
     }
     
     func go(to index: Int) {
-        let maxIndex = repo.articles.count - 1
+        let maxIndex = list.items.count - 1
         if index > maxIndex {
             self.selectedIndex = maxIndex
         } else if index < 0 {
@@ -155,7 +215,7 @@ struct ExploreView: View {
     func xOffset(for index: Int) -> Double {
         let padding = containerSize.width / 10
         let x = (Double(index) - progressIndex) * padding
-        let maxIndex = repo.articles.count - 1
+        let maxIndex = list.items.count - 1
         // position > 0 && position < 0.99 && index < maxIndex
         if index == selectedIndex && progressIndex < Double(maxIndex) && progressIndex > 0 {
             return x * swingOutMultiplier

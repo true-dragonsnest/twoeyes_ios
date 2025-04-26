@@ -14,8 +14,8 @@ enum EntityArticleSentiment: Int, Codable {
     
     var icon: String? {
         switch self {
-        case .positive: "hand.thumbsup.fill"
-        case .negative: "hand.thumbsdown.fill"
+        case .positive: "😀"
+        case .negative: "☹️"
         default: nil
         }
     }
@@ -30,23 +30,25 @@ enum EntityArticleSentiment: Int, Codable {
 }
 
 struct EntityArticle: Codable {
-    var id: Int
-    var createdAt: Date
-    var updatedAt: Date
+    var id: Int?
+    var createdAt: Date?
+    var updatedAt: Date?
     
     var title: String?
     var url: String?
     var image: String?
     
+    var author: UUID
+    var source: String?
+    
     var description: String?
     var summary: String?
-    
-    var author: UUID
+    var text: String?
+    var language: String?
     
     var mainSubject: String?
     var sentiment: EntityArticleSentiment?
-    
-    var source: String?
+    var threadId: Int?
     
     // internal use only
     var index: Int?
