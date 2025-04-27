@@ -52,22 +52,19 @@ public actor SupabaseService {
         return formatter
     }()
     
-    nonisolated public lazy var decoder: JSONDecoder = {
+    static public func decoder() -> JSONDecoder {
         let decoder = JSONDecoder()
-//        //decoder.dateDecodingStrategy = .iso8601
-        decoder.dateDecodingStrategy = .formatted(Self.dateFormatter)
+        decoder.dateDecodingStrategy = .formatted(dateFormatter)
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         return decoder
-    }()
+    }
     
-// FIXME: not used. delete
-//    nonisolated public lazy var encoder: JSONEncoder = {
-//        let encoder = JSONEncoder()
-//        //decoder.dateDecodingStrategy = .iso8601
-//        encoder.dateEncodingStrategy = .formatted(Self.dateFormatter)
-//        encoder.keyEncodingStrategy = .convertToSnakeCase
-//        return encoder
-//    }()
+    static public func encoder() -> JSONEncoder {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .formatted(dateFormatter)
+        encoder.keyEncodingStrategy = .convertToSnakeCase
+        return encoder
+    }
     
     private func initSDKIfNeeded() throws {
         guard client == nil else {
@@ -101,7 +98,7 @@ public actor SupabaseService {
         do {
             let data = try await query.execute().data
             do {
-                let ret: M = try decoder.decode(M.self, from: data)
+                let ret: M = try Self.decoder().decode(M.self, from: data)
                 if logLevel > 1 {
                     "FETCH : \(o: ret.jsonPrettyPrinted)".ld(T)
                 }
@@ -305,7 +302,7 @@ public extension Decodable {
             dict["updated_at"] = date.timeIntervalSince1970 * 1000
         }
         do {
-            let entity: Self = try Self.decode(fromJsonDic: dict, decoder: SupabaseService.shared.decoder)
+            let entity: Self = try Self.decode(fromJsonDic: dict, decoder: SupabaseService.decoder())
             return entity
         } catch {
             "Failed to decode Supabase dictionary : \(error)".le(T)

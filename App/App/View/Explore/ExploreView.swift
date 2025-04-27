@@ -18,7 +18,7 @@ struct ExploreView: View {
 // MARK: - full screen list
 private struct FullscreenList: View {
     @State var list = PaginatedList<EntityArticle, Int>(pageSize: 10, triggerOffset: 5) { nextToken, pageSize in
-        let articles = try await UseCases.Articles.fetch(from: nextToken, limit: pageSize)
+        let articles = try await UseCases.Articles.fetchList(from: nextToken, limit: pageSize)
         return (articles, articles.last?.id)
     }
     
@@ -69,7 +69,7 @@ private struct CardListView: View {
     @Environment(\.safeAreaInsets) var safeAreaInsets
     
     @State var list = PaginatedList<EntityArticle, Int>(pageSize: 10, triggerOffset: 5) { nextToken, pageSize in
-        let articles = try await UseCases.Articles.fetch(from: nextToken, limit: pageSize)
+        let articles = try await UseCases.Articles.fetchList(from: nextToken, limit: pageSize)
         return (articles, articles.last?.id)
     }
     

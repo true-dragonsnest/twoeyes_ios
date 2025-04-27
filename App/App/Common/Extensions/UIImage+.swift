@@ -246,3 +246,35 @@ extension CGPoint {
         return CGPoint(x: x, y: y)
     }
 }
+
+// MARK: - get dominant color from image
+import CoreImage
+import CoreImage.CIFilterBuiltins
+
+extension UIImage {
+    var dominantColor: UIColor? {
+        guard let ciImage = CIImage(image: self) else { return nil }
+        
+        let filter = CIFilter.areaAverage()
+        filter.inputImage = ciImage
+        filter.extent = ciImage.extent
+        
+        let context = CIContext()
+        guard let filtered = filter.outputImage else { return nil }
+        
+        var bitmap = [UInt8](repeating: 0, count: 4)    // RGBA
+        context.render(
+            filtered,
+            toBitmap: &bitmap,
+            rowBytes: 4,
+            bounds: .init(x: 0, y: 0, width: 1, height: 1),
+            format: .RGBA8,
+            colorSpace: CGColorSpaceCreateDeviceRGB()
+        )
+        
+        return .init(red: CGFloat(bitmap[0]) / 255.0,
+                     green: CGFloat(bitmap[1]) / 255.0,
+                     blue: CGFloat(bitmap[2]) / 255.0,
+                     alpha: CGFloat(bitmap[3]) / 255.0)
+    }
+}

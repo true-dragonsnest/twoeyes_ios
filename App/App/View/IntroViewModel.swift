@@ -85,14 +85,17 @@ extension IntroViewModel {
                 await MainActor.run { self.authState = .needSignUp }
             } else {
                 await MainActor.run { self.authState = .signIn }
-                afterSignInProcess()
+                await afterSignInProcess()
             }
         } catch {
             try? await LoginUserModel.shared.logout()
         }
     }
 
-    private func afterSignInProcess() {
+    private func afterSignInProcess() async {
+        // FIXME: connect auth to API auth
+        await HttpApiService.shared.setCommomHeader(forKey: "Authorization",
+                                                    value: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJnbnltc3hkdXdmcmF1aWRvd3h4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ4NTQ5MTIsImV4cCI6MjA1MDQzMDkxMn0.psT8h0TtBT9RuhS0pAI9y3CKV7Ytf4kxHRFNBAuqP8o")
     }
     
     func checkAuth() async throws {

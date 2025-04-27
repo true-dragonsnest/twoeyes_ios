@@ -10,7 +10,7 @@ import SwiftUI
 class MainViewModel: ObservableObject {
     enum Tab: String {
         case explore
-        case home
+        case addNews
         case settings
     }
     @Published var tab: Tab = .explore
@@ -40,13 +40,12 @@ struct MainView: View {
                     Text("Explore")
                 }
                 .tag(MainViewModel.Tab.explore)
-
+            
             AddNewsView()
                 .tabItem {
-                    Image(systemName: "house.fill")
-                    Text("Home")
+                    Image(systemName: "plus.app.fill")
                 }
-                .tag(MainViewModel.Tab.home)
+                .tag(MainViewModel.Tab.addNews)
 
             SettingsView()
                 .tabItem {

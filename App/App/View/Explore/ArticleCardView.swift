@@ -41,7 +41,7 @@ struct ArticleCardView: View {
             .clipShape(.rect(cornerRadius: 24))
             .overlay {
                 RoundedRectangle(cornerRadius: 24)
-                    .stroke(.label3.opacity(0.4), lineWidth: 1)
+                    .stroke(.label3, lineWidth: 1)
             }
             .readSize {
                 width = $0.width
@@ -58,27 +58,32 @@ struct ArticleCardView: View {
                 }
             }
             .onAppear {
-                //loadColorIfNeeded()
+                //getImageColorIfNeeded()
+                bgColor = (article.sentiment?.color ?? .clear).opacity(0.5)
+                showSummary = selected
             }
     }
     
     var contentView: some View {
-        VStack {
+        VStack(spacing: 0) {
             imageView
                 .overlay(alignment: .bottom) {
                     subjectView
                         .padding()
                 }
             
+            sourceView
+                .padding(.horizontal)
+                .padding(.vertical, 12)
+            
             summaryView
                 .padding(.horizontal)
-                .padding(.top, 8)
             
             Spacer()
             
-            sourceView
+            dateView
                 .padding(.horizontal)
-                .padding(.bottom, 8)
+                .padding(.vertical, 8)
         }
         .aspectRatio(9 / 16, contentMode: .fit)
     }
@@ -91,7 +96,7 @@ struct ArticleCardView: View {
                 .backgroundDecode(true)
                 .resizable()
                 .placeholder {
-                    Color.red
+                    Color.secondaryFill
                 }
                 .aspectRatio(contentMode: .fill)
                 .frame(width: width, height: width)
@@ -112,7 +117,7 @@ struct ArticleCardView: View {
                         .font(.title)
                 }
                 Text(subject)
-                    .font(.headline)
+                    .font(.title2)
                     .foregroundStyle(.secondary)
             }
             .padding(.horizontal, 8)
@@ -130,33 +135,45 @@ struct ArticleCardView: View {
                 .customAttribute(EmphasisAttribute())
                 .font(.title2)
                 .multilineTextAlignment(.leading)
+                .lineSpacing(8)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .transition(AppearanceTextTransition())
         }
     }
     
     var sourceView: some View {
-        HStack {
-            Spacer()
+        HStack(alignment: .top) {
             if let source = article.source {
                 Text(source)
-                    .font(.footnote)
+                    .font(.caption)
                     .bold()
                     .foregroundStyle(.label2)
             }
             
             Text(article.title ?? "")
-                .font(.footnote)
+                .font(.caption)
                 .foregroundStyle(.label2)
-                .lineLimit(1)
+                //.lineLimit(1)
+            
+            Spacer()
+        }
+    }
+    
+    @ViewBuilder
+    var dateView: some View {
+        if let date = article.createdAt {
+            Text(Date.now, format: .reference(to: date))
+                .font(.footnote)
+                .fontWeight(.semibold)
+                .foregroundStyle(.label2)
+                .frame(maxWidth: .infinity, alignment: .trailing)
         }
     }
 }
 
-
-/*
+// MARK: - bg color from image dominant color
 extension ArticleCardView {
-    func loadColorIfNeeded() {
+    func getImageColorIfNeeded() {
         guard bgColor == .clear, let imageUrl = article.image else { return }
         Task {
             guard let image = try? await UseCases.Download.image(from: imageUrl),
@@ -166,41 +183,9 @@ extension ArticleCardView {
     }
 }
 
-// MARK: - get dominant color from image
-import CoreImage
-import CoreImage.CIFilterBuiltins
-
-extension UIImage {
-    var dominantColor: UIColor? {
-        guard let ciImage = CIImage(image: self) else { return nil }
-        
-        let filter = CIFilter.areaAverage()
-        filter.inputImage = ciImage
-        filter.extent = ciImage.extent
-        
-        let context = CIContext()
-        guard let filtered = filter.outputImage else { return nil }
-        
-        var bitmap = [UInt8](repeating: 0, count: 4)    // RGBA
-        context.render(
-            filtered,
-            toBitmap: &bitmap,
-            rowBytes: 4,
-            bounds: .init(x: 0, y: 0, width: 1, height: 1),
-            format: .RGBA8,
-            colorSpace: CGColorSpaceCreateDeviceRGB()
-        )
-        
-        return .init(red: CGFloat(bitmap[0]) / 255.0,
-                     green: CGFloat(bitmap[1]) / 255.0,
-                     blue: CGFloat(bitmap[2]) / 255.0,
-                     alpha: CGFloat(bitmap[3]) / 255.0)
-    }
-}
-*/
-
 #Preview {
     ArticleCardView(article: entity, selected: true)
+        .frame(maxWidth: .infinity)
 }
 
 

@@ -154,15 +154,20 @@ public actor HttpApiService {
         return try await sendUrlRequest(request: request, logLevel: logLevel)
     }
 
-    public func get<M: Codable>(from urlStr: String, logLevel: Int = 1) async throws -> M {
+    public func get<M: Codable>(from urlStr: String,
+                                decoder: JSONDecoder? = nil,
+                                logLevel: Int = 1) async throws -> M
+    {
         let (data, code) = try await performUrlRequest(method: .get, urlStr: urlStr, logLevel: logLevel)
         guard code.isSuccess else {
             throw AppError.httpError(code)
         }
-        return try decoder.decode(M.self, from: data)
+        return try (decoder ?? self.decoder).decode(M.self, from: data)
     }
 
-    public func get(from urlStr: String, logLevel: Int = 1) async throws -> Data {
+    public func get(from urlStr: String,
+                    logLevel: Int = 1) async throws -> Data
+    {
         let (data, code) = try await performUrlRequest(method: .get, urlStr: urlStr, logLevel: logLevel)
         guard code.isSuccess else {
             throw AppError.httpError(code)
@@ -170,17 +175,25 @@ public actor HttpApiService {
         return data
     }
     
-    public func post<M: Encodable, N: Decodable>(entity: M, to urlStr: String, logLevel: Int = 1) async throws -> N {
-        let bodyData = try encoder.encode(entity)
+    public func post<M: Encodable, N: Decodable>(entity: M,
+                                                 to urlStr: String,
+                                                 decoder: JSONDecoder? = nil,
+                                                 encoder: JSONEncoder? = nil,
+                                                 logLevel: Int = 1) async throws -> N
+    {
+        let bodyData = try (encoder ?? self.encoder).encode(entity)
         let (data, code) = try await performUrlRequest(method: .post, urlStr: urlStr, bodyData: bodyData, logLevel: logLevel)
         guard code.isSuccess else {
             throw AppError.httpError(code)
         }
-        return try decoder.decode(N.self, from: data)
+        return try (decoder ?? self.decoder).decode(N.self, from: data)
     }
     
-    public func post<M: Encodable>(_ entity: M, to urlStr: String, logLevel: Int = 1) async throws -> Data {
-        let bodyData = try encoder.encode(entity)
+    public func post<M: Encodable>(_ entity: M,
+                                   to urlStr: String,
+                                   encoder: JSONEncoder? = nil,
+                                   logLevel: Int = 1) async throws -> Data {
+        let bodyData = try (encoder ?? self.encoder).encode(entity)
         let (data, code) = try await performUrlRequest(method: .post, urlStr: urlStr, bodyData: bodyData, logLevel: logLevel)
         guard code.isSuccess else {
             throw AppError.httpError(code)

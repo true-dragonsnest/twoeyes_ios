@@ -18,7 +18,7 @@ extension UseCases.Articles {
         static let pageSize: Int = 10
     }
     
-    static func fetch(from startId: Int? = nil, limit: Int = Const.pageSize) async throws -> [EntityArticle] {
+    static func fetchList(from startId: Int? = nil, limit: Int = Const.pageSize) async throws -> [EntityArticle] {
         do {
             let articles: [EntityArticle] = try await SupabaseService.shared.fetch(from: BackEnd.Articles.fetch(start: startId, limit: limit).query)
             return articles
@@ -28,6 +28,22 @@ extension UseCases.Articles {
         }
     }
     
-    static func add(_ entity: EntityArticle) async throws {
+    static func post(url: String) async throws -> EntityArticle {
+        struct Request: Codable {
+            let url: String
+        }
+        
+        do {
+            let req = Request(url: url)
+            let ret: EntityArticle = try await HttpApiService.shared.post(entity: req,
+                                                                          to: BackEnd.Functions.addArticle.url,
+                                                                          decoder: SupabaseService.decoder(),
+                                                                          encoder: SupabaseService.encoder())
+            "article added : \(o: ret.jsonPrettyPrinted)".ld(T)
+            return ret
+        } catch {
+            "failed to post article : \(error)".le(T)
+            throw error
+        }
     }
 }

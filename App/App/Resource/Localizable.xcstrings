@@ -7,22 +7,8 @@
     "#" : {
       "shouldTranslate" : false
     },
-    "add.news.prompt" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "What news would you like to share with the world?"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "어떤 뉴스를 세상에 알려주실 껀가요?"
-          }
-        }
-      }
+    "Add" : {
+
     },
     "app.common.error" : {
       "extractionState" : "manual",
@@ -43,9 +29,6 @@
     },
     "banner area" : {
       "shouldTranslate" : false
-    },
-    "Blah, Blah, Blah, Blah, Blah, Blah, Blah, Blah, Blah, Blah, Blah, Blah, Blah, Blah, Blah, Blah, Blah, Blah, Blah, Blah, Blah, Blah, Blah, Blah, Blah, Blah, Blah, Blah, Blah, Blah, Blah, Blah, " : {
-
     },
     "Cancel" : {
       "extractionState" : "stale",
@@ -90,6 +73,9 @@
         }
       }
     },
+    "Enter news URL" : {
+
+    },
     "Explore" : {
       "localizations" : {
         "ko" : {
@@ -101,9 +87,6 @@
       }
     },
     "home" : {
-
-    },
-    "Home" : {
 
     },
     "ID" : {
@@ -147,6 +130,9 @@
         }
       }
     },
+    "Paste" : {
+
+    },
     "Pick Image from Library" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -168,6 +154,9 @@
         }
       }
     },
+    "Post a news" : {
+
+    },
     "Settings" : {
       "localizations" : {
         "ko" : {
@@ -177,9 +166,6 @@
           }
         }
       }
-    },
-    "Share a news" : {
-
     },
     "signup.error.id.already.exist" : {
       "extractionState" : "manual",

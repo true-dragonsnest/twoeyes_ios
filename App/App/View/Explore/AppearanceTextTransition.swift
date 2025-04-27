@@ -9,20 +9,20 @@ import SwiftUI
 
 struct EmphasisAttribute: TextAttribute {}
 
-/// A text renderer that animates its content.
+/// A text renderer that animates its content character by character.
 struct AppearanceEffectRenderer: TextRenderer, Animatable {
     /// The amount of time that passes from the start of the animation.
     /// Animatable.
     var elapsedTime: TimeInterval
 
-    /// The amount of time the app spends animating an individual element.
-    var elementDuration: TimeInterval
+    /// The amount of time the app spends animating an individual character.
+    var characterDuration: TimeInterval
 
     /// The amount of time the entire animation takes.
     var totalDuration: TimeInterval
 
     var spring: Spring {
-        .snappy(duration: elementDuration - 0.05, extraBounce: 0.4)
+        .snappy(duration: characterDuration - 0.05, extraBounce: 0.4)
     }
 
     var animatableData: Double {
@@ -30,32 +30,47 @@ struct AppearanceEffectRenderer: TextRenderer, Animatable {
         set { elapsedTime = newValue }
     }
 
-    init(elapsedTime: TimeInterval, elementDuration: Double = 0.4, totalDuration: TimeInterval) {
+    init(elapsedTime: TimeInterval, characterDuration: Double = 0.4, totalDuration: TimeInterval) {
         self.elapsedTime = min(elapsedTime, totalDuration)
-        self.elementDuration = min(elementDuration, totalDuration)
+        self.characterDuration = min(characterDuration, totalDuration)
         self.totalDuration = totalDuration
     }
 
     func draw(layout: Text.Layout, in context: inout GraphicsContext) {
+        // Count total characters in emphasized text
+        var totalCharCount = 0
         for unit in layout.flattenedRuns {
             if unit[EmphasisAttribute.self] != nil {
-                let delay = elementDelay(count: unit.count)
-
-                for (index, slice) in unit.enumerated() {
-                    // The time that the current element starts animating,
+                totalCharCount += unit.count
+            }
+        }
+        
+        // Keep track of the current character index across all runs
+        var currentCharacterIndex = 0
+        
+        for unit in layout.flattenedRuns {
+            if unit[EmphasisAttribute.self] != nil {
+                // Process each character individually
+                for slice in unit {
+                    // Calculate the delay based on character index
+                    let delay = characterDelay(totalCount: totalCharCount)
+                    
+                    // The time that the current character starts animating,
                     // relative to the start of the animation.
-                    let timeOffset = TimeInterval(index) * delay
-
-                    // The amount of time that passes for the current element.
-                    let elementTime = max(0, min(elapsedTime - timeOffset, elementDuration))
-
-                    // Make a copy of the context so that individual slices
+                    let timeOffset = TimeInterval(currentCharacterIndex) * delay
+                    
+                    // The amount of time that passes for the current character.
+                    let characterTime = max(0, min(elapsedTime - timeOffset, characterDuration))
+                    
+                    // Make a copy of the context so that individual characters
                     // don't affect each other.
                     var copy = context
-                    draw(slice, at: elementTime, in: &copy)
+                    draw(slice, at: characterTime, in: &copy)
+                    
+                    currentCharacterIndex += 1
                 }
             } else {
-                // Make a copy of the context so that individual slices
+                // Make a copy of the context so that individual runs
                 // don't affect each other.
                 var copy = context
                 // Runs that don't have a tag of `EmphasisAttribute` quickly
@@ -69,7 +84,7 @@ struct AppearanceEffectRenderer: TextRenderer, Animatable {
     func draw(_ slice: Text.Layout.RunSlice, at time: TimeInterval, in context: inout GraphicsContext) {
         // Calculate a progress value in unit space for blur and
         // opacity, which derive from `UnitCurve`.
-        let progress = time / elementDuration
+        let progress = time / characterDuration
 
         let opacity = UnitCurve.easeIn.value(at: 1.4 * progress)
 
@@ -92,21 +107,23 @@ struct AppearanceEffectRenderer: TextRenderer, Animatable {
     }
 
     /// Calculates how much time passes between the start of two consecutive
-    /// element animations.
+    /// character animations.
     ///
-    /// For example, if there's a total duration of 1 s and an element
-    /// duration of 0.5 s, the delay for two elements is 0.5 s.
-    /// The first element starts at 0 s, and the second element starts at 0.5 s
+    /// For example, if there's a total duration of 1 s and a character
+    /// duration of 0.5 s, the delay for two characters is 0.5 s.
+    /// The first character starts at 0 s, and the second character starts at 0.5 s
     /// and finishes at 1 s.
     ///
-    /// However, to animate three elements in the same duration,
-    /// the delay is 0.25 s, with the elements starting at 0.0 s, 0.25 s,
-    /// and 0.5 s, respectively.
-    func elementDelay(count: Int) -> TimeInterval {
-        let count = TimeInterval(count)
-        let remainingTime = totalDuration - count * elementDuration
-
-        return max(remainingTime / (count + 1), (totalDuration - elementDuration) / count)
+    /// However, to animate many characters in the same duration,
+    /// the delay is distributed evenly to ensure animation completes within totalDuration.
+    func characterDelay(totalCount: Int) -> TimeInterval {
+        guard totalCount > 1 else { return 0 }
+        
+        let count = TimeInterval(totalCount)
+        let remainingTime = totalDuration - characterDuration
+        
+        // Ensure all characters complete their animation within totalDuration
+        return remainingTime / (count - 1)
     }
 }
 
@@ -130,16 +147,17 @@ struct AppearanceTextTransition: Transition {
     }
 
     func body(content: Content, phase: TransitionPhase) -> some View {
-        let duration = 0.9
+        let duration = 1.5  // Longer duration to accommodate character-by-character animation
         let elapsedTime = phase.isIdentity ? duration : 0
         let renderer = AppearanceEffectRenderer(
             elapsedTime: elapsedTime,
+            characterDuration: 0.4,  // Duration per character
             totalDuration: duration
         )
 
         content.transaction { transaction in
             // Force the animation of `elapsedTime` to pace linearly and
-            // drive per-glyph springs based on its value.
+            // drive per-character springs based on its value.
             if !transaction.disablesAnimations {
                 transaction.animation = .linear(duration: duration)
             }
@@ -153,7 +171,7 @@ struct AppearanceTextTransition: Transition {
     @Previewable @State var visible = false
     VStack {
         if visible {
-            Text("Appearance Effect Text Demo 1\nAppearance Effect Text Demo 2\nAppearance Effect Text Demo 3")
+            Text("Character by Character Animation\nEach letter appears one at a time\nWatch the magical effect!")
                 .customAttribute(EmphasisAttribute())
                 .foregroundStyle(.primary)
                 .font(.title)
