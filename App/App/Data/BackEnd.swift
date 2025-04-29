@@ -56,11 +56,11 @@ enum BackEnd {
             SupabaseService.shared.client?.from(Self.table)
         }
         
-        case fetch(start: Int?, limit: Int)
+        case fetchList(start: Int?, limit: Int)
         
         var query: PostgrestBuilder? {
             switch self {
-            case let .fetch(start, limit):
+            case let .fetchList(start, limit):
                 var ret = Self.rootQueryBuilder?.select()
                 if let start {
                     ret = ret?.lt("id", value: start)
@@ -70,14 +70,52 @@ enum BackEnd {
         }
     }
     
+    enum Threads {
+        static let table = "threads"
+        static var rootQueryBuilder: PostgrestQueryBuilder? {
+            SupabaseService.shared.client?.from(Self.table)
+        }
+        
+        case fetchList(start: Int?, limit: Int)
+        case fetch(threadId: Int)
+        
+        var query: PostgrestBuilder? {
+            switch self {
+            case let .fetchList(start, limit):
+                var ret = Self.rootQueryBuilder?.select()
+                if let start {
+                    ret = ret?.lt("id", value: start)
+                }
+                return ret?.order("id", ascending: false).limit(limit)
+            case let .fetch(threadId):
+                let ret = Self.rootQueryBuilder?.select()
+                            .eq("id", value: threadId)
+                return ret
+            }
+        }
+    }
+    
     enum Functions {
         static let endpoint = "https://bgnymsxduwfrauidowxx.supabase.co/functions/v1"
+        static func decoder() -> JSONDecoder {
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .formatted(SupabaseService.dateFormatter)
+            return decoder
+        }
+        
+        static func encoder() -> JSONEncoder {
+            let encoder = JSONEncoder()
+            encoder.dateEncodingStrategy = .formatted(SupabaseService.dateFormatter)
+            return encoder
+        }
         
         case addArticle
+        case findSimilarThreads
         
         var url: String {
             switch self {
             case .addArticle: Self.endpoint + "/add-article"
+            case .findSimilarThreads: Self.endpoint + "/find-similar-threads"
             }
         }
     }
