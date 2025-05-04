@@ -44,24 +44,31 @@ public actor SupabaseService {
     }
     public let clientPub = CurrentValueSubject<SupabaseClient?, Never>(nil)
     
-    nonisolated static public let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.timeZone = .init(secondsFromGMT: 0)
-        //formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
-        return formatter
+    nonisolated static public let dateFormatters: [DateFormatter] = {
+        func createFormatter(format: String) -> DateFormatter {
+            let formatter = DateFormatter()
+            formatter.timeZone = .init(secondsFromGMT: 0)
+            formatter.dateFormat = format
+            //formatter.calendar = Calendar(identifier: .iso8601)
+            //formatter.locale = Locale(identifier: "en_US_POSIX")
+            return formatter
+        }
+        return [
+            createFormatter(format: "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"),
+            createFormatter(format: "yyyy-MM-dd'T'HH:mm:ss")
+        ]
     }()
     
     static public func decoder() -> JSONDecoder {
         let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .formatted(dateFormatter)
+        decoder.dateDecodingStrategyFormatters = dateFormatters
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         return decoder
     }
     
     static public func encoder() -> JSONEncoder {
         let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .formatted(dateFormatter)
+        encoder.dateEncodingStrategy = .formatted(dateFormatters[0])
         encoder.keyEncodingStrategy = .convertToSnakeCase
         return encoder
     }
@@ -82,7 +89,7 @@ public actor SupabaseService {
             encoder: {
                 let encoder = JSONEncoder()
                 encoder.keyEncodingStrategy = .convertToSnakeCase
-                encoder.dateEncodingStrategy = .formatted(Self.dateFormatter)
+                encoder.dateEncodingStrategy = .formatted(Self.dateFormatters[0])
                 return encoder
             }()
         ))
@@ -284,29 +291,30 @@ public actor SupabaseService {
     }
 }
 
-// MARK: - Date extension
-public extension Date {
-    var supabaseStr: String {
-        SupabaseService.dateFormatter.string(from: self)
-    }
-}
-
-// MARK: - Codable mapping
-public extension Decodable {
-    static func map(from supabaseDict: [String: AnyJSON]) -> Self? {
-        var dict = supabaseDict.mapValues(\.value)
-        if let val = supabaseDict["created_at"]?.stringValue, let date = SupabaseService.dateFormatter.date(from: val) {
-            dict["created_at"] = date.timeIntervalSince1970 * 1000
-        }
-        if let val = supabaseDict["updated_at"]?.stringValue, let date = SupabaseService.dateFormatter.date(from: val) {
-            dict["updated_at"] = date.timeIntervalSince1970 * 1000
-        }
-        do {
-            let entity: Self = try Self.decode(fromJsonDic: dict, decoder: SupabaseService.decoder())
-            return entity
-        } catch {
-            "Failed to decode Supabase dictionary : \(error)".le(T)
-            return nil
-        }
-    }
-}
+// FIXME: delete
+//// MARK: - Date extension
+//public extension Date {
+//    var supabaseStr: String {
+//        SupabaseService.dateFormatter.string(from: self)
+//    }
+//}
+//
+//// MARK: - Codable mapping
+//public extension Decodable {
+//    static func map(from supabaseDict: [String: AnyJSON]) -> Self? {
+//        var dict = supabaseDict.mapValues(\.value)
+//        if let val = supabaseDict["created_at"]?.stringValue, let date = SupabaseService.dateFormatter.date(from: val) {
+//            dict["created_at"] = date.timeIntervalSince1970 * 1000
+//        }
+//        if let val = supabaseDict["updated_at"]?.stringValue, let date = SupabaseService.dateFormatter.date(from: val) {
+//            dict["updated_at"] = date.timeIntervalSince1970 * 1000
+//        }
+//        do {
+//            let entity: Self = try Self.decode(fromJsonDic: dict, decoder: SupabaseService.decoder())
+//            return entity
+//        } catch {
+//            "Failed to decode Supabase dictionary : \(error)".le(T)
+//            return nil
+//        }
+//    }
+//}

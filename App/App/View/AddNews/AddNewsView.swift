@@ -9,16 +9,30 @@ import SwiftUI
 
 struct AddNewsView: View {
     @State var url: String = ""
-    @State var inProgress = false
-    @State var next = false
     
     @State var article: EntityArticle?
+    @State var threadId: Int?
+    
     @State var threads: [EntityThread]?
+    @State var showThreads = false
+//    @State var threads: [EntityThread] = testThreads
+//    @State var showThreads = true
     
     @FocusState var focused: Bool
+    @State var inProgress = false
         
     var body: some View {
         contentView
+            .sheet(isPresented: $showThreads) {
+                threadListView
+                    .presentationDetents([.height(380)])
+                    .presentationDragIndicator(.visible)
+            }
+            .onChange(of: showThreads) { prev, val in
+                if prev, val == false, threadId == nil {
+                    showThreads = true
+                }
+            }
     }
     
     var contentView: some View {
@@ -53,12 +67,16 @@ struct AddNewsView: View {
             }
         }
         .overlay(alignment: .bottom) {
-            if next {
+            if article != nil {
+                let done = article != nil && threadId != nil
                 Button {
-                    withAnimation {
+                    if done {
+                        commit()
+                    } else {
+                        loadThreads()
                     }
                 } label: {
-                    Text("Add")
+                    Text(done ? "Done" : "Next")
                         .foregroundStyle(.white)
                         .fontWeight(.semibold)
                         .padding(.horizontal, 20)
@@ -115,11 +133,64 @@ struct AddNewsView: View {
         }
     }
     
+    var threadListView: some View {
+        VStack(alignment: .leading) {
+            Text("Please select the thread to which this article will be added.")
+                .font(.headline)
+                .bold()
+                .foregroundStyle(.label1)
+                .padding(.horizontal, 12)
+                .padding(.top, 40)
+                .padding(.bottom, 12)
+            
+            Spacer()
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    if let threads {
+                        ForEach(threads) { thread in
+                            ThreadCardView(thread: thread, width: 200)
+                        }
+                    }
+                    Color.background
+                        .frame(width: 200, height: 200 + 60)
+                        .overlay {
+                            VStack(spacing: 12) {
+                                Spacer()
+                                Text("Create\na new thread.")
+                                    .font(.title2)
+                                    .bold()
+                                    .foregroundStyle(.label1)
+                                    .multilineTextAlignment(.center)
+                                "plus".iconButton(font: .title2, monochrome: .appPrimary)
+                                    .bold()
+                                Spacer()
+                            }
+                        }
+                        .clipShape(.rect(cornerRadius: 12))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(.label3, lineWidth: 1)
+                        }
+                }
+                .padding(.horizontal, 12)
+                .padding(.bottom, 12)
+            }
+            .scrollClipDisabled()
+        }
+    }
+    
     func addArticle() {
         guard url.isEmpty == false else { return }
         
         Task {
-            await MainActor.run { inProgress = true }
+            await MainActor.run {
+                inProgress = true
+                withAnimation {
+                    self.article = nil
+                    self.threadId = nil
+                }
+            }
             
             do {
                 // FUCK: let article = try await UseCases.Articles.post(url: url)
@@ -129,15 +200,30 @@ struct AddNewsView: View {
                         self.article = article
                     }
                 }
-                
-                // FUCK: guard let articleId = article.id else { return }
-                let articleId = 802
-                let threads = try await UseCases.Threads.findSimilar(to: articleId)
             } catch {
                 ContentViewModel.shared.error = error
             }
             await MainActor.run { inProgress = false }
         }
+    }
+    
+    func loadThreads() {
+        guard let articleId = article?.id else { return }
+        Task {
+            do {
+                // FUCK: let threads = try await UseCases.Threads.findSimilar(to: articleId)
+                await MainActor.run {
+                    self.threads = testThreads
+                    showThreads = true
+                }
+            } catch {
+                ContentViewModel.shared.error = error
+            }
+        }
+    }
+    
+    func commit() {
+        
     }
 }
 
@@ -159,3 +245,26 @@ private let testArticle = EntityArticle(
     mainSubject: "트럼프 관세로 인한 달러 약세",
     sentiment: .negative,
 )
+
+private let testThreads: [EntityThread] = [
+    .init(
+        id: 0,
+        createdAt: .now,
+        updatedAt: .now,
+        title: "thread 1",
+        mainSubject: "헌법재판소법 개정안 통과 통과통과통과통과통과통과통과통과통과",
+        images: [
+            "https://image.ytn.co.kr/general/jpg/2025/0417/202504171439380585_t.jpg",
+            "https://pimg.mk.co.kr/news/cms/202504/17/rcv.YNA.20250417.PYH2025041712750001300_R.jpg",
+            "https://file2.nocutnews.co.kr/newsroom/image/2025/04/09/202504091127263426_6.jpg",
+            "http://news.kbs.co.kr/data/news/2025/04/18/20250418_0I1PVf.jpg"
+          ],
+        articleIds: [
+            800,
+            802,
+            803,
+            911
+          ]
+    )
+]
+    

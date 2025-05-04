@@ -44,40 +44,53 @@ extension UseCases.Threads {
         }
         
         struct Response: Codable {
-            // same as EntityThread
-            var id: Int?
-            var createdAt: Date?
-            var updatedAt: Date?
-            
-            var title: String?
-            var mainSubject: String
-            
-            var images: [String]?
-            var articleIds: [Int]?
-            //
-            
-            let similarity: Double?
-            
-            func mapToEntityThread() -> EntityThread {
-                return EntityThread(id: id,
-                                    createdAt: createdAt,
-                                    updatedAt: updatedAt,
-                                    title: title,
-                                    mainSubject: mainSubject,
-                                    images: images,
-                                    articleIds: articleIds)
+            struct Thread: Codable {
+                // same as EntityThread
+                var id: Int?
+                var createdAt: Date?
+                var updatedAt: Date?
+                
+                var title: String?
+                var mainSubject: String
+                
+                var images: [String]?
+                var articleIds: [Int]?
+                //
+                
+                let similarity: Double?
+                
+                func mapToEntityThread() -> EntityThread {
+                    return EntityThread(id: id,
+                                        createdAt: createdAt,
+                                        updatedAt: updatedAt,
+                                        title: title,
+                                        mainSubject: mainSubject,
+                                        images: images,
+                                        articleIds: articleIds)
+                }
             }
+            
+            let success: Bool
+            let threads: [Thread]
         }
         
         do {
+            let decoder = BackEnd.Functions.decoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+            let encoder = BackEnd.Functions.encoder()
+            
             let req = Request(articleId: articleId)
-            let ret: [Response] = try await HttpApiService.shared.post(entity: req,
+            let ret: Response = try await HttpApiService.shared.post(entity: req,
                                                                        to: BackEnd.Functions.findSimilarThreads.url,
-                                                                       decoder: BackEnd.Functions.decoder(),
-                                                                       encoder: BackEnd.Functions.encoder(),
+                                                                       decoder: decoder,
+                                                                       encoder: encoder,
                                                                        logLevel: 2)
             "similar threads : \(o: ret.jsonPrettyPrinted)".ld(T)
-            return ret.map { $0.mapToEntityThread() }
+            guard ret.success else {
+                "find similar threads failed".le(T)
+                throw AppError.invalidResponse()
+            }
+            return ret.threads.map { $0.mapToEntityThread() }
         } catch {
             "failed to find similar threads : \(error)".le(T)
             throw error

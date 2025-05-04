@@ -7,9 +7,6 @@
     "#" : {
       "shouldTranslate" : false
     },
-    "Add" : {
-
-    },
     "app.common.error" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -61,6 +58,9 @@
           }
         }
       }
+    },
+    "Create\na new thread." : {
+
     },
     "Done" : {
       "extractionState" : "manual",
@@ -153,6 +153,9 @@
           }
         }
       }
+    },
+    "Please select the thread to which this article will be added." : {
+
     },
     "Post a news" : {
 

@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct EntityThread: Codable {
+struct EntityThread: Codable, Identifiable {
     var id: Int?
     var createdAt: Date?
     var updatedAt: Date?

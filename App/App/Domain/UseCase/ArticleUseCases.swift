@@ -34,11 +34,15 @@ extension UseCases.Articles {
         }
         
         do {
+            let decoder = BackEnd.Functions.decoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+            let encoder = BackEnd.Functions.encoder()
+            
             let req = Request(url: url)
             let ret: EntityArticle = try await HttpApiService.shared.post(entity: req,
                                                                           to: BackEnd.Functions.addArticle.url,
-                                                                          decoder: BackEnd.Functions.decoder(),
-                                                                          encoder: BackEnd.Functions.encoder())
+                                                                          decoder: decoder,
+                                                                          encoder: encoder)
             "article added : \(o: ret.jsonPrettyPrinted)".ld(T)
             return ret
         } catch {

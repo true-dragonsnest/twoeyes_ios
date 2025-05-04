@@ -99,13 +99,13 @@ enum BackEnd {
         static let endpoint = "https://bgnymsxduwfrauidowxx.supabase.co/functions/v1"
         static func decoder() -> JSONDecoder {
             let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .formatted(SupabaseService.dateFormatter)
+            decoder.dateDecodingStrategyFormatters = SupabaseService.dateFormatters
             return decoder
         }
         
         static func encoder() -> JSONEncoder {
             let encoder = JSONEncoder()
-            encoder.dateEncodingStrategy = .formatted(SupabaseService.dateFormatter)
+            encoder.dateEncodingStrategy = .formatted(SupabaseService.dateFormatters[0])
             return encoder
         }
         
