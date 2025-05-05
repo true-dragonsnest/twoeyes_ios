@@ -23,16 +23,6 @@ struct AddNewsView: View {
         
     var body: some View {
         contentView
-            .sheet(isPresented: $showThreads) {
-                threadListView
-                    .presentationDetents([.height(380)])
-                    .presentationDragIndicator(.visible)
-            }
-            .onChange(of: showThreads) { prev, val in
-                if prev, val == false, threadId == nil {
-                    showThreads = true
-                }
-            }
     }
     
     var contentView: some View {
@@ -50,11 +40,41 @@ struct AddNewsView: View {
             }
             
             if let article {
-                ArticleCardView(article: article, selected: true)
-                    .frame(maxWidth: .infinity)
-                    .scaleEffect(0.7)
-                    .transition(.move(edge: .bottom))
-                    .zIndex(1)
+                VStack {
+                    ArticleCardView(article: article, selected: true)
+                        .frame(maxWidth: .infinity)
+                        .scaleEffect(0.8)
+                    
+                    Spacer()
+                    
+                    Button {
+                        loadThreads()
+                    } label: {
+                        Text("Next")
+                            .foregroundStyle(.white)
+                            .fontWeight(.semibold)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 16)
+                            .background(.appPrimary)
+                            .clipShape(.rect(cornerRadius: 24))
+                    }
+                    .padding(.bottom, 40)
+                }
+                .transition(.move(edge: .bottom))
+                .zIndex(1)
+            }
+            
+            if showThreads {
+                VStack(spacing: 0) {
+                    Spacer()
+                    
+                    threadListView
+                        .padding(.vertical, 40)
+                        .background(.ultraThinMaterial)
+                        .clipShape(.rect(cornerRadii: .init(topLeading: 24, bottomLeading: 0, bottomTrailing: 0, topTrailing: 24)))
+                }
+                .transition(.move(edge: .bottom))
+                .zIndex(2)
             }
             
             if inProgress {
@@ -64,27 +84,6 @@ struct AddNewsView: View {
                         ProgressView()
                             .progressViewStyle(CircularProgressViewStyle(tint: .white))
                     }
-            }
-        }
-        .overlay(alignment: .bottom) {
-            if article != nil {
-                let done = article != nil && threadId != nil
-                Button {
-                    if done {
-                        commit()
-                    } else {
-                        loadThreads()
-                    }
-                } label: {
-                    Text(done ? "Done" : "Next")
-                        .foregroundStyle(.white)
-                        .fontWeight(.semibold)
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 16)
-                        .background(.appPrimary)
-                        .clipShape(.rect(cornerRadius: 24))
-                        .padding(.bottom, 40)
-                }
             }
         }
     }
@@ -97,54 +96,52 @@ struct AddNewsView: View {
                 .foregroundStyle(Color.label2)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
-            HStack {
-                TextField("Enter news URL", text: $url)
-                    .foregroundStyle(.label1)
-                    .font(.headline)
-                    .onSubmit {
-                        "submit : \(url)".ld()
-                        addArticle()
-                    }
-                    .focused($focused)
-                    .submitLabel(.go)
-                    .padding()
-                    .background(Color.primaryFill)
-                    .clipShape(.rect(cornerRadius: 24))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 24)
-                            .stroke(.label3, lineWidth: 1)
-                    }
-                
-                Button {
-                    let pasteboard = UIPasteboard.general
-                    if pasteboard.hasStrings {
-                        url = pasteboard.string ?? ""
-                        focused = true
-                    }
-                } label: {
-                    Text("Paste")
-                        .foregroundStyle(.white)
+            if article == nil {
+                HStack {
+                    TextField("Enter news URL", text: $url)
+                        .foregroundStyle(.label1)
                         .font(.headline)
+                        .onSubmit {
+                            "submit : \(url)".ld()
+                            addArticle()
+                        }
+                        .focused($focused)
+                        .submitLabel(.go)
                         .padding()
-                        .background(.appPrimary)
+                        .background(Color.primaryFill)
                         .clipShape(.rect(cornerRadius: 24))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 24)
+                                .stroke(.label3, lineWidth: 1)
+                        }
+                    
+                    Button {
+                        let pasteboard = UIPasteboard.general
+                        if pasteboard.hasStrings {
+                            url = pasteboard.string ?? ""
+                            focused = true
+                        }
+                    } label: {
+                        Text("Paste")
+                            .foregroundStyle(.white)
+                            .font(.headline)
+                            .padding()
+                            .background(.appPrimary)
+                            .clipShape(.rect(cornerRadius: 24))
+                    }
                 }
             }
         }
     }
     
     var threadListView: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 24) {
             Text("Please select the thread to which this article will be added.")
-                .font(.headline)
-                .bold()
+                .font(.subheadline)
+                .fontWeight(.semibold)
                 .foregroundStyle(.label1)
-                .padding(.horizontal, 12)
-                .padding(.top, 40)
-                .padding(.bottom, 12)
+                .padding(.horizontal, 16)
             
-            Spacer()
-
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
                     if let threads {
@@ -173,8 +170,7 @@ struct AddNewsView: View {
                                 .stroke(.label3, lineWidth: 1)
                         }
                 }
-                .padding(.horizontal, 12)
-                .padding(.bottom, 12)
+                .padding(.horizontal, 16)
             }
             .scrollClipDisabled()
         }
@@ -210,15 +206,21 @@ struct AddNewsView: View {
     func loadThreads() {
         guard let articleId = article?.id else { return }
         Task {
+            await MainActor.run { inProgress = true }
+            
             do {
                 // FUCK: let threads = try await UseCases.Threads.findSimilar(to: articleId)
                 await MainActor.run {
                     self.threads = testThreads
-                    showThreads = true
+                    withAnimation {
+                        showThreads = true
+                    }
                 }
             } catch {
                 ContentViewModel.shared.error = error
             }
+            
+            await MainActor.run { inProgress = false }
         }
     }
     
