@@ -12,11 +12,13 @@ struct AddNewsView: View {
     
     @State var article: EntityArticle?
     @State var threadId: Int?
-    
     @State var threads: [EntityThread]?
     @State var showThreads = false
-//    @State var threads: [EntityThread] = testThreads
-//    @State var showThreads = true
+    
+//    @State var article: EntityArticle? = testArticle
+//    @State var threadId: Int? = 0
+//    @State var threads: [EntityThread]? = testThreads
+//    @State var showThreads = false
     
     @FocusState var focused: Bool
     @State var inProgress = false
@@ -43,14 +45,30 @@ struct AddNewsView: View {
                 VStack {
                     ArticleCardView(article: article, selected: true)
                         .frame(maxWidth: .infinity)
+                        .overlay(alignment: .bottomTrailing) {
+                            Group {
+                                if let threadId, let thread = threads?.first(where: { $0.id == threadId }) {
+                                    ThreadCardView(thread: thread, width: 200)
+                                } else if threadId == -1 {
+                                    newThreadCard
+                                }
+                            }
+                            .shadow(color: .black, radius: 8)
+                            .offset(x: 20, y: 30)
+                            .rotationEffect(.degrees(10))
+                        }
                         .scaleEffect(0.8)
                     
                     Spacer()
                     
                     Button {
-                        loadThreads()
+                        if threadId == nil {
+                            loadThreads()
+                        } else {
+                            commit()
+                        }
                     } label: {
-                        Text("Next")
+                        Text(threadId == nil ? "Next" : "Done")
                             .foregroundStyle(.white)
                             .fontWeight(.semibold)
                             .padding(.horizontal, 20)
@@ -134,6 +152,29 @@ struct AddNewsView: View {
         }
     }
     
+    var newThreadCard: some View {
+        Color.background
+            .frame(width: 200, height: 200 + 60)
+            .overlay {
+                VStack(spacing: 12) {
+                    Spacer()
+                    Text("Create\na new thread.")
+                        .font(.title2)
+                        .bold()
+                        .foregroundStyle(.label1)
+                        .multilineTextAlignment(.center)
+                    "plus".iconButton(font: .title2, monochrome: .appPrimary)
+                        .bold()
+                    Spacer()
+                }
+            }
+            .clipShape(.rect(cornerRadius: 12))
+            .overlay {
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(.label3, lineWidth: 1)
+            }
+    }
+    
     var threadListView: some View {
         VStack(alignment: .leading, spacing: 24) {
             Text("Please select the thread to which this article will be added.")
@@ -147,27 +188,14 @@ struct AddNewsView: View {
                     if let threads {
                         ForEach(threads) { thread in
                             ThreadCardView(thread: thread, width: 200)
+                                .onTapGesture {
+                                    selectThread(thread.id)
+                                }
                         }
                     }
-                    Color.background
-                        .frame(width: 200, height: 200 + 60)
-                        .overlay {
-                            VStack(spacing: 12) {
-                                Spacer()
-                                Text("Create\na new thread.")
-                                    .font(.title2)
-                                    .bold()
-                                    .foregroundStyle(.label1)
-                                    .multilineTextAlignment(.center)
-                                "plus".iconButton(font: .title2, monochrome: .appPrimary)
-                                    .bold()
-                                Spacer()
-                            }
-                        }
-                        .clipShape(.rect(cornerRadius: 12))
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(.label3, lineWidth: 1)
+                    newThreadCard
+                        .onTapGesture {
+                            selectThread(-1)
                         }
                 }
                 .padding(.horizontal, 16)
@@ -221,6 +249,15 @@ struct AddNewsView: View {
             }
             
             await MainActor.run { inProgress = false }
+        }
+    }
+    
+    @MainActor
+    func selectThread(_ threadId: Int?) {
+        UIImpactFeedbackGenerator(style: .rigid).impactOccurred()
+        withAnimation {
+            self.threadId = threadId
+            showThreads = false
         }
     }
     
