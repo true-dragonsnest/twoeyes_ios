@@ -344,6 +344,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = App/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Two Eyes";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_NSCameraUsageDescription = "permission required";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "permission required";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "permission required";
@@ -390,6 +391,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = App/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Two Eyes";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_NSCameraUsageDescription = "permission required";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "permission required";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "permission required";
