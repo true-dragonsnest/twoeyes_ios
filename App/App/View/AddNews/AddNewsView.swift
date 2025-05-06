@@ -48,7 +48,8 @@ struct AddNewsView: View {
                         .overlay(alignment: .bottomTrailing) {
                             Group {
                                 if let threadId, let thread = threads?.first(where: { $0.id == threadId }) {
-                                    ThreadCardView(thread: thread, width: 200)
+                                    ThreadCardView(thread: thread)
+                                        .frame(width: 200, height: 260)
                                 } else if threadId == -1 {
                                     newThreadCard
                                 }
@@ -189,7 +190,8 @@ struct AddNewsView: View {
                 HStack(spacing: 12) {
                     if let threads {
                         ForEach(threads) { thread in
-                            ThreadCardView(thread: thread, width: 200)
+                            ThreadCardView(thread: thread)
+                                .frame(width: 200, height: 260)
                                 .onTapGesture {
                                     selectThread(thread.id)
                                 }

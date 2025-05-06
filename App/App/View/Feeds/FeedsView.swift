@@ -1,5 +1,5 @@
 //
-//  ExploreView.swift
+//  FeedsView.swift
 //  App
 //
 //  Created by Yongsik Kim on 3/8/25.
@@ -9,7 +9,7 @@ import SwiftUI
 
 private let T = #fileID
 
-struct ExploreView: View {
+struct FeedsView: View {
     var body: some View {
         FullscreenList()
     }
@@ -65,6 +65,7 @@ private struct FullscreenList: View {
 }
 
 // MARK: - card list
+/*
 private struct CardListView: View {
     @Environment(\.safeAreaInsets) var safeAreaInsets
     
@@ -245,4 +246,5 @@ private struct CardListView: View {
         return .black.opacity(opacity)
     }
 }
+*/
 

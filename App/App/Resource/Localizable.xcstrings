@@ -77,6 +77,7 @@
 
     },
     "Explore" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -85,6 +86,9 @@
           }
         }
       }
+    },
+    "Feeds" : {
+
     },
     "home" : {
 
@@ -157,6 +161,9 @@
     "Please select the thread to which this article will be added." : {
 
     },
+    "Post" : {
+
+    },
     "Post a news" : {
 
     },
@@ -206,6 +213,9 @@
     },
     "SPLASH" : {
       "shouldTranslate" : false
+    },
+    "Two Eyes" : {
+
     }
   },
   "version" : "1.0"

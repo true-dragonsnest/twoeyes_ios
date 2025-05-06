@@ -10,10 +10,11 @@ import Kingfisher
 
 struct ThreadCardView: View {
     let thread: EntityThread
-    let width: CGFloat
     
     @State var currentImageIndex = 0
     @State var timer: Timer? = nil
+    
+    @State var width: CGFloat = 4
     
     var body: some View {
         cardView
@@ -21,15 +22,15 @@ struct ThreadCardView: View {
     
     var cardView: some View {
         VStack(alignment: .leading) {
-            Text(thread.mainSubject)
-                .font(.headline)
-                .fontWeight(.bold)
-                .foregroundStyle(.label1)
-                .lineLimit(2)
-                .padding(.horizontal, 8)
-                .padding(.top, 8)
-            
-            Spacer()
+            HStack {
+                Text(thread.mainSubject)
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundStyle(.label1)
+                    .padding(.horizontal, 8)
+                    .padding(.top, 8)
+                Spacer()
+            }
             
             if thread.images?.isEmpty == false {
                 imageCarousel
@@ -39,12 +40,12 @@ struct ThreadCardView: View {
             }
         }
         .background(.ultraThinMaterial)
-        .frame(width: width, height: width + 60)
         .clipShape(.rect(cornerRadius: 12))
         .overlay {
             RoundedRectangle(cornerRadius: 12)
                 .stroke(.label3, lineWidth: 1)
         }
+        .readSize { width = $0.width }
     }
     
     private var imageCarousel: some View {
@@ -84,7 +85,8 @@ struct ThreadCardView: View {
 }
 
 #Preview {
-    ThreadCardView(thread: testThread, width: 200)
+    ThreadCardView(thread: testThread)
+        .frame(width: 200, height: 260)
 }
 
 private let testThread: EntityThread = .init(

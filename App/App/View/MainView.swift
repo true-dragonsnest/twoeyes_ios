@@ -9,11 +9,12 @@ import SwiftUI
 
 class MainViewModel: ObservableObject {
     enum Tab: String {
-        case explore
+        case feeds
+        case threads
         case addNews
         case settings
     }
-    @Published var tab: Tab = .explore
+    @Published var tab: Tab = .feeds
 }
 
 struct MainView: View {
@@ -34,16 +35,24 @@ struct MainView: View {
     
     var tabView: some View {
         TabView(selection: $viewModel.tab) {
-            ExploreView()
+            FeedsView()
                 .tabItem {
-                    Image(systemName: "safari.fill")
-                    Text("Explore")
+                    Image(systemName: "newspaper.fill")
+                    Text("Feeds")
                 }
-                .tag(MainViewModel.Tab.explore)
+                .tag(MainViewModel.Tab.feeds)
+            
+            ThreadsView()
+                .tabItem {
+                    Image(systemName: "eyes.inverse")
+                    Text("Two Eyes")
+                }
+                .tag(MainViewModel.Tab.threads)
             
             AddNewsView()
                 .tabItem {
                     Image(systemName: "plus.app.fill")
+                    Text("Post")
                 }
                 .tag(MainViewModel.Tab.addNews)
 
