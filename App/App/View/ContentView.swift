@@ -17,8 +17,6 @@ struct ContentView: View {
     @StateObject var introViewModel = IntroViewModel()
     
     @State var size: CGSize = .init(width: 1, height: 1)
-    
-    @State var showErrorToast = false
 
     var body: some View {
         VStack {
@@ -35,13 +33,10 @@ struct ContentView: View {
         .onReceive(PushNotificationService.Event.remoteNotificationClicked.publisher) { notification in
             viewModel.handlePushNotification(notification, false)
         }
-        .onReceive(viewModel.error.publisher) { error in
-            showErrorToast = true
-        }
         .environment(\.sceneSize, size)
         .readSize { self.size = $0 }
-        .toast(isPresenting: $showErrorToast) {
-            AlertToast(displayMode: .hud, type: .regular, title: "app.common.error".localized)
+        .toast(isPresenting: $viewModel.showToast) {
+            AlertToast(displayMode: .hud, type: .regular, title: viewModel.toastMessage)
         }
     }
 }

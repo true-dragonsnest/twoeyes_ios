@@ -111,11 +111,13 @@ enum BackEnd {
         
         case addArticle
         case findSimilarThreads
+        case addArticleToThread
         
         var url: String {
             switch self {
             case .addArticle: Self.endpoint + "/add-article"
             case .findSimilarThreads: Self.endpoint + "/find-similar-threads"
+            case .addArticleToThread: Self.endpoint + "/add-article-to-thread"
             }
         }
     }

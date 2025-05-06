@@ -42,7 +42,8 @@ extension UseCases.Articles {
             let ret: EntityArticle = try await HttpApiService.shared.post(entity: req,
                                                                           to: BackEnd.Functions.addArticle.url,
                                                                           decoder: decoder,
-                                                                          encoder: encoder)
+                                                                          encoder: encoder,
+                                                                          logLevel: 2)
             "article added : \(o: ret.jsonPrettyPrinted)".ld(T)
             return ret
         } catch {

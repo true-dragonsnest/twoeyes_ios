@@ -76,6 +76,7 @@ struct AddNewsView: View {
                             .background(.appPrimary)
                             .clipShape(.rect(cornerRadius: 24))
                     }
+                    .opacity(self.article != nil ? 1 : 0)
                     .padding(.bottom, 40)
                 }
                 .transition(.move(edge: .bottom))
@@ -102,6 +103,7 @@ struct AddNewsView: View {
                         ProgressView()
                             .progressViewStyle(CircularProgressViewStyle(tint: .white))
                     }
+                    .zIndex(10)
             }
         }
     }
@@ -210,15 +212,12 @@ struct AddNewsView: View {
         Task {
             await MainActor.run {
                 inProgress = true
-                withAnimation {
-                    self.article = nil
-                    self.threadId = nil
-                }
+                clear()
             }
             
             do {
-                // FUCK: let article = try await UseCases.Articles.post(url: url)
-                let article = testArticle
+                let article = try await UseCases.Articles.post(url: url)
+                // FUCK: let article = testArticle
                 await MainActor.run {
                     withAnimation {
                         self.article = article
@@ -237,9 +236,10 @@ struct AddNewsView: View {
             await MainActor.run { inProgress = true }
             
             do {
-                // FUCK: let threads = try await UseCases.Threads.findSimilar(to: articleId)
+                let threads = try await UseCases.Threads.findSimilar(to: articleId)
+                // FUCK: let threads = testThreads
                 await MainActor.run {
-                    self.threads = testThreads
+                    self.threads = threads
                     withAnimation {
                         showThreads = true
                     }
@@ -262,7 +262,32 @@ struct AddNewsView: View {
     }
     
     func commit() {
-        
+        guard let threadId, let articleId = article?.id else { return }
+        Task {
+            await MainActor.run { inProgress = true }
+            
+            do {
+                let _ = try await UseCases.Threads.addArticle(articleId: articleId,
+                                                                  to: threadId < 0 ? nil : threadId)
+                ContentViewModel.shared.toastMessage = "The news has been added."
+            } catch {
+                ContentViewModel.shared.error = error
+            }
+            
+            await MainActor.run {
+                inProgress = false
+                clear()
+                url = ""
+            }
+        }
+    }
+    
+    @MainActor
+    func clear() {
+        withAnimation {
+            article = nil
+            threadId = nil
+        }
     }
 }
 

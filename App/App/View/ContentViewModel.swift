@@ -13,6 +13,8 @@ class ContentViewModel: ObservableObject {
     static let shared = ContentViewModel()
     
     @Published var error: Error?
+    @Published var toastMessage: String = ""
+    @Published var showToast = false
     
     func handlePushTokenChanged(_: Notification) {
         "PUSH TOKEN CHANGED".ld(T)
@@ -22,5 +24,26 @@ class ContentViewModel: ObservableObject {
     func handlePushNotification(_: Notification, _: Bool) {
         "PUSH NOTIFICATION RECEIVED".ld(T)
         // FIXME: code this
+    }
+    
+    func setError(_ error: Error) {
+        self.error = error
+        self.toastMessage = "app.common.error".localized
+        self.showToast = true
+        nextToastMessage()
+    }
+    
+    func setToastMessage(_ message: String) {
+        self.toastMessage = message
+        self.showToast = true
+        nextToastMessage()
+    }
+    
+    private func nextToastMessage() {
+        // FIXME: toast queue?
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.toastMessage = ""
+            self.showToast = false
+        }
     }
 }
