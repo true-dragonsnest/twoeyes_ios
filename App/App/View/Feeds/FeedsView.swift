@@ -25,6 +25,9 @@ private struct FullscreenList: View {
     @State var scrollPosition = ScrollPosition(id: 0)
     @State var height: CGFloat = 1
     
+    @State var showWebView = false
+    @State var webUrl: String = ""
+    
     var body: some View {
         if list.items.isEmpty {
             ProgressView()
@@ -34,6 +37,10 @@ private struct FullscreenList: View {
                 }
         } else {
             content
+                //.fullScreenCover(isPresented: $showWebView) {
+                .sheet(isPresented: $showWebView) {
+                    WebView(url: $webUrl)
+                }
         }
     }
     
@@ -53,6 +60,12 @@ private struct FullscreenList: View {
                             list.prefetchIfNeeded(at: index)
                         }
                         .id(index)
+                        .contentShape(.rect)
+                        .onTapGesture {
+                            guard let url = article.url else { return }
+                            webUrl = url
+                            showWebView = true
+                        }
                 }
             }
             .scrollTargetLayout()
