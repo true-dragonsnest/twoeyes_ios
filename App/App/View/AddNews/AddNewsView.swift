@@ -192,6 +192,10 @@ struct AddNewsView: View {
                         ForEach(threads) { thread in
                             ThreadCardView(thread: thread)
                                 .frame(width: 200, height: 260)
+                                .overlay(alignment: .bottomTrailing) {
+                                    Text("\(thread.similarity ?? 0)")
+                                        .font(.footnote)
+                                }
                                 .onTapGesture {
                                     selectThread(thread.id)
                                 }
@@ -330,7 +334,8 @@ private let testThreads: [EntityThread] = [
             802,
             803,
             911
-          ]
+          ],
+        similarity: 0
     )
 ]
     

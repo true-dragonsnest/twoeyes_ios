@@ -32,6 +32,8 @@ struct ThreadCardView: View {
                 Spacer()
             }
             
+            Spacer()
+            
             if thread.images?.isEmpty == false {
                 imageCarousel
                     .cornerRadius(12)
@@ -106,6 +108,7 @@ private let testThread: EntityThread = .init(
         802,
         803,
         911
-    ]
+    ],
+    similarity: 0
 )
 

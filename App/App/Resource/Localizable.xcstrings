@@ -7,6 +7,9 @@
     "#" : {
       "shouldTranslate" : false
     },
+    "%lf" : {
+
+    },
     "app.common.error" : {
       "extractionState" : "manual",
       "localizations" : {

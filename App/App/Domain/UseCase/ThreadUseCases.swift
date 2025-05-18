@@ -46,34 +46,8 @@ extension UseCases.Threads {
         }
         
         struct Response: Codable {
-            struct Thread: Codable {
-                // same as EntityThread
-                var id: Int?
-                var createdAt: Date?
-                var updatedAt: Date?
-                
-                var title: String?
-                var mainSubject: String
-                
-                var images: [String]?
-                var articleIds: [Int]?
-                //
-                
-                let similarity: Double?
-                
-                func mapToEntityThread() -> EntityThread {
-                    return EntityThread(id: id,
-                                        createdAt: createdAt,
-                                        updatedAt: updatedAt,
-                                        title: title,
-                                        mainSubject: mainSubject,
-                                        images: images,
-                                        articleIds: articleIds)
-                }
-            }
-            
             let success: Bool
-            let threads: [Thread]
+            let threads: [EntityThread]
         }
         
         do {
@@ -92,7 +66,7 @@ extension UseCases.Threads {
                 "find similar threads failed".le(T)
                 throw AppError.invalidResponse()
             }
-            return ret.threads.map { $0.mapToEntityThread() }
+            return ret.threads
         } catch {
             "failed to find similar threads : \(error)".le(T)
             throw error
