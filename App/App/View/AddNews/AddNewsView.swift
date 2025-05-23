@@ -130,11 +130,7 @@ struct AddNewsView: View {
                         .submitLabel(.go)
                         .padding()
                         .background(Color.primaryFill)
-                        .clipShape(.rect(cornerRadius: 24))
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 24)
-                                .stroke(.label3, lineWidth: 1)
-                        }
+                        .borderedCapsule(cornerRadius: 24, strokeColor: .label3)
                     
                     Button {
                         let pasteboard = UIPasteboard.general
@@ -171,11 +167,7 @@ struct AddNewsView: View {
                     Spacer()
                 }
             }
-            .clipShape(.rect(cornerRadius: 12))
-            .overlay {
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(.label3, lineWidth: 1)
-            }
+            .borderedCapsule(cornerRadius: 12, strokeColor: .label3)
     }
     
     var threadListView: some View {

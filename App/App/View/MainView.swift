@@ -42,7 +42,7 @@ struct MainView: View {
                 }
                 .tag(MainViewModel.Tab.feeds)
             
-            ThreadsView()
+            ThreadHomeView()
                 .tabItem {
                     Image(systemName: "eyes.inverse")
                     Text("Two Eyes")

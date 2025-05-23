@@ -38,11 +38,7 @@ struct ArticleCardView: View {
             )
             .animation(.smooth, value: bgColor)
             .background(article.image != nil ? AnyShapeStyle(.regularMaterial) : Color.clear.any)
-            .clipShape(.rect(cornerRadius: 24))
-            .overlay {
-                RoundedRectangle(cornerRadius: 24)
-                    .stroke(.label3, lineWidth: 1)
-            }
+            .borderedCapsule(cornerRadius: 24, strokeColor: .label3)
             .readSize {
                 width = $0.width
             }

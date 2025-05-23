@@ -42,11 +42,7 @@ struct ThreadCardView: View {
             }
         }
         .background(.ultraThinMaterial)
-        .clipShape(.rect(cornerRadius: 12))
-        .overlay {
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(.label3, lineWidth: 1)
-        }
+        .borderedCapsule(cornerRadius: 12, strokeColor: .label3)
         .readSize { width = $0.width }
     }
     
