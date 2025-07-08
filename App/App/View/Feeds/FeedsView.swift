@@ -62,8 +62,7 @@ private struct FullscreenList: View {
                         .id(index)
                         .contentShape(.rect)
                         .onTapGesture {
-                            guard let url = article.url else { return }
-                            webUrl = url
+                            webUrl = article.url
                             showWebView = true
                         }
                 }
