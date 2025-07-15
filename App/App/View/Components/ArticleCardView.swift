@@ -15,7 +15,7 @@ struct ArticleCardView: View {
     @State var width: CGFloat = 0
     @State var bgColor: Color = .clear
     
-    @State var showSummary = false
+    @State var showSummary = -1
     
     var body: some View {
         cardView
@@ -45,18 +45,18 @@ struct ArticleCardView: View {
             .onChange(of: selected) { _, val in
                 if val {
                     withAnimation(.smooth(duration: 0.5)) {
-                        showSummary = true
+                        showSummary += 1
                     }
                 } else {
                     withAnimation(.smooth(duration: 0.5)) {
-                        showSummary = false
+                        showSummary = -1
                     }
                 }
             }
             .onAppear {
                 //getImageColorIfNeeded()
                 bgColor = (article.sentimentEnum?.color ?? .clear).opacity(0.5)
-                showSummary = selected
+                showSummary = selected ? 0 : -1
             }
     }
     
@@ -126,15 +126,33 @@ struct ArticleCardView: View {
     
     @ViewBuilder
     var summaryView: some View {
-        if let summary = article.summary, showSummary {
-            Text(summary)
-                .customAttribute(EmphasisAttribute())
-                .font(.title2)
-                .multilineTextAlignment(.leading)
-                .lineSpacing(8)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .transition(AppearanceTextTransition())
+        if let keyPoints = article.keyPoints {
+            VStack(spacing: 8) {
+                ForEach(0..<keyPoints.count) { index in
+                    if showSummary >= index, let text = keyPoints[safe: index] {
+                        Text(text)
+                            .customAttribute(EmphasisAttribute())
+                            .font(.title2)
+                            .multilineTextAlignment(.leading)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .transition(AppearanceTextTransition() {
+                                withAnimation(.smooth(duration: 0.5)) {
+                                    showSummary += 1
+                                }
+                            })
+                    }
+                }
+            }
         }
+//        if let summary = article.summary, showSummary {
+//            Text(summary)
+//                .customAttribute(EmphasisAttribute())
+//                .font(.title2)
+//                .multilineTextAlignment(.leading)
+//                .lineSpacing(8)
+//                .frame(maxWidth: .infinity, alignment: .leading)
+//                .transition(AppearanceTextTransition())
+//        }
     }
     
     var sourceView: some View {

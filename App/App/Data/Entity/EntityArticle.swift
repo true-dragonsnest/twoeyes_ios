@@ -27,6 +27,16 @@ enum EntityArticleSentiment: Int, Codable {
         default: nil
         }
     }
+    
+    init?(from floatValue: Float) {
+        if floatValue >= 0.1 {
+            self = .positive
+        } else if floatValue <= -0.1 {
+            self = .negative
+        } else {
+            self = .neutral
+        }
+    }
 }
 
 struct EntityArticle: Codable {
@@ -34,25 +44,30 @@ struct EntityArticle: Codable {
     var createdAt: Date?
     var updatedAt: Date?
     
-    // Basic article information
     var url: String
+    var source: String?
+    var author: UUID?
+    
     var title: String?
     var text: String?
     var language: String?
     var image: String?
     var description: String?
     var summary: String?
-    var source: String?
-    var author: UUID?
     var mainSubject: String?
-    var threadId: Int?
     
-    // Sentiment analysis
+    var threadId: Int?
+    var entities: [String]?
+    
     var sentiment: Float?
     struct EntitySentiment: Codable {
         let entity: String
         let sentiment: Float
         let reasoning: String?
+        
+        var sentimentEnum: EntityArticleSentiment? {
+            EntityArticleSentiment(from: sentiment)
+        }
     }
     var sentimentEntitySpecific: [EntitySentiment]?
     var sentimentReasoning: String?
@@ -79,33 +94,16 @@ struct EntityArticle: Codable {
     var primaryCategory: PrimaryCategory?
     var secondaryCategory: String?
     
-    // Entities and keywords
-    var entities: [String]?
     var keywords: [String]?
+    var keyPoints: [String]?
     
-    // Structured summary
-    var summaryHeadline: String?
-    var summaryKeyPoints: [String]?
-    
-    /* NO need
-    // Clustering indicators
-    var eventName: String?
-    var subjectChain: [String]?
-    var semanticAnchors: [String]?
-    var clusteringText: String?
-    var embeddingInput: String?
-    */
+    var sentimentEnum: EntityArticleSentiment? {
+        guard let sentiment else { return nil }
+        return EntityArticleSentiment(from: sentiment)
+    }
     
     // internal use only
     var index: Int?
-    
-    // Computed property for sentiment enum (backward compatibility)
-    var sentimentEnum: EntityArticleSentiment? {
-        guard let sentiment = sentiment else { return nil }
-        if sentiment > 0.1 { return .positive }
-        if sentiment < -0.1 { return .negative }
-        return .neutral
-    }
 }
 
 extension EntityArticle: Identifiable, Hashable {

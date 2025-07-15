@@ -142,6 +142,12 @@ extension Text.Layout {
 }
 
 struct AppearanceTextTransition: Transition {
+    let onComplete: (() -> Void)?
+    
+    init(onComplete: (() -> Void)? = nil) {
+        self.onComplete = onComplete
+    }
+    
     static var properties: TransitionProperties {
         TransitionProperties(hasMotion: true)
     }
@@ -163,7 +169,48 @@ struct AppearanceTextTransition: Transition {
             }
         } body: { view in
             view.textRenderer(renderer)
+                .onAnimationCompleted(for: elapsedTime) {
+                    if phase.isIdentity {
+                        onComplete?()
+                    }
+                }
         }
+    }
+}
+
+// Animation completion detection extension
+extension View {
+    func onAnimationCompleted<Value: VectorArithmetic>(for value: Value, completion: @escaping () -> Void) -> some View {
+        self.modifier(AnimationCompletionObserver(observedValue: value, completion: completion))
+    }
+}
+
+struct AnimationCompletionObserver<Value: VectorArithmetic>: AnimatableModifier {
+    var animatableData: Value {
+        didSet {
+            notifyCompletionIfFinished()
+        }
+    }
+    
+    private var targetValue: Value
+    private let completion: () -> Void
+    
+    init(observedValue: Value, completion: @escaping () -> Void) {
+        self.completion = completion
+        self.animatableData = observedValue
+        self.targetValue = observedValue
+    }
+    
+    private func notifyCompletionIfFinished() {
+        if animatableData == targetValue {
+            DispatchQueue.main.async {
+                completion()
+            }
+        }
+    }
+    
+    func body(content: Content) -> some View {
+        content
     }
 }
 
