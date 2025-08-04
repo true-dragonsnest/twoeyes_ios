@@ -21,7 +21,6 @@
 		B55906D82D170D7C00CC17F2 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = B55906D72D170D7C00CC17F2 /* FirebaseCore */; };
 		B55906DA2D170D7C00CC17F2 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = B55906D92D170D7C00CC17F2 /* FirebaseCrashlytics */; };
 		B55906EA2D17264B00CC17F2 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = B55906E92D17264B00CC17F2 /* FirebaseMessaging */; };
-		B55907312D1B038900CC17F2 /* GoogleGenerativeAI in Frameworks */ = {isa = PBXBuildFile; productRef = B55907302D1B038900CC17F2 /* GoogleGenerativeAI */; };
 		B5E09A922D33B88100070103 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = B5E09A912D33B88100070103 /* MarkdownUI */; };
 		B5F1D7282D620AE10090F652 /* Reeeed in Frameworks */ = {isa = PBXBuildFile; productRef = B5F1D7272D620AE10090F652 /* Reeeed */; };
 /* End PBXBuildFile section */
@@ -56,7 +55,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B55907312D1B038900CC17F2 /* GoogleGenerativeAI in Frameworks */,
 				B5F1D7282D620AE10090F652 /* Reeeed in Frameworks */,
 				B55906C42D17093C00CC17F2 /* Supabase in Frameworks */,
 				B55906B82D1708CB00CC17F2 /* AWSS3 in Frameworks */,
@@ -137,7 +135,6 @@
 				B55906D72D170D7C00CC17F2 /* FirebaseCore */,
 				B55906D92D170D7C00CC17F2 /* FirebaseCrashlytics */,
 				B55906E92D17264B00CC17F2 /* FirebaseMessaging */,
-				B55907302D1B038900CC17F2 /* GoogleGenerativeAI */,
 				B5E09A912D33B88100070103 /* MarkdownUI */,
 				B5F1D7272D620AE10090F652 /* Reeeed */,
 			);
@@ -178,7 +175,6 @@
 				B55906C52D17094E00CC17F2 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				B55906CE2D170CCA00CC17F2 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 				B55906D42D170D7C00CC17F2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
-				B559072F2D1B038900CC17F2 /* XCRemoteSwiftPackageReference "generative-ai-swift" */,
 				B5E09A902D33B88100070103 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */,
 				B5F1D7262D620AE10090F652 /* XCRemoteSwiftPackageReference "reeeed" */,
 			);
@@ -503,14 +499,6 @@
 				minimumVersion = 11.6.0;
 			};
 		};
-		B559072F2D1B038900CC17F2 /* XCRemoteSwiftPackageReference "generative-ai-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/google/generative-ai-swift";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.5.6;
-			};
-		};
 		B5E09A902D33B88100070103 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/gonzalezreal/swift-markdown-ui";
@@ -599,11 +587,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B55906D42D170D7C00CC17F2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseMessaging;
-		};
-		B55907302D1B038900CC17F2 /* GoogleGenerativeAI */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B559072F2D1B038900CC17F2 /* XCRemoteSwiftPackageReference "generative-ai-swift" */;
-			productName = GoogleGenerativeAI;
 		};
 		B5E09A912D33B88100070103 /* MarkdownUI */ = {
 			isa = XCSwiftPackageProductDependency;
