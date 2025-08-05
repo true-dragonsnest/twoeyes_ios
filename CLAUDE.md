@@ -46,3 +46,8 @@ Services are implemented as singletons in `/Common/Services/`:
 - API keys are stored in plist files - be careful not to expose in commits
 - The project uses modern Swift concurrency (async/await)
 - Localization supports English and Korean using `.xcstrings` format
+
+## JSON Encoding/Decoding
+- The app automatically handles snake_case to camelCase conversion in HttpApiService
+- No need to define custom CodingKeys for case conversion (e.g., `thread_id` -> `threadId`)
+- This is handled by HttpApiService's default configuration

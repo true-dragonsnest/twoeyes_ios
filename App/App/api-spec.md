@@ -424,12 +424,334 @@ curl -X GET "$PROD_URL/system-status" \
     "fetch-google-trends",
     "find-similar-threads",
     "generate-embedding",
-    "system-status"
+    "system-status",
+    "add-comment",
+    "get-thread-comments",
+    "update-comment",
+    "delete-comment"
   ],
   "status": "healthy",
   "message": "All systems operational"
 }
 ```
+
+---
+
+### 9. Add Comment
+Adds a new comment to a thread with optional AI generation and mention support.
+
+**Request Body:**
+- `threadId` (number, required): ID of the thread to comment on
+- `content` (string, optional): Comment content (required if AI generation not requested)
+- `userSentiment` (number, optional): User's sentiment score (-1.0 to +1.0)
+- `mentions` (object, optional): Explicit mentions
+  - `articleIds` (array, optional): Array of article IDs to mention
+  - `userIds` (array, optional): Array of user IDs to mention  
+  - `commentIds` (array, optional): Array of comment IDs to mention
+- `aiGeneration` (object, optional): AI generation options
+  - `targetSentiment` (number, optional): Target sentiment for generated comment
+  - `context` (string, optional): Additional context for generation
+- `languageCode` (string, optional, default: "ko"): Language code for AI generation
+
+**Local:**
+```bash
+# Manual comment
+curl -X POST "$LOCAL_URL/add-comment" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $LOCAL_ANON_KEY" \
+  -d '{
+    "threadId": 123,
+    "content": "This is interesting! #article:456 provides good context.",
+    "userSentiment": 0.7,
+    "mentions": {
+      "articleIds": [456],
+      "userIds": ["user-uuid-123"]
+    }
+  }'
+
+# AI generated comment
+curl -X POST "$LOCAL_URL/add-comment" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $LOCAL_ANON_KEY" \
+  -d '{
+    "threadId": 123,
+    "languageCode": "ko",
+    "aiGeneration": {
+      "targetSentiment": 0.5,
+      "context": "Focus on the economic implications"
+    },
+    "mentions": {
+      "articleIds": [456]
+    }
+  }'
+```
+
+**Production:**
+```bash
+curl -X POST "$PROD_URL/add-comment" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $PROD_ANON_KEY" \
+  -d '{
+    "threadId": 123,
+    "content": "Interesting perspective on this topic.",
+    "userSentiment": 0.3
+  }'
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "comment": {
+    "id": "comment-uuid-123",
+    "thread_id": 123,
+    "user_id": "user-uuid-456",
+    "content": "This is interesting! #article:456 provides good context.",
+    "user_sentiment": 0.7,
+    "ai_sentiment": 0.65,
+    "ai_sentiment_confidence": 0.85,
+    "is_ai_generated": false,
+    "created_at": "2024-01-01T00:00:00Z",
+    "mentions": [
+      {
+        "id": "mention-uuid-789",
+        "comment_id": "comment-uuid-123",
+        "mention_type": "article",
+        "mentioned_id": "456"
+      }
+    ]
+  },
+  "sentimentAnalysis": {
+    "sentiment": 0.65,
+    "confidence": 0.85,
+    "reasoning": "Positive sentiment with expressions of interest"
+  }
+}
+```
+
+**Error Responses:**
+- `401 Unauthorized`: Authentication required
+- `404 Not Found`: Thread not found
+- `400 Bad Request`: Invalid mentions or missing content
+
+---
+
+### 10. Get Thread Comments
+Retrieves comments for a specific thread with pagination and sorting options.
+
+**Request Body:**
+- `threadId` (number, required): ID of the thread
+- `limit` (number, optional, default: 50): Maximum number of comments to return
+- `offset` (number, optional, default: 0): Number of comments to skip
+- `sortBy` (string, optional, default: "created_at"): Sort field ("created_at", "ai_sentiment", "user_sentiment")
+- `sortOrder` (string, optional, default: "desc"): Sort order ("asc", "desc")
+
+**Local:**
+```bash
+# Get latest comments
+curl -X POST "$LOCAL_URL/get-thread-comments" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $LOCAL_ANON_KEY" \
+  -d '{
+    "threadId": 123,
+    "limit": 20,
+    "offset": 0,
+    "sortBy": "created_at",
+    "sortOrder": "desc"
+  }'
+
+# Get comments sorted by sentiment
+curl -X POST "$LOCAL_URL/get-thread-comments" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $LOCAL_ANON_KEY" \
+  -d '{
+    "threadId": 123,
+    "sortBy": "ai_sentiment",
+    "sortOrder": "desc"
+  }'
+```
+
+**Production:**
+```bash
+curl -X POST "$PROD_URL/get-thread-comments" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $PROD_ANON_KEY" \
+  -d '{
+    "threadId": 123,
+    "limit": 10
+  }'
+```
+
+**Response:**
+```json
+{
+  "comments": [
+    {
+      "id": "comment-uuid-123",
+      "thread_id": 123,
+      "user_id": "user-uuid-456",
+      "content": "Great article! #article:456 explains it well.",
+      "user_sentiment": 0.8,
+      "ai_sentiment": 0.75,
+      "ai_sentiment_confidence": 0.9,
+      "is_ai_generated": false,
+      "created_at": "2024-01-01T00:00:00Z",
+      "mentions": [
+        {
+          "id": "mention-uuid-789",
+          "comment_id": "comment-uuid-123",
+          "mention_type": "article",
+          "mentioned_id": "456"
+        }
+      ]
+    }
+  ],
+  "total": 45,
+  "nextOffset": 20
+}
+```
+
+---
+
+### 11. Update Comment
+Updates an existing comment's content, sentiment, or mentions.
+
+**Request Body:**
+- `commentId` (string, required): UUID of the comment to update
+- `content` (string, optional): New comment content
+- `userSentiment` (number, optional): Updated user sentiment (-1.0 to +1.0)
+- `mentions` (object, optional): Updated mentions
+  - `articleIds` (array, optional): Array of article IDs to mention
+  - `userIds` (array, optional): Array of user IDs to mention
+  - `commentIds` (array, optional): Array of comment IDs to mention
+
+**Local:**
+```bash
+curl -X POST "$LOCAL_URL/update-comment" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $LOCAL_ANON_KEY" \
+  -d '{
+    "commentId": "comment-uuid-123",
+    "content": "Updated comment with new insights! #article:789",
+    "userSentiment": 0.9,
+    "mentions": {
+      "articleIds": [789],
+      "userIds": ["user-uuid-456"]
+    }
+  }'
+```
+
+**Production:**
+```bash
+curl -X POST "$PROD_URL/update-comment" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $PROD_ANON_KEY" \
+  -d '{
+    "commentId": "comment-uuid-123",
+    "content": "Updated comment content",
+    "userSentiment": 0.5
+  }'
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "comment": {
+    "id": "comment-uuid-123",
+    "thread_id": 123,
+    "user_id": "user-uuid-456",
+    "content": "Updated comment with new insights! #article:789",
+    "user_sentiment": 0.9,
+    "ai_sentiment": 0.85,
+    "ai_sentiment_confidence": 0.92,
+    "is_ai_generated": false,
+    "updated_at": "2024-01-01T01:00:00Z",
+    "mentions": [
+      {
+        "id": "mention-uuid-new",
+        "comment_id": "comment-uuid-123",
+        "mention_type": "article",
+        "mentioned_id": "789"
+      }
+    ]
+  }
+}
+```
+
+**Error Responses:**
+- `401 Unauthorized`: Authentication required
+- `404 Not Found`: Comment not found
+- `403 Forbidden`: Can only update own comments
+- `400 Bad Request`: Invalid mentions
+
+---
+
+### 12. Delete Comment
+Deletes a comment and all its mentions.
+
+**Request Body:**
+- `commentId` (string, required): UUID of the comment to delete
+
+**Local:**
+```bash
+curl -X POST "$LOCAL_URL/delete-comment" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $LOCAL_ANON_KEY" \
+  -d '{
+    "commentId": "comment-uuid-123"
+  }'
+```
+
+**Production:**
+```bash
+curl -X POST "$PROD_URL/delete-comment" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $PROD_ANON_KEY" \
+  -d '{
+    "commentId": "comment-uuid-123"
+  }'
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Comment deleted successfully"
+}
+```
+
+**Error Responses:**
+- `401 Unauthorized`: Authentication required
+- `404 Not Found`: Comment not found
+- `403 Forbidden`: Can only delete own comments
+
+---
+
+## Comment System Features
+
+### Mention Types
+Comments support three types of mentions:
+
+1. **Article Mentions**: `#article:123` - Reference specific articles in the thread
+2. **User Mentions**: `@user:uuid` - Mention other users 
+3. **Comment Mentions**: `#comment:uuid` - Reply to or reference other comments
+
+### Sentiment Analysis
+- **User Sentiment**: User-specified sentiment score (-1.0 to +1.0)
+- **AI Sentiment**: Automatically analyzed sentiment using OpenAI
+- **Confidence Score**: AI's confidence in the sentiment analysis (0.0 to 1.0)
+
+### AI Comment Generation
+- Supports multiple languages (ko, en, ja, zh, es, fr, de)
+- Uses thread context and mentioned articles for relevance
+- Can target specific sentiment ranges
+- Includes custom context for specialized generation
+
+### Mention Parsing
+- Automatic parsing of mentions from comment content
+- Validation of mentioned entities (articles, users, comments must exist)
+- Separate storage in `comment_mentions` table for efficient querying
 
 ---
 
