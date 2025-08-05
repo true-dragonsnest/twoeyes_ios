@@ -45,6 +45,7 @@ struct InputBar: View {
     // attachments
     @State var attachments: [Attachment] = []
     
+    @State var showAttachmentMenu = false
     @State var showPhotoPicker = false
     @State var pickerItems: [PhotosPickerItem] = []
     @State var showCamera = false
@@ -76,15 +77,11 @@ struct InputBar: View {
     var body: some View {
         HStack(alignment: .bottom) {
             inputBar
-                .background(.thinMaterial)
+                .background(.regularMaterial)
                 .clipShape(.rect(cornerRadius: Const.radius))
                 .overlay {
                     RoundedRectangle(cornerRadius: Const.radius)
-                        .stroke(Color.appPrimary)
-                }
-                .overlay {
-                    RoundedRectangle(cornerRadius: Const.radius)
-                        .stroke(Material.regular, lineWidth: 1)
+                        .stroke(Material.thin, lineWidth: 1)
                 }
             
             buttons
@@ -258,7 +255,7 @@ extension InputBar {
             attachmentButton
             aiButton
         } else {
-            Circle().fill(.ultraThinMaterial)
+            Circle().fill(.regularMaterial)
                 .frame(width: Const.height, height: Const.height)
                 .overlay {
                     "chevron.forward".iconButton(font: .title, monochrome: .label1)
@@ -273,18 +270,27 @@ extension InputBar {
     }
     
     var attachmentButton: some View {
-        Circle().fill(.ultraThinMaterial)
+        Circle().fill(.regularMaterial)
             .frame(width: Const.height, height: Const.height)
             .overlay {
                 "plus".iconButton(font: .title, monochrome: .label1)
             }
             .contentShape(.rect)
             .onTapGesture {
+                showAttachmentMenu = true
+            }
+            .confirmationDialog("", isPresented: $showAttachmentMenu) {
+                Button("Attach Photos") {
+                    showPhotoPicker = true
+                }
+                Button("Take Picture") {
+                    showCamera = true
+                }
             }
     }
     
     var aiButton: some View {
-        Circle().fill(.ultraThinMaterial)
+        Circle().fill(.regularMaterial)
             .frame(width: Const.height, height: Const.height)
             .overlay {
                 "sparkles".iconButton(font: .title, monochrome: .appPrimary)

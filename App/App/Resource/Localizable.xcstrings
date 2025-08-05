@@ -13,6 +13,9 @@
     "%lf" : {
       "shouldTranslate" : false
     },
+    "Attach Photos" : {
+
+    },
     "banner area" : {
       "shouldTranslate" : false
     },
@@ -147,6 +150,9 @@
     },
     "SPLASH" : {
       "shouldTranslate" : false
+    },
+    "Take Picture" : {
+
     },
     "Two Eyes" : {
 
