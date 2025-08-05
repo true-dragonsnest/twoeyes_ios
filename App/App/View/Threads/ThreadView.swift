@@ -9,11 +9,11 @@ import SwiftUI
 import Kingfisher
 
 struct ThreadView: View {
-    let entity: EntityThread
+    @ObservedObject var viewModel: ThreadViewModel
     
     var body: some View {
         content
-            .navigationTitle(entity.title ?? "Thread")
+            .navigationTitle(viewModel.thread.title ?? "Thread")
             .toolbarRole(.editor)
             .navigationBarTitleDisplayMode(.inline)
             .overlay(alignment: .bottom) {
@@ -34,7 +34,7 @@ struct ThreadView: View {
     var imageCarousel: some View {
         let height: CGFloat = 300
         
-        if let images = entity.images {
+        if let images = viewModel.thread.images {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 2) {
                     ForEach(Array(images.enumerated()), id: \.0) { index, image in

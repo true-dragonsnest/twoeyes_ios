@@ -51,3 +51,8 @@ Services are implemented as singletons in `/Common/Services/`:
 - The app automatically handles snake_case to camelCase conversion in HttpApiService
 - No need to define custom CodingKeys for case conversion (e.g., `thread_id` -> `threadId`)
 - This is handled by HttpApiService's default configuration
+
+## Code Style Guidelines
+- Minimal comments - only when absolutely necessary for complex logic
+- All code, comments, and documentation in English only
+- No Korean in code files
