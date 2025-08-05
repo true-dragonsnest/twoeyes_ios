@@ -16,6 +16,10 @@ struct ThreadView: View {
             .navigationTitle(entity.title ?? "Thread")
             .toolbarRole(.editor)
             .navigationBarTitleDisplayMode(.inline)
+            .overlay(alignment: .bottom) {
+                commentInput
+                    .padding()
+            }
     }
     
     var content: some View {
@@ -50,6 +54,17 @@ struct ThreadView: View {
             .background(.clear)
             .frame(height: height)
             .borderedCapsule(cornerRadius: 12, strokeColor: .label3)
+        }
+    }
+    
+    // MARK: comment input
+    @FocusState var focused
+    var commentInput: some View {
+        InputBar(text: "Drop a comment",
+                 focused: $focused,
+                 sendEnabled: true)
+        { comment, commentAttachments in
+            // TODO: code here
         }
     }
 }

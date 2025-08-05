@@ -18,26 +18,11 @@ enum AppEnvironment {
         static let secretKey = UseCases.ReadPlist.execute(fileName: "Environment", key: "s3SecretKey")
         static let endpoint = UseCases.ReadPlist.execute(fileName: "Environment", key: "s3Endpoint")
     }
-    
-    enum Gemini {
-        static let apiKey: String = UseCases.ReadPlist.execute(fileName: "Environment", key: "geminiApiKey")
-    }
-    
-    enum Gpt {
-        static let authKey: String = UseCases.ReadPlist.execute(fileName: "Environment", key: "gptAuthKey")
-    }
-    
-    enum ElevenLabs {
-        static let apiKey: String = UseCases.ReadPlist.execute(fileName: "Environment", key: "elevenLabsApiKey")
-    }
-    
-    enum PlayHt {
-        static let userId: String = UseCases.ReadPlist.execute(fileName: "Environment", key: "playHtUserId")
-        static let apiKey: String = UseCases.ReadPlist.execute(fileName: "Environment", key: "playHtApiKey")
-    }
 }
 
 enum AppConst {
     static let minUserIdLength: Int = 4
     static let maxUserIdLength: Int = 20
+    
+    static let maxImageAttachments: Int = 3
 }

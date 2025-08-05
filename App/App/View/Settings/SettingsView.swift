@@ -22,7 +22,7 @@ struct SettingsView: View {
                         try await LoginUserModel.shared.logout()
                     } catch {
                         "failed to sign out : \(error)".le()
-                        ContentViewModel.shared.error = error
+                        ContentViewModel.shared.setError(error)
                     }
                 }
             }
