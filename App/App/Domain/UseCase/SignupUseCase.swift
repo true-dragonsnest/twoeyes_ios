@@ -13,7 +13,7 @@ extension UseCases {
     enum Signup {
         static private func checkDuplication(id: UUID) async -> Bool {
             do {
-                let _: EntityUser = try await UseCases.Fetch.user(id: id)
+                let _: EntityUser = try await UseCases.User.fetch(id: id)
                 return false
             } catch {
                 "user may not exist : \(error)".ld(T)

@@ -17,7 +17,7 @@ class LoginUserModel {
     
     func login(userId: UUID) async throws -> Bool {
         do {
-            let entity: EntityUser = try await UseCases.Fetch.user(id: userId)
+            let entity: EntityUser = try await UseCases.User.fetch(id: userId)
             "login user : \(entity.jsonPrettyPrinted)".ld(T)
             await MainActor.run {
                 user = entity

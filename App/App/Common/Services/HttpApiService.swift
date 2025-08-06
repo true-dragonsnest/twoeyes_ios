@@ -109,6 +109,17 @@ public actor HttpApiService {
     }
     
     private func sendUrlRequest(request: URLRequest, logLevel: Int) async throws -> (Data, HttpCode) {
+        if logLevel > 1 {
+            "Sending request to \(o: request.url?.absoluteString)".ld(T)
+            "  Method: \(o: request.httpMethod)".ld(T)
+            "  Headers: \(o: request.allHTTPHeaderFields)".ld(T)
+            if let body = request.httpBody {
+                "  Body: \(o: body.prettyPrintedJSONString)".ld(T)
+            }
+        } else if logLevel > 0 {
+            "Sending \(o: request.httpMethod) request to \(o: request.url?.absoluteString)".ld(T)
+        }
+        
         let (data, response) = try await defaultSession.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse else {

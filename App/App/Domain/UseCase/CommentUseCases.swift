@@ -110,6 +110,7 @@ extension UseCases.Comment {
             decoder.keyDecodingStrategy = .convertFromSnakeCase
             let encoder = BackEnd.Functions.encoder()
             
+            "try to add comment : \(o: request.jsonPrettyPrinted)".ld(T)
             let response: AddCommentResponse = try await HttpApiService.shared.post(
                 entity: request,
                 to: BackEnd.Functions.addComment.url,

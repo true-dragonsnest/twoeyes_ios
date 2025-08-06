@@ -60,7 +60,7 @@ extension UseCases.Articles {
                 .order("created_at", ascending: false)
             
             guard let query else {
-                throw AppError.invalidState()
+                throw AppError.invalidRequest()
             }
             
             let articles: [EntityArticle] = try await SupabaseService.shared.fetch(from: query)

@@ -13,6 +13,9 @@
     "%lf" : {
       "shouldTranslate" : false
     },
+    "AI Generated" : {
+
+    },
     "Attach Photos" : {
 
     },
@@ -109,6 +112,9 @@
           }
         }
       }
+    },
+    "No comments yet. Be the first to comment!" : {
+
     },
     "Paste" : {
 

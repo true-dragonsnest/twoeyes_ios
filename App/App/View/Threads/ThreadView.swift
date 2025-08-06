@@ -23,10 +23,14 @@ struct ThreadView: View {
     }
     
     var content: some View {
-        VStack {
-            imageCarousel
-                .padding(.horizontal, 16)
-            Spacer()
+        ScrollView {
+            VStack(spacing: 16) {
+                imageCarousel
+                    .padding(.horizontal, 16)
+                
+                commentList
+                    .padding(.horizontal, 16)
+            }
         }
     }
     
@@ -57,6 +61,77 @@ struct ThreadView: View {
         }
     }
     
+    @ViewBuilder
+    var commentList: some View {
+        LazyVStack(alignment: .leading, spacing: 12) {
+            if viewModel.comments.isEmpty && !viewModel.isLoadingComments {
+                Text("No comments yet. Be the first to comment!")
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.vertical, 32)
+            } else {
+                ForEach(Array(viewModel.comments.enumerated()), id: \.element.id) { index, comment in
+                    commentRow(comment: comment)
+                        .onAppear {
+                            Task {
+                                await viewModel.loadMoreCommentsIfNeeded(currentIndex: index)
+                            }
+                        }
+                    
+                    if index < viewModel.comments.count - 1 {
+                        Divider()
+                            .padding(.leading, 40)
+                    }
+                }
+                
+                if viewModel.isLoadingComments {
+                    ProgressView()
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding()
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    func commentRow(comment: EntityComment) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            Circle()
+                .fill(.secondary)
+                .frame(width: 32, height: 32)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text(comment.userId)
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                    
+                    Spacer()
+                    
+                    Text(comment.createdAt, style: .relative)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                
+                Text(comment.content)
+                    .font(.body)
+                    .multilineTextAlignment(.leading)
+                
+                if comment.isAiGenerated {
+                    HStack {
+                        Image(systemName: "sparkles")
+                            .font(.caption)
+                            .foregroundColor(.blue)
+                        Text("AI Generated")
+                            .font(.caption)
+                            .foregroundColor(.blue)
+                    }
+                }
+            }
+        }
+        .padding(.vertical, 4)
+    }
+    
     // MARK: comment input
     @FocusState var focused
     var commentInput: some View {
@@ -64,7 +139,13 @@ struct ThreadView: View {
                  focused: $focused,
                  sendEnabled: true)
         { comment, commentAttachments in
-            // TODO: code here
+            Task {
+                do {
+                    try await viewModel.postComment(content: comment)
+                } catch {
+                    ContentViewModel.shared.setError(error)
+                }
+            }
         }
     }
 }
