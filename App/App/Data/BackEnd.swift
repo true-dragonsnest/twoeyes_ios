@@ -112,12 +112,20 @@ enum BackEnd {
         case addArticle
         case findSimilarThreads
         case addArticleToThread
+        case addComment
+        case getThreadComments
+        case updateComment
+        case deleteComment
         
         var url: String {
             switch self {
             case .addArticle: Self.endpoint + "/add-article"
             case .findSimilarThreads: Self.endpoint + "/find-similar-threads"
             case .addArticleToThread: Self.endpoint + "/add-article-to-thread"
+            case .addComment: Self.endpoint + "/add-comment"
+            case .getThreadComments: Self.endpoint + "/get-thread-comments"
+            case .updateComment: Self.endpoint + "/update-comment"
+            case .deleteComment: Self.endpoint + "/delete-comment"
             }
         }
     }

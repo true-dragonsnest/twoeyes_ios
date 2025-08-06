@@ -51,4 +51,23 @@ extension UseCases.Articles {
             throw error
         }
     }
+    
+    static func fetchForThread(threadId: Int) async throws -> [EntityArticle] {
+        do {
+            let query = BackEnd.Articles.rootQueryBuilder?
+                .select()
+                .eq("thread_id", value: threadId)
+                .order("created_at", ascending: false)
+            
+            guard let query else {
+                throw AppError.invalidRequest()
+            }
+            
+            let articles: [EntityArticle] = try await SupabaseService.shared.fetch(from: query)
+            return articles
+        } catch {
+            "failed to fetch articles for thread \(threadId) : \(error)".le(T)
+            throw error
+        }
+    }
 }

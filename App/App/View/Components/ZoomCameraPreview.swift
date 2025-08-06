@@ -151,7 +151,7 @@ class ZoomCameraPreviewModel: ObservableObject {
                 lastZoomScale = zoomScale
             }
         } catch {
-            ContentViewModel.shared.error = AppError.accessDenied("failed to start camera : \(error)".le(T))
+            ContentViewModel.shared.setError(AppError.accessDenied("failed to start camera : \(error)".le(T)))
         }
     }
     

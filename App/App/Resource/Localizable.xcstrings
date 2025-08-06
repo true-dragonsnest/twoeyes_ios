@@ -1,6 +1,9 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "" : {
+
+    },
     "@ " : {
       "shouldTranslate" : false
     },
@@ -8,9 +11,18 @@
       "shouldTranslate" : false
     },
     "%lf" : {
+      "shouldTranslate" : false
+    },
+    "AI Generated" : {
 
     },
-    "app.common.error" : {
+    "Attach Photos" : {
+
+    },
+    "banner area" : {
+      "shouldTranslate" : false
+    },
+    "common.error" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -23,31 +35,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "오류가 발생했습니다 😑"
-          }
-        }
-      }
-    },
-    "banner area" : {
-      "shouldTranslate" : false
-    },
-    "Cancel" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "취소"
-          }
-        }
-      }
-    },
-    "Confirm" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "확인"
           }
         }
       }
@@ -78,17 +65,6 @@
     },
     "Enter news URL" : {
 
-    },
-    "Explore" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "탐색"
-          }
-        }
-      }
     },
     "Feeds" : {
 
@@ -137,19 +113,11 @@
         }
       }
     },
-    "Paste" : {
+    "No comments yet. Be the first to comment!" : {
 
     },
-    "Pick Image from Library" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "라이브러리에서 가져오기"
-          }
-        }
-      }
+    "Paste" : {
+
     },
     "Please enter your ID" : {
       "localizations" : {
@@ -180,42 +148,17 @@
         }
       }
     },
-    "signup.error.id.already.exist" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ID already taken, please try another one"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "아이디가 이미 사용중입니다. 다른 아이디를 시도해보세요"
-          }
-        }
-      }
-    },
     "SignupHelloView" : {
       "shouldTranslate" : false
     },
     "SignupWelcomeView" : {
       "shouldTranslate" : false
     },
-    "Skip" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "건너뛰기"
-          }
-        }
-      }
-    },
     "SPLASH" : {
       "shouldTranslate" : false
+    },
+    "Take Picture" : {
+
     },
     "Two Eyes" : {
 

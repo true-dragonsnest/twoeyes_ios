@@ -222,7 +222,7 @@ struct AddNewsView: View {
                     }
                 }
             } catch {
-                ContentViewModel.shared.error = error
+                ContentViewModel.shared.setError(error)
             }
             await MainActor.run { inProgress = false }
         }
@@ -243,7 +243,7 @@ struct AddNewsView: View {
                     }
                 }
             } catch {
-                ContentViewModel.shared.error = error
+                ContentViewModel.shared.setError(error)
             }
             
             await MainActor.run { inProgress = false }
@@ -267,9 +267,9 @@ struct AddNewsView: View {
             do {
                 let _ = try await UseCases.Threads.addArticle(articleId: articleId,
                                                                   to: threadId < 0 ? nil : threadId)
-                ContentViewModel.shared.toastMessage = "The news has been added."
+                ContentViewModel.shared.setToastMessage("The news has been added")
             } catch {
-                ContentViewModel.shared.error = error
+                ContentViewModel.shared.setError(error)
             }
             
             await MainActor.run {

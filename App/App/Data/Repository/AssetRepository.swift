@@ -20,7 +20,7 @@ class AssetRepository {
     func loadIntro() async {
         "load intro...".ld(T)
         do {
-            introEntity = try await UseCases.Fetch.intro()
+            introEntity = try await UseCases.Intro.fetch()
             "intro : \(o: introEntity?.jsonPrettyPrinted)".li(T)
             
             loadAssets()

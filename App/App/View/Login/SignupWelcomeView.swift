@@ -28,7 +28,7 @@ struct SignupWelcomeView: View {
                         do {
                             try await introViewModel.checkAuth()
                         } catch {
-                            ContentViewModel.shared.error = error
+                            ContentViewModel.shared.setError(error)
                         }
                     }
                 }) {

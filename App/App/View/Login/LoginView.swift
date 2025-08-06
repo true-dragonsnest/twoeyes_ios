@@ -69,7 +69,7 @@ struct LoginView: View {
                     try await SupabaseService.shared.signInApple()
                 } catch {
                     "apple login failed : \(error)".le(T)
-                    ContentViewModel.shared.error = error
+                    ContentViewModel.shared.setError(error)
                 }
             }
         }) {
@@ -89,7 +89,7 @@ struct LoginView: View {
                     try await SupabaseService.shared.signInGoogle()
                 } catch {
                     "google login failed : \(error)".le(T)
-                    ContentViewModel.shared.error = error
+                    ContentViewModel.shared.setError(error)
                 }
             }
         }) {

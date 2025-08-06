@@ -118,7 +118,7 @@ extension SignupPersonalInfoView {
     
     func trySignup() {
         guard let user = SupabaseService.shared.authUser else {
-            errorMsg = "app.common.error".localized
+            errorMsg = "common.error".localized
             return
         }
         
@@ -132,9 +132,9 @@ extension SignupPersonalInfoView {
             } catch {
                 await MainActor.run {
                     if case .alreadyExists(_) = AppError(error) {
-                        errorMsg = "signup.error.id.already.exist".localized
+                        errorMsg = "ID already taken, please try another one".localized
                     } else {
-                        errorMsg = "app.common.error".localized
+                        errorMsg = "common.error".localized
                     }
                 }
             }

@@ -93,9 +93,13 @@ extension IntroViewModel {
     }
 
     private func afterSignInProcess() async {
-        // FIXME: connect auth to API auth
-        await HttpApiService.shared.setCommomHeader(forKey: "Authorization",
-                                                    value: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJnbnltc3hkdXdmcmF1aWRvd3h4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ4NTQ5MTIsImV4cCI6MjA1MDQzMDkxMn0.psT8h0TtBT9RuhS0pAI9y3CKV7Ytf4kxHRFNBAuqP8o")
+        let authToken = SupabaseService.shared.authToken
+        if let token = authToken {
+            await HttpApiService.shared.setCommomHeader(forKey: "Authorization", value: "Bearer \(token)")
+            "Set user auth token for API requests".ld(T)
+        } else {
+            "No auth token available".le(T)
+        }
     }
     
     func checkAuth() async throws {

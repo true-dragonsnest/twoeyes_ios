@@ -12,8 +12,8 @@ private let T = #fileID
 class ContentViewModel: ObservableObject {
     static let shared = ContentViewModel()
     
-    @Published var error: Error?
-    @Published var toastMessage: String = ""
+    @Published private(set) var error: Error?
+    @Published private(set) var toastMessage: String = ""
     @Published var showToast = false
     
     func handlePushTokenChanged(_: Notification) {
@@ -28,7 +28,7 @@ class ContentViewModel: ObservableObject {
     
     func setError(_ error: Error) {
         self.error = error
-        self.toastMessage = "app.common.error".localized
+        self.toastMessage = "common.error".localized
         self.showToast = true
         nextToastMessage()
     }
