@@ -164,10 +164,8 @@ extension InputBar {
                 if inputActivated || attachments.isEmpty == false {
                     clearButton
                         .transition(.asymmetric(insertion: .identity, removal: .opacity).combined(with: .scale))
-                    if sendEnabled {
-                        sendButton
-                            .transition(.asymmetric(insertion: .identity, removal: .opacity).combined(with: .scale))
-                    }
+                    sendButton
+                        .transition(.asymmetric(insertion: .identity, removal: .opacity).combined(with: .scale))
                 }
             }
         }
@@ -232,13 +230,15 @@ extension InputBar {
     }
     
     var sendButton: some View {
-        Circle().fill(.appPrimary)
+        Circle().fill(sendEnabled ? AnyShapeStyle(Color.appPrimary) : AnyShapeStyle(Material.regular))
             .frame(width: Const.height - 4, height: Const.height - 4)
             .overlay {
-                "arrow.up".iconButton(font: .title, monochrome: .white)
+                "arrow.up".iconButton(font: .title, monochrome: sendEnabled ? .white : .label1)
             }
             .contentShape(.rect)
             .onTapGesture {
+                guard sendEnabled else { return }
+                UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
                 onSubmit?(input, attachments)
                 clearInput()
             }
@@ -277,6 +277,7 @@ extension InputBar {
             }
             .contentShape(.rect)
             .onTapGesture {
+                UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
                 showAttachmentMenu = true
             }
             .confirmationDialog("", isPresented: $showAttachmentMenu) {

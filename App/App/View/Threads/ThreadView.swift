@@ -11,6 +11,8 @@ import Kingfisher
 struct ThreadView: View {
     @ObservedObject var viewModel: ThreadViewModel
     
+    @State var commentSending = false
+    
     var body: some View {
         content
             .navigationTitle(viewModel.thread.title ?? "Thread")
@@ -137,13 +139,19 @@ struct ThreadView: View {
     var commentInput: some View {
         InputBar(text: "Drop a comment",
                  focused: $focused,
-                 sendEnabled: true)
+                 sendEnabled: commentSending == false)
         { comment, commentAttachments in
-            Task {
+            Task { @MainActor in
+                withAnimation {
+                    commentSending = true
+                }
                 do {
                     try await viewModel.postComment(content: comment)
                 } catch {
                     ContentViewModel.shared.setError(error)
+                }
+                withAnimation {
+                    commentSending = false
                 }
             }
         }
