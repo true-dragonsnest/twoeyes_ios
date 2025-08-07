@@ -242,8 +242,8 @@ extension InputBar {
                 onSubmit?(input, attachments)
                 clearInput()
             }
-            .padding(.trailing, 3)
-            .padding(.bottom, 3)
+            .padding(.trailing, Padding.xs)
+            .padding(.bottom, Padding.xs)
     }
 }
 

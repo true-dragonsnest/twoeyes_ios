@@ -56,8 +56,8 @@ struct WebView: View {
                 Spacer()
                 safariButton
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 8)
+            .padding(.horizontal, Padding.m)
+            .padding(.vertical, Padding.s)
             .background(Color.background)
         }
     }

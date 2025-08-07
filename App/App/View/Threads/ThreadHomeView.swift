@@ -18,7 +18,7 @@ struct ThreadHomeView: View {
     }
     
     var cellWidth: CGFloat {
-        max(1, (sceneSize.width - Const.hPadding * 3) / 2)
+        max(1, (sceneSize.width - Spacing.m * 3) / 2)
     }
     
     var body: some View {
@@ -47,8 +47,8 @@ struct ThreadHomeView: View {
                 }
         } else {
             ScrollView(.vertical, showsIndicators: false) {
-                HStack(alignment: .top, spacing: Const.hPadding) {
-                    LazyVStack(spacing: Const.hPadding) {
+                HStack(alignment: .top, spacing: Spacing.m) {
+                    LazyVStack(spacing: Spacing.m) {
                         ForEach(0..<list.items.count, id: \.self) { index in
                             if index % 2 == 0, let thread = list.items[safe: index] {
                                 ThreadCardView(thread: thread)
@@ -60,7 +60,7 @@ struct ThreadHomeView: View {
                     }
                     .frame(width: cellWidth)
                     
-                    LazyVStack(spacing: Const.hPadding) {
+                    LazyVStack(spacing: Spacing.m) {
                         ForEach(0..<list.items.count, id: \.self) { index in
                             if index % 2 == 1, let thread = list.items[safe: index] {
                                 ThreadCardView(thread: thread)
@@ -72,14 +72,9 @@ struct ThreadHomeView: View {
                     }
                     .frame(width: cellWidth)
                 }
-                .padding(.horizontal, Const.hPadding)
+                .padding(.horizontal, Padding.m)
             }
         }
     }
 }
 
-extension ThreadHomeView {
-    enum Const {
-        static let hPadding: CGFloat = 12
-    }
-}

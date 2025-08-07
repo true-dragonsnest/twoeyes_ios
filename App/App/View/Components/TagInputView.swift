@@ -61,12 +61,12 @@ struct TagInputView: View {
         if tags.isEmpty == false {
             ChipCloudView() {
                 ForEach(tags, id: \.self) { tag in
-                    HStack(spacing: 4) {
+                    HStack(spacing: Spacing.xs) {
                         Text(tag)
                             .font(.caption)
                             .foregroundStyle(.label1)
                         "xmark.circle.fill".iconButton(font: .caption, monochrome: .label1)
-                            .padding(.trailing, 7)
+                            .padding(.trailing, Padding.s)
                             .contentShape(.rect)
                             .onTapGesture {
                                 withAnimation {
@@ -74,7 +74,7 @@ struct TagInputView: View {
                                 }
                             }
                     }
-                    .padding(.leading, 8)
+                    .padding(.leading, Padding.s)
                     .frame(height: 28)
                     .background(.primaryFill)
                     .clipShape(.rect(cornerRadius: 16))
@@ -86,7 +86,7 @@ struct TagInputView: View {
     }
     
     var inputView: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: Spacing.xs) {
             Text("#")
                 .font(.headline)
                 .foregroundStyle(.label1)

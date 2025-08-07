@@ -27,7 +27,7 @@ struct ThreadCommentView: View {
                 }
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, Padding.xs)
     }
     
     @ViewBuilder

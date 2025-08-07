@@ -20,18 +20,18 @@ struct ThreadView: View {
             .navigationBarTitleDisplayMode(.inline)
             .overlay(alignment: .bottom) {
                 commentInput
-                    .padding()
+                    .padding(Padding.m)
             }
     }
     
     var content: some View {
         ScrollView {
-            VStack(spacing: 16) {
+            VStack(spacing: Spacing.l) {
                 imageCarousel
-                    .padding(.horizontal, 16)
+                    .padding(.horizontal, Padding.horizontal)
                 
                 commentList
-                    .padding(.horizontal, 16)
+                    .padding(.horizontal, Padding.horizontal)
             }
         }
     }
@@ -42,7 +42,7 @@ struct ThreadView: View {
         
         if let images = viewModel.thread.images {
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 2) {
+                HStack(spacing: Spacing.xs) {
                     ForEach(Array(images.enumerated()), id: \.0) { index, image in
                         if let url = URL(fromString: image) {
                             KFImage(url)
@@ -65,16 +65,16 @@ struct ThreadView: View {
     
     @ViewBuilder
     var commentList: some View {
-        LazyVStack(alignment: .leading, spacing: 12) {
+        LazyVStack(alignment: .leading, spacing: Spacing.m) {
             if viewModel.comments.isEmpty && !viewModel.isLoadingComments {
                 Text("No comments yet. Be the first to comment!")
                     .font(.subheadline)
                     .foregroundStyle(.label3)
                     .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.vertical)
+                    .padding(.vertical, Padding.vertical)
             } else {
                 ForEach(Array(viewModel.comments.enumerated()), id: \.element.id) { index, comment in
-                    ThreadThreadCommentView(comment: comment)
+                    ThreadCommentView(comment: comment)
                         .onAppear {
                             Task {
                                 await viewModel.loadMoreCommentsIfNeeded(currentIndex: index)
@@ -86,7 +86,7 @@ struct ThreadView: View {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle(tint: .label1))
                         .frame(maxWidth: .infinity, alignment: .center)
-                        .padding()
+                        .padding(Padding.m)
                 }
             }
             

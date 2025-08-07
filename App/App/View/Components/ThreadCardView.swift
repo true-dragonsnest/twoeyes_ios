@@ -27,8 +27,8 @@ struct ThreadCardView: View {
                     .font(.headline)
                     .fontWeight(.bold)
                     .foregroundStyle(.label1)
-                    .padding(.horizontal, 8)
-                    .padding(.top, 8)
+                    .padding(.horizontal, Padding.s)
+                    .padding(.top, Padding.s)
                 Spacer()
             }
             
@@ -59,8 +59,8 @@ struct ThreadCardView: View {
                         .aspectRatio(contentMode: .fill)
                         .frame(width: width - 4, height: width - 4)
                         .clipShape(.rect(cornerRadius: 12))
-                        .padding(.horizontal, 2)
-                        .padding(.bottom, 2)
+                        .padding(.horizontal, Padding.xs)
+                        .padding(.bottom, Padding.xs)
                 }
             }
         }
