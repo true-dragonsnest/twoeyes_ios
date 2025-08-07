@@ -9,9 +9,9 @@ import SwiftUI
 import Kingfisher
 
 struct ThreadView: View {
-    @Environment(\.sceneSize) var sceneSize
-    
     let thread: EntityThread
+    
+    @State var width: CGFloat = 0
     
     @State var commentSending = false
     @State private var selectedArticleIndex: Int = 0
@@ -75,69 +75,32 @@ struct ThreadView: View {
     
     var body: some View {
         content
-            .ignoresSafeArea()
+            //.ignoresSafeArea()
+            .borderedCapsule(cornerRadius: 24, strokeColor: .label3)
+            .padding(Padding.l)
+        
 //            .navigationTitle("")
 //            .toolbarRole(.editor)
 //            .navigationBarTitleDisplayMode(.inline)
             .toolbarVisibility(.hidden, for: .navigationBar)
             .toolbar(.hidden, for: .tabBar)
+            .readSize { width = $0.width }
             .onAppear {
                 loadInitialData()
             }
             .preferredColorScheme(.dark)
     }
     
+    @State var scrollPosition = ScrollPosition(id: 0)
+    
     var content: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(spacing: 0) {
-                Color.clear
-                    .frame(height: sceneSize.width)
-                
-                LazyVStack(spacing: Spacing.m) {
-                    ForEach(Array(articles.enumerated()), id: \.element.id) { index, article in
-                        ArticleCard(article: article, selected: index == selectedArticleIndex)
-                            .id(index)
-//                            .scrollTransition(
-//                                    axis: .horizontal
-//                                ) { content, phase in
-//                                    content
-//                                        .rotationEffect(.degrees(phase.value * 2.5))
-//                                        .offset(y: phase.isIdentity ? 0 : 8)
-//                                }
-                            .onAppear {
-                                withAnimation {
-                                    selectedArticleIndex = index
-                                }
-                            }
-                            .padding(.horizontal, Padding.horizontal)
-                    }
-                }
-                .padding(.vertical, Padding.m)
-            }
-        }
-        .mask(alignment: .top) {
-            VStack(spacing: 0) {
-                LinearGradient(
-                    gradient: Gradient(
-                        stops: [
-                            .init(color: Color.white.opacity(0), location: 0.0),
-                            .init(color: Color.white.opacity(0.1), location: 0.95),
-                            .init(color: Color.white, location: 1.0)
-                        ]
-                    ),
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .frame(width: sceneSize.width, height: sceneSize.width)
-                
-                Color.white
-            }
-        }
-        .background(alignment: .top) {
-            backgroundImage
-                .overlay(alignment: .bottom) {
-                    threadHeader
-                        .background(
+        VStack(spacing: 0) {
+            Color.clear
+                .frame(maxWidth: .infinity)
+                .aspectRatio(1, contentMode: .fill)
+                .overlay(alignment: .top) {
+                    backgroundImage
+                        .overlay(
                             LinearGradient(
                                 gradient: Gradient(colors: [
                                     Color.black.opacity(0),
@@ -149,7 +112,49 @@ struct ThreadView: View {
                             )
                         )
                 }
+                .overlay(alignment: .bottom) {
+                    threadHeader
+                }
+            
+            ScrollView(showsIndicators: false) {
+                //Color.red.frame(height: 200)
+                LazyVStack(spacing: Spacing.m) {
+                    ForEach(Array(articles.enumerated()), id: \.element.id) { index, article in
+                        ArticleCard(article: article, selected: index == scrollPosition.viewID(type: Int.self))
+                            .id(index)
+    //                            .visualEffect { view, proxy in
+    //                                view.offset(y: -proxy.frame(in: .scrollView).minY)
+    //                            }
+                            .padding(.horizontal, Padding.horizontal)
+                    }
+                }
+                .scrollTargetLayout()
+                .padding(.vertical, Padding.m)
+            }
+            .border(.blue)
+            //.scrollTargetBehavior(.viewAligned(limitBehavior: .alwaysByOne))
+            .scrollTargetBehavior(.paging)
+            .scrollPosition($scrollPosition)
+//            .mask(alignment: .top) {
+//                VStack(spacing: 0) {
+//                    LinearGradient(
+//                        gradient: Gradient(
+//                            stops: [
+//                                .init(color: Color.white.opacity(0), location: 0.0),
+//                                .init(color: Color.white.opacity(0.1), location: 0.95),
+//                                .init(color: Color.white, location: 1.0)
+//                            ]
+//                        ),
+//                        startPoint: .top,
+//                        endPoint: .bottom
+//                    )
+//                    .frame(width: sceneSize.width, height: sceneSize.width)
+//                    
+//                    Color.white
+//                }
+//            }
         }
+        
         .background(.black)
     }
 
@@ -167,6 +172,7 @@ struct ThreadView: View {
     
     @ViewBuilder
     var backgroundImage: some View {
+        let imageWidth = width + 100
         Group {
             if let url = URL(fromString: currentArticle?.image ?? articles.first?.image) {
                 KFImage(url)
@@ -176,13 +182,13 @@ struct ThreadView: View {
                         Color.secondaryFill
                     }
                     .aspectRatio(contentMode: .fill)
-                    .frame(width: sceneSize.width, height: sceneSize.width)
+                    .frame(width: imageWidth, height: imageWidth)
                     .clipped()
             } else {
                 Color.secondaryFill
             }
         }
-        .frame(width: sceneSize.width, height: sceneSize.width)
+        .frame(width: imageWidth, height: imageWidth)
         .overlay(alignment: .top) {
             LinearGradient(
                 gradient: Gradient(colors: [
@@ -211,9 +217,9 @@ struct ThreadView: View {
 //                    .clipShape(RoundedRectangle(cornerRadius: 4))
 //            }
             
-            Text(thread.mainSubject ?? thread.title ?? "Thread")
-                .font(.largeTitle)
-                .fontWeight(.semibold)
+            Text(thread.mainSubject)
+                .font(.title)
+                .fontWeight(.bold)
                 .foregroundStyle(.white)
                 .padding(.horizontal, Padding.horizontal)
                 .padding(.bottom, Padding.l)
@@ -291,7 +297,7 @@ struct ThreadView: View {
                     
                 if let mainSubject = article.mainSubject {
                     Text(mainSubject)
-                        .font(.title)
+                        .font(.title2)
                         .fontWeight(.semibold)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .foregroundStyle(.white)
@@ -299,10 +305,12 @@ struct ThreadView: View {
                 
                 if let keyPoints = article.keyPoints {
                     VStack(spacing: Spacing.s) {
-                        ForEach(0..<keyPoints.count) { index in
+                        //ForEach(0..<keyPoints.count) { index in
+                        ForEach(0..<1) { index in
                             if let text = keyPoints[safe: index] {
                                 Text(text)
-                                    .font(.title2)
+                                    .font(.headline)
+                                    .fontWeight(.medium)
                                     .customAttribute(EmphasisAttribute())
                                     .multilineTextAlignment(.leading)
                                     .frame(maxWidth: .infinity, alignment: .leading)
