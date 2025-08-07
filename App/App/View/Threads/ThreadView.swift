@@ -84,18 +84,26 @@ struct ThreadView: View {
             .onAppear {
                 loadInitialData()
             }
+            .preferredColorScheme(.dark)
     }
     
     var content: some View {
-        ScrollView {
+        ScrollView(showsIndicators: false) {
             VStack(spacing: 0) {
                 Color.clear
                     .frame(height: sceneSize.width)
                 
                 LazyVStack(spacing: Spacing.m) {
                     ForEach(Array(articles.enumerated()), id: \.element.id) { index, article in
-                        ArticleCard(article: article, isSelected: index == selectedArticleIndex)
+                        ArticleCard(article: article, selected: index == selectedArticleIndex)
                             .id(index)
+//                            .scrollTransition(
+//                                    axis: .horizontal
+//                                ) { content, phase in
+//                                    content
+//                                        .rotationEffect(.degrees(phase.value * 2.5))
+//                                        .offset(y: phase.isIdentity ? 0 : 8)
+//                                }
                             .onAppear {
                                 withAnimation {
                                     selectedArticleIndex = index
@@ -129,8 +137,6 @@ struct ThreadView: View {
             backgroundImage
                 .overlay(alignment: .bottom) {
                     threadHeader
-                        .padding(.horizontal, Padding.horizontal)
-                        .padding(.bottom, Padding.l)
                         .background(
                             LinearGradient(
                                 gradient: Gradient(colors: [
@@ -207,8 +213,10 @@ struct ThreadView: View {
             
             Text(thread.mainSubject ?? thread.title ?? "Thread")
                 .font(.largeTitle)
-                .fontWeight(.bold)
+                .fontWeight(.semibold)
                 .foregroundStyle(.white)
+                .padding(.horizontal, Padding.horizontal)
+                .padding(.bottom, Padding.l)
             
 //            if let summary = thread.summary {
 //                Text(summary)
@@ -235,61 +243,90 @@ struct ThreadView: View {
     
     struct ArticleCard: View {
         let article: EntityArticle
-        let isSelected: Bool
+        let selected: Bool
+        
+        @State var showSummary = -1
         
         var body: some View {
-            VStack(alignment: .leading, spacing: Spacing.s) {
-                HStack(spacing: Spacing.s) {
-                    if let image = article.image,
-                       let url = URL(fromString: image) {
-                        KFImage(url)
-                            .backgroundDecode(true)
-                            .resizable()
-                            .placeholder {
-                                Color.secondaryFill
-                            }
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 80, height: 80)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
+            content
+                .padding(Padding.xl)
+                .background(
+                    Color.appPrimary.opacity(0.1)
+                        .visualEffect({ content, proxy in
+                            content
+                                .hueRotation(Angle(degrees: proxy.frame(in: .global).origin.y / 10))
+                        })
+                )
+                .background(.regularMaterial)
+                .borderedCapsule(cornerRadius: 24, strokeColor: .label3)
+                .onChange(of: selected) { _, val in
+                    if val {
+                        withAnimation(.smooth(duration: 0.5)) {
+                            showSummary += 1
+                        }
+                    } else {
+                        withAnimation(.smooth(duration: 0.5)) {
+                            showSummary = -1
+                        }
+                    }
+                }
+        }
+        
+        var content: some View {
+            VStack(spacing: Spacing.l) {
+                HStack(alignment: .top) {
+                    if let source = article.source {
+                        Text(source)
+                            .font(.caption)
+                            .bold()
+                            .foregroundStyle(.white.opacity(0.7))
                     }
                     
-                    VStack(alignment: .leading, spacing: Spacing.xs) {
-                        if let source = article.source {
-                            Text(source)
-                                .font(.caption)
-                                .foregroundStyle(.white.opacity(0.7))
-                        }
-                        
-                        Text(article.title ?? "Untitled Article")
-                            .font(.headline)
-                            .foregroundStyle(.white)
-                            .lineLimit(2)
-                        
-                        if let description = article.description {
-                            Text(description)
-                                .font(.caption)
-                                .foregroundStyle(.white.opacity(0.8))
-                                .lineLimit(2)
-                        }
-                        
-//                        if let publishedAt = article.publishedAt {
-//                            Text(publishedAt.timeAgo())
-//                                .font(.caption2)
-//                                .foregroundStyle(.white.opacity(0.6))
-//                        }
-                    }
+                    Text(article.title ?? "")
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.7))
                     
                     Spacer()
                 }
-                .padding(Padding.m)
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(isSelected ? Color.white.opacity(0.2) : Color.white.opacity(0.1))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .strokeBorder(isSelected ? Color.white.opacity(0.3) : Color.clear, lineWidth: 2)
-                        )
-                )
+                    
+                if let mainSubject = article.mainSubject {
+                    Text(mainSubject)
+                        .font(.title)
+                        .fontWeight(.semibold)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .foregroundStyle(.white)
+                }
+                
+                if let keyPoints = article.keyPoints {
+                    VStack(spacing: Spacing.s) {
+                        ForEach(0..<keyPoints.count) { index in
+                            if let text = keyPoints[safe: index] {
+                                Text(text)
+                                    .font(.title2)
+                                    .customAttribute(EmphasisAttribute())
+                                    .multilineTextAlignment(.leading)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .transition(AppearanceTextTransition() {
+                                        withAnimation(.smooth(duration: 0.5)) {
+                                            showSummary += 1
+                                        }
+                                    })
+                            }
+                        }
+                    }
+                }
+                
+                HStack(alignment: .bottom) {
+                    Spacer()
+                    
+                    if let date = article.createdAt {
+                        Text(Date.now, format: .reference(to: date))
+                            .font(.footnote)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.white.opacity(0.6))
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                    }
+                }
             }
         }
     }
