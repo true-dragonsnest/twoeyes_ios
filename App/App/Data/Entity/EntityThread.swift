@@ -16,7 +16,6 @@ struct EntityThread: Codable, Identifiable, Equatable {
     var mainSubject: String
     
     var images: [String]?
-    var articleIds: [Int]?
     
     let similarity: Double?     // only in find similar thread response
 }

@@ -95,6 +95,24 @@ enum BackEnd {
         }
     }
     
+    enum ThreadEntities {
+        static let table = "thread_entities"
+        static var rootQueryBuilder: PostgrestQueryBuilder? {
+            SupabaseService.shared.client?.from(Self.table)
+        }
+        
+        case fetchForThread(threadId: Int)
+        
+        var query: PostgrestBuilder? {
+            switch self {
+            case let .fetchForThread(threadId):
+                return Self.rootQueryBuilder?.select()
+                    .eq("thread_id", value: threadId)
+                    .order("sentiment_count", ascending: false)
+            }
+        }
+    }
+    
     enum Functions {
         static let endpoint = "https://bgnymsxduwfrauidowxx.supabase.co/functions/v1"
         static func decoder() -> JSONDecoder {

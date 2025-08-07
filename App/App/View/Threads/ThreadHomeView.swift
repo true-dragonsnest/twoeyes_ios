@@ -10,12 +10,9 @@ import SwiftUI
 struct ThreadHomeView: View {
     @Environment(\.sceneSize) var sceneSize
     
-    @StateObject var viewModel = ThreadHomeViewModel()
+    @State var viewModel = ThreadHomeViewModel()
     
-    @State var list = PaginatedList<EntityThread, Int>(pageSize: 10, triggerOffset: 5) { nextToken, pageSize in
-        let articles = try await UseCases.Threads.fetchList(from: nextToken, limit: pageSize)
-        return (articles, articles.last?.id)
-    }
+    private let repository = ThreadRepository.shared
     
     var cellWidth: CGFloat {
         max(1, (sceneSize.width - Spacing.m * 3) / 2)
@@ -27,9 +24,18 @@ struct ThreadHomeView: View {
                 .navigationDestination(for: ThreadHomeViewModel.NavPath.self) { navPath in
                     switch navPath {
                     case .thread(let entity):
-                        ThreadView(viewModel: ThreadViewModel(thread: entity))
+                        ThreadView(thread: entity)
                     }
                 }
+        }
+        .onAppear {
+            Task {
+                do {
+                    try await repository.loadThreads(reset: true)
+                } catch {
+                    ContentViewModel.shared.setError(error)
+                }
+            }
         }
     }
     
@@ -39,21 +45,27 @@ struct ThreadHomeView: View {
     
     @ViewBuilder
     var threadListView: some View {
-        if list.items.isEmpty {
+        if repository.threads.isEmpty && repository.isLoadingThreads {
             ProgressView()
                 .progressViewStyle(CircularProgressViewStyle(tint: .label3))
-                .onAppear {
-                    list.prefetchIfNeeded(at: 0)
-                }
+        } else if repository.threads.isEmpty {
+            Text("No threads available")
+                .foregroundStyle(.label3)
         } else {
             ScrollView(.vertical, showsIndicators: false) {
                 HStack(alignment: .top, spacing: Spacing.m) {
                     LazyVStack(spacing: Spacing.m) {
-                        ForEach(0..<list.items.count, id: \.self) { index in
-                            if index % 2 == 0, let thread = list.items[safe: index] {
+                        ForEach(0..<repository.threads.count, id: \.self) { index in
+                            if index % 2 == 0 {
+                                let thread = repository.threads[index]
                                 ThreadCardView(thread: thread)
                                     .onTapGesture {
                                         viewModel.navToThread(thread)
+                                    }
+                                    .onAppear {
+                                        Task {
+                                            await repository.loadMoreThreadsIfNeeded(currentIndex: index)
+                                        }
                                     }
                             }
                         }
@@ -61,11 +73,17 @@ struct ThreadHomeView: View {
                     .frame(width: cellWidth)
                     
                     LazyVStack(spacing: Spacing.m) {
-                        ForEach(0..<list.items.count, id: \.self) { index in
-                            if index % 2 == 1, let thread = list.items[safe: index] {
+                        ForEach(0..<repository.threads.count, id: \.self) { index in
+                            if index % 2 == 1 {
+                                let thread = repository.threads[index]
                                 ThreadCardView(thread: thread)
                                     .onTapGesture {
                                         viewModel.navToThread(thread)
+                                    }
+                                    .onAppear {
+                                        Task {
+                                            await repository.loadMoreThreadsIfNeeded(currentIndex: index)
+                                        }
                                     }
                             }
                         }
@@ -73,6 +91,15 @@ struct ThreadHomeView: View {
                     .frame(width: cellWidth)
                 }
                 .padding(.horizontal, Padding.m)
+                
+                if repository.isLoadingThreads && !repository.threads.isEmpty {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: .label3))
+                        .padding()
+                }
+            }
+            .refreshable {
+                await repository.refresh()
             }
         }
     }

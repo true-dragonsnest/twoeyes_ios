@@ -7,7 +7,8 @@
 
 import SwiftUI
 
-class ThreadHomeViewModel: ObservableObject {
+@Observable
+class ThreadHomeViewModel {
     enum NavPath: Hashable {
         case thread(_ entity: EntityThread)
         
@@ -29,8 +30,9 @@ class ThreadHomeViewModel: ObservableObject {
         }
     }
     
-    @Published var navPath = NavigationPath()
+    var navPath = NavigationPath()
     
+    // MARK: - Navigation
     func navToThread(_ entity: EntityThread) {
         navPath.append(NavPath.thread(entity))
     }

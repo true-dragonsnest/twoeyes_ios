@@ -99,12 +99,6 @@ private let testThread: EntityThread = .init(
         "https://file2.nocutnews.co.kr/newsroom/image/2025/04/09/202504091127263426_6.jpg",
         "http://news.kbs.co.kr/data/news/2025/04/18/20250418_0I1PVf.jpg"
     ],
-    articleIds: [
-        800,
-        802,
-        803,
-        911
-    ],
     similarity: 0
 )
 

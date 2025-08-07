@@ -109,4 +109,14 @@ extension UseCases.Threads {
             throw error
         }
     }
+    
+    static func fetchThreadEntities(threadId: Int) async throws -> [EntityThreadEntity] {
+        do {
+            let entities: [EntityThreadEntity] = try await SupabaseService.shared.fetch(from: BackEnd.ThreadEntities.fetchForThread(threadId: threadId).query)
+            return entities
+        } catch {
+            "failed to fetch thread entities for thread \(threadId) : \(error)".le(T)
+            throw error
+        }
+    }
 }

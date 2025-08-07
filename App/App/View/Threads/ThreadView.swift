@@ -9,18 +9,43 @@ import SwiftUI
 import Kingfisher
 
 struct ThreadView: View {
-    @ObservedObject var viewModel: ThreadViewModel
+    let thread: EntityThread
     
     @State var commentSending = false
     
+    private let repository = ThreadRepository.shared
+    
+    var comments: [EntityComment] {
+        guard let threadId = thread.id else { return [] }
+        return repository.threadComments[threadId] ?? []
+    }
+    
+    var articles: [EntityArticle] {
+        guard let threadId = thread.id else { return [] }
+        return repository.threadArticles[threadId] ?? []
+    }
+    
+    var threadEntities: [EntityThreadEntity] {
+        guard let threadId = thread.id else { return [] }
+        return repository.threadEntities[threadId] ?? []
+    }
+    
+    var isLoadingComments: Bool {
+        guard let threadId = thread.id else { return false }
+        return repository.isLoadingComments[threadId] ?? false
+    }
+    
     var body: some View {
         content
-            .navigationTitle(viewModel.thread.title ?? "Thread")
+            .navigationTitle(thread.title ?? "Thread")
             .toolbarRole(.editor)
             .navigationBarTitleDisplayMode(.inline)
             .overlay(alignment: .bottom) {
                 commentInput
                     .padding(Padding.m)
+            }
+            .onAppear {
+                loadInitialData()
             }
     }
     
@@ -28,6 +53,12 @@ struct ThreadView: View {
         ScrollView {
             VStack(spacing: Spacing.l) {
                 imageCarousel
+                    .padding(.horizontal, Padding.horizontal)
+                
+                articlesSection
+                    .padding(.horizontal, Padding.horizontal)
+                
+                threadEntitiesSection
                     .padding(.horizontal, Padding.horizontal)
                 
                 commentList
@@ -40,7 +71,7 @@ struct ThreadView: View {
     var imageCarousel: some View {
         let height: CGFloat = 300
         
-        if let images = viewModel.thread.images {
+        if let images = thread.images, !images.isEmpty {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: Spacing.xs) {
                     ForEach(Array(images.enumerated()), id: \.0) { index, image in
@@ -64,25 +95,73 @@ struct ThreadView: View {
     }
     
     @ViewBuilder
+    var articlesSection: some View {
+        if !articles.isEmpty {
+            VStack(alignment: .leading, spacing: Spacing.s) {
+                Text("Articles")
+                    .font(.headline)
+                    .foregroundStyle(.label1)
+                
+                ForEach(articles) { article in
+                    // Article view implementation
+                    Text(article.title ?? "Untitled Article")
+                        .font(.subheadline)
+                        .foregroundStyle(.label2)
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    var threadEntitiesSection: some View {
+        if !threadEntities.isEmpty {
+            VStack(alignment: .leading, spacing: Spacing.s) {
+                Text("Key Entities")
+                    .font(.headline)
+                    .foregroundStyle(.label1)
+                
+                LazyVStack(alignment: .leading, spacing: Spacing.xs) {
+                    ForEach(threadEntities) { entity in
+                        HStack {
+                            Text(entity.entityName)
+                                .font(.subheadline)
+                                .foregroundStyle(.label2)
+                            
+                            Spacer()
+                            
+                            if let sentiment = entity.averageSentiment {
+                                Text(String(format: "%.2f", sentiment))
+                                    .font(.caption)
+                                    .foregroundStyle(sentiment > 0 ? .green : sentiment < 0 ? .red : .label3)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
     var commentList: some View {
         LazyVStack(alignment: .leading, spacing: Spacing.m) {
-            if viewModel.comments.isEmpty && !viewModel.isLoadingComments {
+            if comments.isEmpty && !isLoadingComments {
                 Text("No comments yet. Be the first to comment!")
                     .font(.subheadline)
                     .foregroundStyle(.label3)
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.vertical, Padding.vertical)
             } else {
-                ForEach(Array(viewModel.comments.enumerated()), id: \.element.id) { index, comment in
+                ForEach(Array(comments.enumerated()), id: \.element.id) { index, comment in
                     ThreadCommentView(comment: comment)
                         .onAppear {
                             Task {
-                                await viewModel.loadMoreCommentsIfNeeded(currentIndex: index)
+                                guard let threadId = thread.id else { return }
+                                await repository.loadMoreCommentsIfNeeded(for: threadId, currentIndex: index)
                             }
                         }
                 }
                 
-                if viewModel.isLoadingComments {
+                if isLoadingComments {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle(tint: .label1))
                         .frame(maxWidth: .infinity, alignment: .center)
@@ -91,7 +170,40 @@ struct ThreadView: View {
             }
             
             // footer spacing
-            Color.red.frame(height: 128)
+            Color.clear.frame(height: 128)
+        }
+    }
+    
+    // MARK: - Data Loading
+    private func loadInitialData() {
+        guard let threadId = thread.id else { return }
+        
+        Task {
+            await withTaskGroup(of: Void.self) { group in
+                group.addTask {
+                    do {
+                        try await repository.loadArticles(for: threadId, reset: true)
+                    } catch {
+                        ContentViewModel.shared.setError(error)
+                    }
+                }
+                
+                group.addTask {
+                    do {
+                        try await repository.loadThreadEntities(for: threadId)
+                    } catch {
+                        ContentViewModel.shared.setError(error)
+                    }
+                }
+                
+                group.addTask {
+                    do {
+                        try await repository.loadComments(for: threadId, reset: true)
+                    } catch {
+                        ContentViewModel.shared.setError(error)
+                    }
+                }
+            }
         }
     }
     
@@ -103,11 +215,13 @@ struct ThreadView: View {
                  sendEnabled: commentSending == false)
         { comment, commentAttachments in
             Task { @MainActor in
+                guard let threadId = thread.id else { return }
+                
                 withAnimation {
                     commentSending = true
                 }
                 do {
-                    try await viewModel.postComment(content: comment)
+                    try await repository.addComment(to: threadId, content: comment)
                 } catch {
                     ContentViewModel.shared.setError(error)
                 }
