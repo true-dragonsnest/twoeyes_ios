@@ -68,70 +68,31 @@ struct ThreadView: View {
         LazyVStack(alignment: .leading, spacing: 12) {
             if viewModel.comments.isEmpty && !viewModel.isLoadingComments {
                 Text("No comments yet. Be the first to comment!")
-                    .foregroundColor(.secondary)
+                    .font(.subheadline)
+                    .foregroundStyle(.label3)
                     .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.vertical, 32)
+                    .padding(.vertical)
             } else {
                 ForEach(Array(viewModel.comments.enumerated()), id: \.element.id) { index, comment in
-                    commentRow(comment: comment)
+                    ThreadThreadCommentView(comment: comment)
                         .onAppear {
                             Task {
                                 await viewModel.loadMoreCommentsIfNeeded(currentIndex: index)
                             }
                         }
-                    
-                    if index < viewModel.comments.count - 1 {
-                        Divider()
-                            .padding(.leading, 40)
-                    }
                 }
                 
                 if viewModel.isLoadingComments {
                     ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: .label1))
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding()
                 }
             }
-        }
-    }
-    
-    @ViewBuilder
-    func commentRow(comment: EntityComment) -> some View {
-        HStack(alignment: .top, spacing: 12) {
-            Circle()
-                .fill(.secondary)
-                .frame(width: 32, height: 32)
             
-            VStack(alignment: .leading, spacing: 4) {
-                HStack {
-                    Text(comment.userId)
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                    
-                    Spacer()
-                    
-                    Text(comment.createdAt, style: .relative)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                
-                Text(comment.content)
-                    .font(.body)
-                    .multilineTextAlignment(.leading)
-                
-                if comment.isAiGenerated {
-                    HStack {
-                        Image(systemName: "sparkles")
-                            .font(.caption)
-                            .foregroundColor(.blue)
-                        Text("AI Generated")
-                            .font(.caption)
-                            .foregroundColor(.blue)
-                    }
-                }
-            }
+            // footer spacing
+            Color.red.frame(height: 128)
         }
-        .padding(.vertical, 4)
     }
     
     // MARK: comment input
