@@ -8,6 +8,15 @@
 import SwiftUI
 import Kingfisher
 
+// MARK: - const
+extension ThreadView {
+    enum Const {
+        static let topGradientHeight: CGFloat = 120
+        static let bgImageBottomStretch: CGFloat = 120
+    }
+}
+
+// MARK: - view
 struct ThreadView: View {
     let thread: EntityThread
     let detailMode: Bool
@@ -16,13 +25,13 @@ struct ThreadView: View {
     @State var cardHeight: CGFloat = 1
     
     @State var commentSending = false
-    @State private var selectedArticleIndex: Int = 0
+    @State var selectedArticleIndex: Int = 0
     
     private let repository = ThreadRepository.shared
     
     // TODO: Calculate actual safe area + navigation bar height
     private var topGradientHeight: CGFloat {
-        120
+        Const.topGradientHeight
     }
     
     var comments: [EntityComment] {
@@ -46,8 +55,7 @@ struct ThreadView: View {
     }
     
     var currentArticle: EntityArticle? {
-        guard selectedArticleIndex < articles.count else { return nil }
-        return articles[selectedArticleIndex]
+        articles[safe: selectedArticleIndex]
     }
     
     var body: some View {
@@ -74,68 +82,85 @@ struct ThreadView: View {
     @State var scrollPosition = ScrollPosition(id: 0)
     
     var content: some View {
-        VStack(spacing: 0) {
-            Color.clear
-                .frame(width: width)
-                .aspectRatio(1, contentMode: .fill)
-                .overlay(alignment: .top) {
-                    backgroundImage
-                        .overlay(
-                            LinearGradient(
-                                gradient: Gradient(colors: [
-                                    Color.black.opacity(0),
-                                    Color.black.opacity(0.5),
-                                    Color.black
-                                ]),
-                                startPoint: .top,
-                                endPoint: .bottom
+        ZStack {
+            VStack(spacing: 0) {
+                Color.clear
+                    .frame(width: width, height: width)
+                    .overlay(alignment: .top) {
+                        backgroundImage
+                            .overlay(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [
+                                        Color.primaryFill.opacity(0),
+                                        Color.primaryFill.opacity(0.5),
+                                        Color.primaryFill
+                                    ]),
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
                             )
-                        )
-                }
-                .overlay(alignment: .bottom) {
-                    threadHeader
-                }
+                    }
+                    .overlay(alignment: .bottom) {
+                        threadHeader
+                    }
+                
+                Spacer()
+            }
             
-            ScrollView(showsIndicators: false) {
-                LazyVStack(spacing: 0) {
-                    ForEach(Array(articles.enumerated()), id: \.element.id) { index, article in
-                        ArticleCard(article: article, selected: index == scrollPosition.viewID(type: Int.self))
-                            .id(index)
-                            .padding(.vertical, Padding.vertical)
-                            .frame(height: cardHeight)
-                            .padding(.horizontal, Padding.horizontal)
+            VStack {
+                Color.clear
+                    .frame(width: width, height: width)
+                
+                ScrollView(showsIndicators: false) {
+                    LazyVStack(spacing: 0) {
+                        ForEach(Array(articles.enumerated()), id: \.element.id) { index, article in
+                            ArticleCard(article: article, selected: index == selectedArticleIndex)//scrollPosition.viewID(type: Int.self))
+                                .id(index)
+                                .padding(.vertical, Padding.vertical)
+                                .frame(height: cardHeight)
+                                .padding(.horizontal, Padding.horizontal)
+                        }
+                    }
+                    .padding(.vertical, Padding.m)
+                    .scrollTargetLayout()
+                }
+                .scrollClipDisabled()
+                .scrollTargetBehavior(.viewAligned(limitBehavior: .alwaysByOne))
+                .readSize {
+                    cardHeight = $0.height - Spacing.m - 30
+                }
+                .scrollPosition($scrollPosition)
+                .onChange(of: scrollPosition) { _, newValue in
+                    if let index = newValue.viewID(type: Int.self) {
+                        selectedArticleIndex = index
                     }
                 }
-                .padding(.vertical, Padding.m)
-                .scrollTargetLayout()
+                
+                Color.yellow.frame(height: 100)
+                    .overlay {
+                        Text("Comment area")
+                    }
             }
-            .scrollClipDisabled()
-            .scrollTargetBehavior(.viewAligned(limitBehavior: .alwaysByOne))
-            .readSize {
-                cardHeight = $0.height - Spacing.m - 30
+            .mask(alignment: .top) {
+                VStack(spacing: 0) {
+                    LinearGradient(
+                        gradient: Gradient(
+                            stops: [
+                                .init(color: Color.white.opacity(0), location: 0.0),
+                                .init(color: Color.white.opacity(0), location: 0.95),
+                                .init(color: Color.white, location: 1.0)
+                            ]
+                        ),
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .frame(width: width, height: width + Padding.l)
+                    
+                    Color.white
+                }
             }
-            .scrollPosition($scrollPosition)
-//            .mask(alignment: .top) {
-//                VStack(spacing: 0) {
-//                    LinearGradient(
-//                        gradient: Gradient(
-//                            stops: [
-//                                .init(color: Color.white.opacity(0), location: 0.0),
-//                                .init(color: Color.white.opacity(0.1), location: 0.95),
-//                                .init(color: Color.white, location: 1.0)
-//                            ]
-//                        ),
-//                        startPoint: .top,
-//                        endPoint: .bottom
-//                    )
-//                    .frame(width: sceneSize.width, height: sceneSize.width)
-//                    
-//                    Color.white
-//                }
-//            }
         }
-        
-        .background(.black)
+        .background(.primaryFill)
     }
 
     //        .overlay(alignment: .bottom) {
@@ -152,7 +177,7 @@ struct ThreadView: View {
     
     @ViewBuilder
     var backgroundImage: some View {
-        let imageHeight = width + 100
+        let imageHeight = width + Const.bgImageBottomStretch
         Group {
             if let url = URL(fromString: currentArticle?.image ?? articles.first?.image) {
                 KFImage(url)
@@ -172,9 +197,9 @@ struct ThreadView: View {
         .overlay(alignment: .top) {
             LinearGradient(
                 gradient: Gradient(colors: [
-                    Color.black.opacity(0.8),
-                    Color.black.opacity(0.4),
-                    Color.black.opacity(0)
+                    Color.primaryFill.opacity(0.8),
+                    Color.primaryFill.opacity(0.4),
+                    Color.primaryFill.opacity(0)
                 ]),
                 startPoint: .top,
                 endPoint: .bottom
@@ -186,44 +211,12 @@ struct ThreadView: View {
     @ViewBuilder
     var threadHeader: some View {
         VStack(alignment: .leading, spacing: Spacing.s) {
-//            if let category = thread.category {
-//                Text(category)
-//                    .font(.caption)
-//                    .fontWeight(.semibold)
-//                    .foregroundStyle(.white.opacity(0.8))
-//                    .padding(.horizontal, Padding.s)
-//                    .padding(.vertical, 4)
-//                    .background(Color.blue)
-//                    .clipShape(RoundedRectangle(cornerRadius: 4))
-//            }
-            
-            Text(thread.mainSubject)
-                .font(.title)
+            Text(currentArticle?.mainSubject ?? thread.mainSubject)
+                .font(.largeTitle)
                 .fontWeight(.bold)
-                .foregroundStyle(.white)
+                .foregroundStyle(.label1)
                 .padding(.horizontal, Padding.horizontal)
                 .padding(.bottom, Padding.l)
-            
-//            if let summary = thread.summary {
-//                Text(summary)
-//                    .font(.subheadline)
-//                    .foregroundStyle(.white.opacity(0.9))
-//                    .lineLimit(3)
-//            }
-            
-//            HStack(spacing: Spacing.m) {
-//                if let createdAt = thread.createdAt {
-//                    Label(createdAt.timeAgo(), systemImage: "clock")
-//                        .font(.caption)
-//                        .foregroundStyle(.white.opacity(0.7))
-//                }
-                
-//                if let articleCount = thread.articleCount {
-//                    Label("\(articleCount) articles", systemImage: "doc.text")
-//                        .font(.caption)
-//                        .foregroundStyle(.white.opacity(0.7))
-//                }
-//            }
         }
     }
     

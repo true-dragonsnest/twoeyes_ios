@@ -22,6 +22,9 @@
     "banner area" : {
       "shouldTranslate" : false
     },
+    "Comment area" : {
+
+    },
     "common.error" : {
       "extractionState" : "manual",
       "localizations" : {

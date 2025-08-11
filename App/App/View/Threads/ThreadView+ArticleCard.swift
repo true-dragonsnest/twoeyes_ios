@@ -13,7 +13,7 @@ extension ThreadView {
         let article: EntityArticle
         let selected: Bool
         
-        @State var showSummary = -1
+        @State var keypointProgress = -1
         @State var favicon: UIImage?
         @State var keypointScrollPos = ScrollPosition(id: 0)
         @State var keypointScrollViewHeight: CGFloat = 0
@@ -32,19 +32,20 @@ extension ThreadView {
                 .borderedCapsule(cornerRadius: 24, strokeColor: .label3)
                 .onChange(of: selected) { _, val in
                     if val {
-                        withAnimation(.smooth(duration: 0.5)) {
-                            showSummary += 1
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            withAnimation(.smooth(duration: 0.5)) {
+                                keypointProgress += 1
+                            }
                         }
                     } else {
-                        withAnimation(.smooth(duration: 0.5)) {
-                            showSummary = -1
+                        withAnimation(.smooth(duration: 0.2)) {
+                            keypointProgress = -1
                         }
                     }
                 }
                 .onAppear {
-                    showSummary = selected ? 0 : -1
+                    keypointProgress = selected ? 0 : -1
                     loadFavicon()
-                    scrollTo(0)
                 }
         }
         
@@ -65,7 +66,7 @@ extension ThreadView {
                             .fontWeight(.semibold)
                             .multilineTextAlignment(.leading)
                             .lineLimit(2)
-                            .foregroundStyle(.white.opacity(0.7))
+                            .foregroundStyle(.label2)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
@@ -85,7 +86,7 @@ extension ThreadView {
                         Text(Date.now, format: .reference(to: date))
                             .font(.footnote)
                             .fontWeight(.semibold)
-                            .foregroundStyle(.white.opacity(0.6))
+                            .foregroundStyle(.label2)
                             .frame(maxWidth: .infinity, alignment: .trailing)
                     }
                 }
@@ -98,7 +99,7 @@ extension ThreadView {
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: Spacing.l) {
                     ForEach(0..<(article.keyPoints?.count ?? 0), id: \.self) { index in
-                        if showSummary >= index,
+                        if keypointProgress >= index,
                             let text = article.keyPoints?[safe: index] {
                             Text(text)
                                 .customAttribute(EmphasisAttribute())
@@ -110,17 +111,17 @@ extension ThreadView {
                                 .id(index)
                                 .transition(AppearanceTextTransition() {
                                     withAnimation(.smooth(duration: 0.5)) {
-                                        showSummary += 1
+                                        keypointProgress += 1
                                     }
                                     scrollTo(index + 1)
                                 })
-                                .scrollTransition { content, phase in
-                                    content
-                                        .scaleEffect(1 - abs(phase.value * 0.2))
-                                        .opacity(1 - abs(phase.value))
+//                                .scrollTransition { content, phase in
+//                                    content
+//                                        .scaleEffect(1 - abs(phase.value * 0.2))
+//                                        .opacity(1 - abs(phase.value))
 //                                        .blur(radius: phase.isIdentity ? 0 : abs(phase.value) * 2)
 //                                        .offset(y: -phase.value * cellHeight / 2)
-                                }
+//                                }
                         }
                     }
                 }
