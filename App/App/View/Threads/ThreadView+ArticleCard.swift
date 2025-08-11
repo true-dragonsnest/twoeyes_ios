@@ -32,11 +32,10 @@ extension ThreadView {
                 .borderedCapsule(cornerRadius: 24, strokeColor: .label3)
                 .onChange(of: selected) { _, val in
                     if val {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            withAnimation(.smooth(duration: 0.5)) {
-                                keypointProgress += 1
-                            }
+                        withAnimation(.smooth(duration: 0.5)) {
+                            keypointProgress = 0
                         }
+                        scrollTo(0)
                     } else {
                         withAnimation(.smooth(duration: 0.2)) {
                             keypointProgress = -1
@@ -46,6 +45,7 @@ extension ThreadView {
                 .onAppear {
                     keypointProgress = selected ? 0 : -1
                     loadFavicon()
+                    scrollTo(0)
                 }
         }
         
@@ -61,7 +61,7 @@ extension ThreadView {
                     }
                     
                     if let title = article.title {
-                        Text(title)
+                        Text(title.htmlDecoded)
                             .font(.headline)
                             .fontWeight(.semibold)
                             .multilineTextAlignment(.leading)
@@ -98,6 +98,7 @@ extension ThreadView {
             let cellHeight = keypointScrollViewHeight
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: Spacing.l) {
+                    Color.clear.frame(height: cellHeight)
                     ForEach(0..<(article.keyPoints?.count ?? 0), id: \.self) { index in
                         if keypointProgress >= index,
                             let text = article.keyPoints?[safe: index] {
@@ -115,17 +116,18 @@ extension ThreadView {
                                     }
                                     scrollTo(index + 1)
                                 })
-//                                .scrollTransition { content, phase in
-//                                    content
-//                                        .scaleEffect(1 - abs(phase.value * 0.2))
-//                                        .opacity(1 - abs(phase.value))
-//                                        .blur(radius: phase.isIdentity ? 0 : abs(phase.value) * 2)
-//                                        .offset(y: -phase.value * cellHeight / 2)
-//                                }
+                                .scrollTransition { content, phase in
+                                    content
+                                        .scaleEffect(1 - abs(phase.value * 0.2))
+                                        .opacity(1 - abs(phase.value))
+                                        .blur(radius: phase.isIdentity ? 0 : abs(phase.value) * 2)
+                                        //.offset(y: -phase.value * cellHeight / 2)
+                                }
                         }
                     }
                 }
             }
+            .frame(maxWidth: .infinity)
             .scrollPosition($keypointScrollPos)
             .scrollDisabled(true)
         }

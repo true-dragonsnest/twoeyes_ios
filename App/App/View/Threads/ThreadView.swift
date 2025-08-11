@@ -21,6 +21,9 @@ struct ThreadView: View {
     let thread: EntityThread
     let detailMode: Bool
     
+    @State var scrollPosition = ScrollPosition(id: 0)
+    @FocusState var focused
+    
     @State var width: CGFloat = 0
     @State var cardHeight: CGFloat = 1
     
@@ -72,128 +75,135 @@ struct ThreadView: View {
                 content
             }
         }
-        .readSize { width = $0.width }
+        .readSize {
+            width = $0.width
+        }
         .onAppear {
             loadInitialData()
         }
         .preferredColorScheme(.dark)
     }
     
-    @State var scrollPosition = ScrollPosition(id: 0)
-    
     var content: some View {
         ZStack {
-            VStack(spacing: 0) {
-                Color.clear
-                    .frame(width: width, height: width)
-                    .overlay(alignment: .top) {
-                        backgroundImage
-                            .overlay(
-                                LinearGradient(
-                                    gradient: Gradient(colors: [
-                                        Color.primaryFill.opacity(0),
-                                        Color.primaryFill.opacity(0.5),
-                                        Color.primaryFill
-                                    ]),
-                                    startPoint: .top,
-                                    endPoint: .bottom
-                                )
-                            )
-                    }
-                    .overlay(alignment: .bottom) {
-                        threadHeader
-                    }
-                
-                Spacer()
-            }
-            
-            VStack {
-                Color.clear
-                    .frame(width: width, height: width)
-                
-                ScrollView(showsIndicators: false) {
-                    LazyVStack(spacing: 0) {
-                        ForEach(Array(articles.enumerated()), id: \.element.id) { index, article in
-                            ArticleCard(article: article, selected: index == selectedArticleIndex)//scrollPosition.viewID(type: Int.self))
-                                .id(index)
-                                .padding(.vertical, Padding.vertical)
-                                .frame(height: cardHeight)
-                                .padding(.horizontal, Padding.horizontal)
-                        }
-                    }
-                    .padding(.vertical, Padding.m)
-                    .scrollTargetLayout()
-                }
-                .scrollClipDisabled()
-                .scrollTargetBehavior(.viewAligned(limitBehavior: .alwaysByOne))
-                .readSize {
-                    cardHeight = $0.height - Spacing.m - 30
-                }
-                .scrollPosition($scrollPosition)
-                .onChange(of: scrollPosition) { _, newValue in
-                    if let index = newValue.viewID(type: Int.self) {
-                        selectedArticleIndex = index
-                    }
-                }
-                
-                Color.yellow.frame(height: 100)
-                    .overlay {
-                        Text("Comment area")
-                    }
-            }
-            .mask(alignment: .top) {
-                VStack(spacing: 0) {
-                    LinearGradient(
-                        gradient: Gradient(
-                            stops: [
-                                .init(color: Color.white.opacity(0), location: 0.0),
-                                .init(color: Color.white.opacity(0), location: 0.95),
-                                .init(color: Color.white, location: 1.0)
-                            ]
-                        ),
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                    .frame(width: width, height: width + Padding.l)
-                    
-                    Color.white
-                }
-            }
+            backgroundLayer
+            foregroundLayer
         }
         .background(.primaryFill)
     }
-
-    //        .overlay(alignment: .bottom) {
-//            commentInput
-//                .padding(Padding.m)
-//                .background(
-//                    Color.black
-//                        .opacity(0.8)
-//                        .background(.ultraThinMaterial)
-//                        .ignoresSafeArea(edges: .bottom)
-//                )
-//        }
-
+    
+    private func loadInitialData() {
+        guard let threadId = thread.id else { return }
+        
+        Task {
+            await withTaskGroup(of: Void.self) { group in
+                group.addTask {
+                    do {
+                        try await repository.loadArticles(for: threadId, reset: true)
+                    } catch {
+                        ContentViewModel.shared.setError(error)
+                    }
+                }
+                
+                group.addTask {
+                    do {
+                        try await repository.loadThreadEntities(for: threadId)
+                    } catch {
+                        ContentViewModel.shared.setError(error)
+                    }
+                }
+                
+                group.addTask {
+                    do {
+                        try await repository.loadComments(for: threadId, reset: true)
+                    } catch {
+                        ContentViewModel.shared.setError(error)
+                    }
+                }
+            }
+        }
+    }
+}
+    
+// MARK: - background
+extension ThreadView {
+    var backgroundLayer: some View {
+        VStack(spacing: 0) {
+            Color.clear
+                .frame(width: width, height: width)
+                .overlay(alignment: .top) {
+//                    backgroundImage
+//                        .overlay(
+//                            LinearGradient(
+//                                gradient: Gradient(colors: [
+//                                    Color.primaryFill.opacity(0),
+//                                    Color.primaryFill.opacity(0.5),
+//                                    Color.primaryFill
+//                                ]),
+//                                startPoint: .top,
+//                                endPoint: .bottom
+//                            )
+//                        )
+                }
+                .overlay(alignment: .bottom) {
+                    threadHeader
+                }
+            
+            Spacer()
+        }
+        .background(alignment: .top) {
+            backgroundImage
+                .overlay {
+                    VStack(spacing: 0) {
+                        LinearGradient(
+                            gradient: Gradient(
+                                stops: [
+                                    .init(color: Color.primaryFill.opacity(0), location: 0.0),
+                                    .init(color: Color.primaryFill.opacity(0), location: 0.5),
+                                    .init(color: Color.primaryFill.opacity(0.9), location: 1.0)
+                                ]
+                            ),
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                        .frame(width: width, height: width + Const.bgImageBottomStretch)
+                        Color.primaryFill.opacity(0.9)
+                    }
+                        
+                }
+        }
+    }
     
     @ViewBuilder
     var backgroundImage: some View {
         let imageHeight = width + Const.bgImageBottomStretch
-        Group {
-            if let url = URL(fromString: currentArticle?.image ?? articles.first?.image) {
-                KFImage(url)
-                    .backgroundDecode(true)
-                    .resizable()
-                    .placeholder {
-                        Color.secondaryFill
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(spacing: 0) {
+                ForEach(Array(articles.enumerated()), id: \.offset) { index, article in
+                    Group {
+                        if let url = URL(fromString: article.image ?? articles.first?.image) {
+                            KFImage(url)
+                                .backgroundDecode(true)
+                                .resizable()
+                                .placeholder {
+                                    Color.secondaryFill
+                                }
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: width, height: imageHeight)
+                                .clipped()
+                        } else {
+                            Color.secondaryFill
+                        }
                     }
-                    .aspectRatio(contentMode: .fill)
                     .frame(width: width, height: imageHeight)
-                    .clipped()
-            } else {
-                Color.secondaryFill
+                    .id(index)
+                }
             }
+            .scrollTargetLayout()
         }
-        .frame(width: width, height: imageHeight)
+        .scrollDisabled(true)
+        .scrollClipDisabled()
+        .scrollPosition($scrollPosition)
         .overlay(alignment: .top) {
             LinearGradient(
                 gradient: Gradient(colors: [
@@ -219,10 +229,70 @@ struct ThreadView: View {
                 .padding(.bottom, Padding.l)
         }
     }
+}
+
+// MARK: - foreground
+extension ThreadView {
+    var foregroundLayer: some View {
+        VStack {
+            Color.clear
+                .frame(width: width, height: width)
+            
+            articleListView
+            
+            Color.yellow.frame(height: 100)
+                .overlay {
+                    Text("Comment area")
+                }
+        }
+        .mask(alignment: .top) {
+            VStack(spacing: 0) {
+                LinearGradient(
+                    gradient: Gradient(
+                        stops: [
+                            .init(color: Color.white.opacity(0), location: 0.0),
+                            .init(color: Color.white.opacity(0), location: 0.95),
+                            .init(color: Color.white, location: 1.0)
+                        ]
+                    ),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(width: width, height: width + Padding.l)
+                
+                Color.white
+            }
+        }
+    }
     
-    
-    
-//    @ViewBuilder
+    var articleListView: some View {
+        ScrollView(showsIndicators: false) {
+            LazyVStack(spacing: 0) {
+                ForEach(Array(articles.enumerated()), id: \.element.id) { index, article in
+                    ArticleCard(article: article, selected: index == selectedArticleIndex)
+                        .id(index)
+                        .padding(.vertical, Padding.vertical)
+                        .frame(height: cardHeight)
+                        .padding(.horizontal, Padding.horizontal)
+                }
+            }
+            .padding(.vertical, Padding.m)
+            .scrollTargetLayout()
+        }
+        .scrollClipDisabled()
+        .scrollTargetBehavior(.viewAligned(limitBehavior: .alwaysByOne))
+        .readSize {
+            cardHeight = $0.height - Spacing.m - 30
+        }
+        .scrollPosition($scrollPosition)
+        .onChange(of: scrollPosition) { _, newValue in
+            if let index = newValue.viewID(type: Int.self) {
+                selectedArticleIndex = index
+            }
+        }
+    }
+
+    //    @ViewBuilder
 //    var commentList: some View {
 //        LazyVStack(alignment: .leading, spacing: Spacing.m) {
 //            if comments.isEmpty && !isLoadingComments {
@@ -255,41 +325,7 @@ struct ThreadView: View {
 //        }
 //    }
     
-    // MARK: - Data Loading
-    private func loadInitialData() {
-        guard let threadId = thread.id else { return }
-        
-        Task {
-            await withTaskGroup(of: Void.self) { group in
-                group.addTask {
-                    do {
-                        try await repository.loadArticles(for: threadId, reset: true)
-                    } catch {
-                        ContentViewModel.shared.setError(error)
-                    }
-                }
-                
-                group.addTask {
-                    do {
-                        try await repository.loadThreadEntities(for: threadId)
-                    } catch {
-                        ContentViewModel.shared.setError(error)
-                    }
-                }
-                
-                group.addTask {
-                    do {
-                        try await repository.loadComments(for: threadId, reset: true)
-                    } catch {
-                        ContentViewModel.shared.setError(error)
-                    }
-                }
-            }
-        }
-    }
-    
     // MARK: - comment input
-    @FocusState var focused
     var commentInput: some View {
         InputBar(text: "Drop a comment",
                  focused: $focused,
@@ -312,4 +348,15 @@ struct ThreadView: View {
             }
         }
     }
+    
+//        .overlay(alignment: .bottom) {
+//            commentInput
+//                .padding(Padding.m)
+//                .background(
+//                    Color.black
+//                        .opacity(0.8)
+//                        .background(.ultraThinMaterial)
+//                        .ignoresSafeArea(edges: .bottom)
+//                )
+//        }
 }
