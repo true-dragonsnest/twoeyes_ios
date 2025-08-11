@@ -128,6 +128,9 @@ class ThreadRepository {
             
             hasMoreArticles[threadId] = articles.count == Const.articlesPageSize
             
+            // Prefetch favicons for all articles
+            prefetchFavicons(for: articles)
+            
         } catch {
             "Failed to load articles for thread \(threadId): \(error)".le(T)
             throw error
@@ -294,6 +297,19 @@ class ThreadRepository {
         } catch {
             "Failed to refresh threads: \(error)".le(T)
             ContentViewModel.shared.setError(error)
+        }
+    }
+    
+    // MARK: - Favicon Prefetch
+    private func prefetchFavicons(for articles: [EntityArticle]) {
+        Task {
+            await withTaskGroup(of: Void.self) { group in
+                for article in articles {
+                    group.addTask {
+                        _ = await UseCases.Favicon.loadFavicon(from: article.url)
+                    }
+                }
+            }
         }
     }
 }

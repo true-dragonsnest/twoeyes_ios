@@ -80,7 +80,6 @@ struct ThreadView: View {
                 .aspectRatio(1, contentMode: .fill)
                 .overlay(alignment: .top) {
                     backgroundImage
-                        .border(.red, width: 10)
                         .overlay(
                             LinearGradient(
                                 gradient: Gradient(colors: [
@@ -115,7 +114,6 @@ struct ThreadView: View {
             .readSize {
                 cardHeight = $0.height - Spacing.m - 30
             }
-            .border(.blue)
             .scrollPosition($scrollPosition)
 //            .mask(alignment: .top) {
 //                VStack(spacing: 0) {
