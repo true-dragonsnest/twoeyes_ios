@@ -20,15 +20,17 @@ extension ThreadView {
 struct ThreadView: View {
     let thread: EntityThread
     let detailMode: Bool
-    
-    @State var scrollPosition = ScrollPosition(id: 0)
-    @FocusState var focused
-    
+
     @State var width: CGFloat = 0
-    @State var cardHeight: CGFloat = 1
-    
-    @State var commentSending = false
+
+    @State var articleCardHeight: CGFloat = 1
+    @State var articleScrollPosition = ScrollPosition(id: 0)
+    @State var articleScrollOffset: CGFloat = 0
     @State var selectedArticleIndex: Int = 0
+    
+    @FocusState var focused
+    @State var commentSending = false
+    
     
     private let repository = ThreadRepository.shared
     
@@ -177,33 +179,27 @@ extension ThreadView {
     @ViewBuilder
     var backgroundImage: some View {
         let imageHeight = width + Const.bgImageBottomStretch
-        ScrollView(.vertical, showsIndicators: false) {
-            VStack(spacing: 0) {
-                ForEach(Array(articles.enumerated()), id: \.offset) { index, article in
-                    Group {
-                        if let url = URL(fromString: article.image ?? articles.first?.image) {
-                            KFImage(url)
-                                .backgroundDecode(true)
-                                .resizable()
-                                .placeholder {
-                                    Color.secondaryFill
-                                }
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: width, height: imageHeight)
-                                .clipped()
-                        } else {
-                            Color.secondaryFill
-                        }
+        VStack(spacing: 0) {
+            ForEach(Array(articles.enumerated()), id: \.offset) { index, article in
+                Group {
+                    if let url = URL(fromString: article.image ?? articles.first?.image) {
+                        KFImage(url)
+                            .backgroundDecode(true)
+                            .resizable()
+                            .placeholder {
+                                Color.secondaryFill
+                            }
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: width, height: imageHeight)
+                            .clipped()
+                    } else {
+                        Color.secondaryFill
                     }
-                    .frame(width: width, height: imageHeight)
-                    .id(index)
                 }
+                .frame(width: width, height: imageHeight)
             }
-            .scrollTargetLayout()
         }
-        .scrollDisabled(true)
-        .scrollClipDisabled()
-        .scrollPosition($scrollPosition)
+        .offset(y: -articleScrollOffset * imageHeight / articleCardHeight)
         .overlay(alignment: .top) {
             LinearGradient(
                 gradient: Gradient(colors: [
@@ -272,7 +268,7 @@ extension ThreadView {
                     ArticleCard(article: article, selected: index == selectedArticleIndex)
                         .id(index)
                         .padding(.vertical, Padding.vertical)
-                        .frame(height: cardHeight)
+                        .frame(height: articleCardHeight)
                         .padding(.horizontal, Padding.horizontal)
                 }
             }
@@ -282,10 +278,15 @@ extension ThreadView {
         .scrollClipDisabled()
         .scrollTargetBehavior(.viewAligned(limitBehavior: .alwaysByOne))
         .readSize {
-            cardHeight = $0.height - Spacing.m - 30
+            articleCardHeight = max(1, $0.height - Spacing.m - 30)
         }
-        .scrollPosition($scrollPosition)
-        .onChange(of: scrollPosition) { _, newValue in
+        .scrollPosition($articleScrollPosition)
+        .onScrollGeometryChange(for: CGFloat.self) { geometry in
+            geometry.contentOffset.y
+        } action: { oldValue, newValue in
+            articleScrollOffset = newValue
+        }
+        .onChange(of: articleScrollPosition) { _, newValue in
             if let index = newValue.viewID(type: Int.self) {
                 selectedArticleIndex = index
             }
