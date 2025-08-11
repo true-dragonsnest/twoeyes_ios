@@ -24,7 +24,7 @@ struct ThreadHomeView: View {
                 .navigationDestination(for: ThreadHomeViewModel.NavPath.self) { navPath in
                     switch navPath {
                     case .thread(let entity):
-                        ThreadView(thread: entity)
+                        ThreadView(thread: entity, detailMode: true)
                     }
                 }
         }

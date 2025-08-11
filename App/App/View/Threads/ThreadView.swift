@@ -10,8 +10,10 @@ import Kingfisher
 
 struct ThreadView: View {
     let thread: EntityThread
+    let detailMode: Bool
     
     @State var width: CGFloat = 0
+    @State var cardHeight: CGFloat = 1
     
     @State var commentSending = false
     @State private var selectedArticleIndex: Int = 0
@@ -48,47 +50,25 @@ struct ThreadView: View {
         return articles[selectedArticleIndex]
     }
     
-    // MARK: comment input
-    @FocusState var focused
-    var commentInput: some View {
-        InputBar(text: "Drop a comment",
-                 focused: $focused,
-                 sendEnabled: commentSending == false)
-        { comment, commentAttachments in
-            Task { @MainActor in
-                guard let threadId = thread.id else { return }
-                
-                withAnimation {
-                    commentSending = true
-                }
-                do {
-                    try await repository.addComment(to: threadId, content: comment)
-                } catch {
-                    ContentViewModel.shared.setError(error)
-                }
-                withAnimation {
-                    commentSending = false
-                }
+    var body: some View {
+        Group {
+            if detailMode {
+                content
+                    .ignoresSafeArea()
+                    .navigationTitle("")
+                    .toolbarRole(.editor)
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbarBackground(.hidden, for: .navigationBar)
+                    .toolbar(.hidden, for: .tabBar)
+            } else {
+                content
             }
         }
-    }
-    
-    var body: some View {
-        content
-            //.ignoresSafeArea()
-            .borderedCapsule(cornerRadius: 24, strokeColor: .label3)
-            .padding(Padding.l)
-        
-//            .navigationTitle("")
-//            .toolbarRole(.editor)
-//            .navigationBarTitleDisplayMode(.inline)
-            .toolbarVisibility(.hidden, for: .navigationBar)
-            .toolbar(.hidden, for: .tabBar)
-            .readSize { width = $0.width }
-            .onAppear {
-                loadInitialData()
-            }
-            .preferredColorScheme(.dark)
+        .readSize { width = $0.width }
+        .onAppear {
+            loadInitialData()
+        }
+        .preferredColorScheme(.dark)
     }
     
     @State var scrollPosition = ScrollPosition(id: 0)
@@ -96,10 +76,11 @@ struct ThreadView: View {
     var content: some View {
         VStack(spacing: 0) {
             Color.clear
-                .frame(maxWidth: .infinity)
+                .frame(width: width)
                 .aspectRatio(1, contentMode: .fill)
                 .overlay(alignment: .top) {
                     backgroundImage
+                        .border(.red, width: 10)
                         .overlay(
                             LinearGradient(
                                 gradient: Gradient(colors: [
@@ -117,23 +98,24 @@ struct ThreadView: View {
                 }
             
             ScrollView(showsIndicators: false) {
-                //Color.red.frame(height: 200)
-                LazyVStack(spacing: Spacing.m) {
+                LazyVStack(spacing: 0) {
                     ForEach(Array(articles.enumerated()), id: \.element.id) { index, article in
                         ArticleCard(article: article, selected: index == scrollPosition.viewID(type: Int.self))
                             .id(index)
-    //                            .visualEffect { view, proxy in
-    //                                view.offset(y: -proxy.frame(in: .scrollView).minY)
-    //                            }
+                            .padding(.vertical, Padding.vertical)
+                            .frame(height: cardHeight)
                             .padding(.horizontal, Padding.horizontal)
                     }
                 }
-                .scrollTargetLayout()
                 .padding(.vertical, Padding.m)
+                .scrollTargetLayout()
+            }
+            .scrollClipDisabled()
+            .scrollTargetBehavior(.viewAligned(limitBehavior: .alwaysByOne))
+            .readSize {
+                cardHeight = $0.height - Spacing.m - 30
             }
             .border(.blue)
-            //.scrollTargetBehavior(.viewAligned(limitBehavior: .alwaysByOne))
-            .scrollTargetBehavior(.paging)
             .scrollPosition($scrollPosition)
 //            .mask(alignment: .top) {
 //                VStack(spacing: 0) {
@@ -172,7 +154,7 @@ struct ThreadView: View {
     
     @ViewBuilder
     var backgroundImage: some View {
-        let imageWidth = width + 100
+        let imageHeight = width + 100
         Group {
             if let url = URL(fromString: currentArticle?.image ?? articles.first?.image) {
                 KFImage(url)
@@ -182,13 +164,13 @@ struct ThreadView: View {
                         Color.secondaryFill
                     }
                     .aspectRatio(contentMode: .fill)
-                    .frame(width: imageWidth, height: imageWidth)
+                    .frame(width: width, height: imageHeight)
                     .clipped()
             } else {
                 Color.secondaryFill
             }
         }
-        .frame(width: imageWidth, height: imageWidth)
+        .frame(width: width, height: imageHeight)
         .overlay(alignment: .top) {
             LinearGradient(
                 gradient: Gradient(colors: [
@@ -247,97 +229,7 @@ struct ThreadView: View {
         }
     }
     
-    struct ArticleCard: View {
-        let article: EntityArticle
-        let selected: Bool
-        
-        @State var showSummary = -1
-        
-        var body: some View {
-            content
-                .padding(Padding.xl)
-                .background(
-                    Color.appPrimary.opacity(0.1)
-                        .visualEffect({ content, proxy in
-                            content
-                                .hueRotation(Angle(degrees: proxy.frame(in: .global).origin.y / 10))
-                        })
-                )
-                .background(.regularMaterial)
-                .borderedCapsule(cornerRadius: 24, strokeColor: .label3)
-                .onChange(of: selected) { _, val in
-                    if val {
-                        withAnimation(.smooth(duration: 0.5)) {
-                            showSummary += 1
-                        }
-                    } else {
-                        withAnimation(.smooth(duration: 0.5)) {
-                            showSummary = -1
-                        }
-                    }
-                }
-        }
-        
-        var content: some View {
-            VStack(spacing: Spacing.l) {
-                HStack(alignment: .top) {
-                    if let source = article.source {
-                        Text(source)
-                            .font(.caption)
-                            .bold()
-                            .foregroundStyle(.white.opacity(0.7))
-                    }
-                    
-                    Text(article.title ?? "")
-                        .font(.caption)
-                        .foregroundStyle(.white.opacity(0.7))
-                    
-                    Spacer()
-                }
-                    
-                if let mainSubject = article.mainSubject {
-                    Text(mainSubject)
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .foregroundStyle(.white)
-                }
-                
-                if let keyPoints = article.keyPoints {
-                    VStack(spacing: Spacing.s) {
-                        //ForEach(0..<keyPoints.count) { index in
-                        ForEach(0..<1) { index in
-                            if let text = keyPoints[safe: index] {
-                                Text(text)
-                                    .font(.headline)
-                                    .fontWeight(.medium)
-                                    .customAttribute(EmphasisAttribute())
-                                    .multilineTextAlignment(.leading)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .transition(AppearanceTextTransition() {
-                                        withAnimation(.smooth(duration: 0.5)) {
-                                            showSummary += 1
-                                        }
-                                    })
-                            }
-                        }
-                    }
-                }
-                
-                HStack(alignment: .bottom) {
-                    Spacer()
-                    
-                    if let date = article.createdAt {
-                        Text(Date.now, format: .reference(to: date))
-                            .font(.footnote)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(.white.opacity(0.6))
-                            .frame(maxWidth: .infinity, alignment: .trailing)
-                    }
-                }
-            }
-        }
-    }
+    
     
 //    @ViewBuilder
 //    var commentList: some View {
@@ -400,6 +292,31 @@ struct ThreadView: View {
                     } catch {
                         ContentViewModel.shared.setError(error)
                     }
+                }
+            }
+        }
+    }
+    
+    // MARK: - comment input
+    @FocusState var focused
+    var commentInput: some View {
+        InputBar(text: "Drop a comment",
+                 focused: $focused,
+                 sendEnabled: commentSending == false)
+        { comment, commentAttachments in
+            Task { @MainActor in
+                guard let threadId = thread.id else { return }
+                
+                withAnimation {
+                    commentSending = true
+                }
+                do {
+                    try await repository.addComment(to: threadId, content: comment)
+                } catch {
+                    ContentViewModel.shared.setError(error)
+                }
+                withAnimation {
+                    commentSending = false
                 }
             }
         }
