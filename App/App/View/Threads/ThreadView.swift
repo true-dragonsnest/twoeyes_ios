@@ -28,6 +28,8 @@ struct ThreadView: View {
     @State var articleScrollOffset: CGFloat = 0
     @State var selectedArticleIndex: Int = 0
     
+    @State var backgroundScrollPosition = ScrollPosition(id: 0)
+    
     @State var showWebView = false
     @State var webUrl: String = ""
     
@@ -146,52 +148,57 @@ extension ThreadView {
             Spacer()
         }
         .background(alignment: .top) {
-            backgroundImage
-                .overlay {
-                    VStack(spacing: 0) {
-                        LinearGradient(
-                            gradient: Gradient(
-                                stops: [
-                                    .init(color: Color.primaryFill.opacity(0.5), location: 0),
-                                    .init(color: Color.primaryFill.opacity(0), location: 0.2),
-                                    .init(color: Color.primaryFill.opacity(0), location: 0.4),
-                                    .init(color: Color.primaryFill.opacity(0.8), location: 1.0)
-                                ]
-                            ),
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                        .frame(width: width, height: width + Const.bgImageBottomStretch)
-                        Color.primaryFill.opacity(0.9)
-                    }
+            VStack(spacing: 0) {
+                articleImageListView
+                Spacer()
+            }
+            .overlay {
+                VStack(spacing: 0) {
+                    LinearGradient(
+                        gradient: Gradient(
+                            stops: [
+                                .init(color: Color.primaryFill.opacity(0.5), location: 0),
+                                .init(color: Color.primaryFill.opacity(0), location: 0.2),
+                                .init(color: Color.primaryFill.opacity(0), location: 0.4),
+                                .init(color: Color.primaryFill.opacity(0.9), location: 1.0)
+                            ]
+                        ),
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .frame(width: width, height: width + Const.bgImageBottomStretch)
+                    Color.primaryFill.opacity(0.9)
                 }
+            }
         }
     }
     
     @ViewBuilder
-    var backgroundImage: some View {
-        let imageHeight = width + Const.bgImageBottomStretch
-        VStack(spacing: 0) {
-            ForEach(Array(articles.enumerated()), id: \.offset) { index, article in
-                Group {
-                    if let url = URL(fromString: article.image ?? articles.first?.image) {
-                        KFImage(url)
-                            .backgroundDecode(true)
-                            .resizable()
-                            .placeholder {
-                                Color.secondaryFill
+    var articleImageListView: some View {
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(spacing: 0) {
+                ForEach(Array(articles.enumerated()), id: \.offset) { index, article in
+                    Color.secondaryFill
+                        .frame(width: width, height: width + Const.bgImageBottomStretch)
+                        .overlay(alignment: .top) {
+                            if let url = URL(fromString: article.image ?? articles.first?.image) {
+                                KFImage(url)
+                                    .backgroundDecode(true)
+                                    .resizable()
+                                    .placeholder {
+                                        Color.secondaryFill
+                                    }
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: width, height: width + Const.bgImageBottomStretch)
+                                    .clipped()
                             }
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: width, height: imageHeight)
-                            .clipped()
-                    } else {
-                        Color.secondaryFill
-                    }
+                        }
+                        .id(index)
                 }
-                .frame(width: width, height: imageHeight)
             }
         }
-        .offset(y: -articleScrollOffset * imageHeight / articleCardHeight)
+        .scrollPosition($backgroundScrollPosition)
+        .frame(width: width, height: width + Const.bgImageBottomStretch)
     }
     
     @ViewBuilder
@@ -256,11 +263,17 @@ extension ThreadView {
                             webUrl = article.url
                             showWebView = true
                         }
+                        .scrollTransition(axis: .vertical) { content, phase in
+                            content
+                                .scaleEffect(1 - abs(phase.value * 0.05))
+                                .opacity(1 - abs(phase.value * 0.7))
+                        }
                 }
             }
             .padding(.vertical, Padding.m)
             .scrollTargetLayout()
         }
+        .contentMargins(.bottom, Spacing.xl, for: .scrollContent)
         .scrollClipDisabled()
         .scrollTargetBehavior(.viewAligned(limitBehavior: .alwaysByOne))
         .readSize {
@@ -275,6 +288,9 @@ extension ThreadView {
         .onChange(of: articleScrollPosition) { _, newValue in
             if let index = newValue.viewID(type: Int.self) {
                 selectedArticleIndex = index
+                withAnimation {
+                    backgroundScrollPosition.scrollTo(id: index, anchor: .top)
+                }
             }
         }
     }
