@@ -21,13 +21,6 @@ extension ThreadView {
         var body: some View {
             content
                 .padding(Padding.xl)
-//                .background(
-//                    Color.appPrimary.opacity(0.1)
-//                        .visualEffect({ content, proxy in
-//                            content
-//                                .hueRotation(Angle(degrees: proxy.frame(in: .global).origin.y / 10))
-//                        })
-//                )
                 .background(.regularMaterial)
                 .borderedCapsule(cornerRadius: 24, strokeColor: .label3)
                 .onChange(of: selected) { _, val in
@@ -35,7 +28,6 @@ extension ThreadView {
                         withAnimation(.smooth(duration: 0.5)) {
                             keypointProgress = 0
                         }
-                        scrollTo(0)
                     } else {
                         withAnimation(.smooth(duration: 0.2)) {
                             keypointProgress = -1
@@ -45,7 +37,6 @@ extension ThreadView {
                 .onAppear {
                     keypointProgress = selected ? 0 : -1
                     loadFavicon()
-                    scrollTo(0)
                 }
         }
         
@@ -99,6 +90,7 @@ extension ThreadView {
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: Spacing.l) {
                     Color.clear.frame(height: cellHeight)
+                        .id(-999)
                     ForEach(0..<(article.keyPoints?.count ?? 0), id: \.self) { index in
                         if keypointProgress >= index,
                             let text = article.keyPoints?[safe: index] {
@@ -114,7 +106,6 @@ extension ThreadView {
                                     withAnimation(.smooth(duration: 0.5)) {
                                         keypointProgress += 1
                                     }
-                                    scrollTo(index + 1)
                                 })
                                 .scrollTransition { content, phase in
                                     content
@@ -122,6 +113,9 @@ extension ThreadView {
                                         .opacity(1 - abs(phase.value))
                                         .blur(radius: phase.isIdentity ? 0 : abs(phase.value) * 2)
                                         //.offset(y: -phase.value * cellHeight / 2)
+                                }
+                                .onAppear {
+                                    scrollTo(index)
                                 }
                         }
                     }

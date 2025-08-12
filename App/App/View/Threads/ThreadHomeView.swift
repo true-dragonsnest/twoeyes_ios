@@ -8,15 +8,9 @@
 import SwiftUI
 
 struct ThreadHomeView: View {
-    @Environment(\.sceneSize) var sceneSize
-    
     @State var viewModel = ThreadHomeViewModel()
     
     private let repository = ThreadRepository.shared
-    
-    var cellWidth: CGFloat {
-        max(1, (sceneSize.width - Spacing.m * 3) / 2)
-    }
     
     var body: some View {
         NavigationStack(path: $viewModel.navPath) {
@@ -53,44 +47,22 @@ struct ThreadHomeView: View {
                 .foregroundStyle(.label3)
         } else {
             ScrollView(.vertical, showsIndicators: false) {
-                HStack(alignment: .top, spacing: Spacing.m) {
-                    LazyVStack(spacing: Spacing.m) {
-                        ForEach(0..<repository.threads.count, id: \.self) { index in
-                            if index % 2 == 0 {
-                                let thread = repository.threads[index]
-                                ThreadCardView(thread: thread)
-                                    .onTapGesture {
-                                        viewModel.navToThread(thread)
-                                    }
-                                    .onAppear {
-                                        Task {
-                                            await repository.loadMoreThreadsIfNeeded(currentIndex: index)
-                                        }
-                                    }
+                LazyVStack(spacing: Spacing.m) {
+                    ForEach(repository.threads, id: \.id) { thread in
+                        ThreadCardView(thread: thread)
+                            .onTapGesture {
+                                viewModel.navToThread(thread)
                             }
-                        }
-                    }
-                    .frame(width: cellWidth)
-                    
-                    LazyVStack(spacing: Spacing.m) {
-                        ForEach(0..<repository.threads.count, id: \.self) { index in
-                            if index % 2 == 1 {
-                                let thread = repository.threads[index]
-                                ThreadCardView(thread: thread)
-                                    .onTapGesture {
-                                        viewModel.navToThread(thread)
+                            .onAppear {
+                                if let index = repository.threads.firstIndex(where: { $0.id == thread.id }) {
+                                    Task {
+                                        await repository.loadMoreThreadsIfNeeded(currentIndex: index)
                                     }
-                                    .onAppear {
-                                        Task {
-                                            await repository.loadMoreThreadsIfNeeded(currentIndex: index)
-                                        }
-                                    }
+                                }
                             }
-                        }
                     }
-                    .frame(width: cellWidth)
                 }
-                .padding(.horizontal, Padding.m)
+                .padding(.horizontal, Padding.xl)
                 
                 if repository.isLoadingThreads && !repository.threads.isEmpty {
                     ProgressView()

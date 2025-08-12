@@ -82,23 +82,3 @@ struct ThreadCardView: View {
     }
 }
 
-#Preview {
-    ThreadCardView(thread: testThread)
-        .frame(width: 200, height: 260)
-}
-
-private let testThread: EntityThread = .init(
-    id: 0,
-    createdAt: .now,
-    updatedAt: .now,
-    title: "thread 1",
-    mainSubject: "헌법재판소법 개정안 통과 통과 통과통과통과통과통과통과통과통과통과통과통과통과통과통과통과통과통과통과통과",
-    images: [
-        "https://image.ytn.co.kr/general/jpg/2025/0417/202504171439380585_t.jpg",
-        "https://pimg.mk.co.kr/news/cms/202504/17/rcv.YNA.20250417.PYH2025041712750001300_R.jpg",
-        "https://file2.nocutnews.co.kr/newsroom/image/2025/04/09/202504091127263426_6.jpg",
-        "http://news.kbs.co.kr/data/news/2025/04/18/20250418_0I1PVf.jpg"
-    ],
-    similarity: 0
-)
-

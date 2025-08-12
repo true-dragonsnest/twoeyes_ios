@@ -28,6 +28,9 @@ struct ThreadView: View {
     @State var articleScrollOffset: CGFloat = 0
     @State var selectedArticleIndex: Int = 0
     
+    @State var showWebView = false
+    @State var webUrl: String = ""
+    
     @FocusState var focused
     @State var commentSending = false
     
@@ -79,6 +82,9 @@ struct ThreadView: View {
         }
         .readSize {
             width = $0.width
+        }
+        .sheet(isPresented: $showWebView) {
+            WebView(url: $webUrl)
         }
         .onAppear {
             loadInitialData()
@@ -133,20 +139,6 @@ extension ThreadView {
         VStack(spacing: 0) {
             Color.clear
                 .frame(width: width, height: width)
-                .overlay(alignment: .top) {
-//                    backgroundImage
-//                        .overlay(
-//                            LinearGradient(
-//                                gradient: Gradient(colors: [
-//                                    Color.primaryFill.opacity(0),
-//                                    Color.primaryFill.opacity(0.5),
-//                                    Color.primaryFill
-//                                ]),
-//                                startPoint: .top,
-//                                endPoint: .bottom
-//                            )
-//                        )
-                }
                 .overlay(alignment: .bottom) {
                     threadHeader
                 }
@@ -160,9 +152,10 @@ extension ThreadView {
                         LinearGradient(
                             gradient: Gradient(
                                 stops: [
-                                    .init(color: Color.primaryFill.opacity(0), location: 0.0),
-                                    .init(color: Color.primaryFill.opacity(0), location: 0.5),
-                                    .init(color: Color.primaryFill.opacity(0.9), location: 1.0)
+                                    .init(color: Color.primaryFill.opacity(0.5), location: 0),
+                                    .init(color: Color.primaryFill.opacity(0), location: 0.2),
+                                    .init(color: Color.primaryFill.opacity(0), location: 0.4),
+                                    .init(color: Color.primaryFill.opacity(0.8), location: 1.0)
                                 ]
                             ),
                             startPoint: .top,
@@ -171,7 +164,6 @@ extension ThreadView {
                         .frame(width: width, height: width + Const.bgImageBottomStretch)
                         Color.primaryFill.opacity(0.9)
                     }
-                        
                 }
         }
     }
@@ -200,18 +192,6 @@ extension ThreadView {
             }
         }
         .offset(y: -articleScrollOffset * imageHeight / articleCardHeight)
-        .overlay(alignment: .top) {
-            LinearGradient(
-                gradient: Gradient(colors: [
-                    Color.primaryFill.opacity(0.8),
-                    Color.primaryFill.opacity(0.4),
-                    Color.primaryFill.opacity(0)
-                ]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .frame(height: topGradientHeight)
-        }
     }
     
     @ViewBuilder
@@ -243,18 +223,19 @@ extension ThreadView {
         }
         .mask(alignment: .top) {
             VStack(spacing: 0) {
+                Color.white.opacity(0)
+                    .frame(width: width, height: width)
                 LinearGradient(
                     gradient: Gradient(
                         stops: [
                             .init(color: Color.white.opacity(0), location: 0.0),
-                            .init(color: Color.white.opacity(0), location: 0.95),
                             .init(color: Color.white, location: 1.0)
                         ]
                     ),
                     startPoint: .top,
                     endPoint: .bottom
                 )
-                .frame(width: width, height: width + Padding.l)
+                .frame(height: Padding.xl)
                 
                 Color.white
             }
@@ -270,6 +251,11 @@ extension ThreadView {
                         .padding(.vertical, Padding.vertical)
                         .frame(height: articleCardHeight)
                         .padding(.horizontal, Padding.horizontal)
+                        .contentShape(.rect)
+                        .onTapGesture {
+                            webUrl = article.url
+                            showWebView = true
+                        }
                 }
             }
             .padding(.vertical, Padding.m)
