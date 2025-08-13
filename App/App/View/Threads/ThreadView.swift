@@ -34,8 +34,6 @@ struct ThreadView: View {
     @State var showWebView = false
     @State var webUrl: String = ""
     
-    @State var selectedEntityReasoning: String? = nil
-    
     @FocusState var focused
     @State var commentSending = false
     
@@ -77,8 +75,8 @@ struct ThreadView: View {
                 content
                     .ignoresSafeArea()
                     .navigationTitle("")
-                    .toolbarRole(.editor)
                     .navigationBarTitleDisplayMode(.inline)
+                    .toolbarRole(.editor)
                     .toolbarBackground(.hidden, for: .navigationBar)
                     .toolbar(.hidden, for: .tabBar)
             } else {
@@ -160,7 +158,7 @@ extension ThreadView {
                     LinearGradient(
                         gradient: Gradient(
                             stops: [
-                                .init(color: Color.primaryFill.opacity(0.5), location: 0),
+                                .init(color: Color.primaryFill.opacity(0.8), location: 0),
                                 .init(color: Color.primaryFill.opacity(0), location: 0.2),
                                 .init(color: Color.primaryFill.opacity(0), location: 0.4),
                                 .init(color: Color.primaryFill.opacity(0.9), location: 1.0)
@@ -206,84 +204,22 @@ extension ThreadView {
     
     @ViewBuilder
     var threadHeader: some View {
-        VStack(alignment: .leading, spacing: Spacing.m) {
+        VStack(alignment: .leading, spacing: Spacing.s) {
             Text(currentArticle?.mainSubject ?? thread.mainSubject)
                 .font(.largeTitle)
                 .fontWeight(.bold)
                 .foregroundStyle(.label1)
-                .padding(.horizontal, Padding.horizontal)
+                .multilineTextAlignment(.leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
             
-            if let entities = currentArticle?.sentimentEntitySpecific, !entities.isEmpty {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: Spacing.s) {
-                        ForEach(entities, id: \.entity) { entitySentiment in
-                            nerSentimentCapsule(for: entitySentiment)
-                        }
-                    }
-                    .padding(.horizontal, Padding.horizontal)
-                }
-                .scrollClipDisabled()
+            if let date = currentArticle?.createdAt {
+                Text(Date.now, format: .reference(to: date))
+                    .font(.footnote)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.label2)
             }
         }
-        .padding(.bottom, Padding.l)
-    }
-    
-    @ViewBuilder
-    func nerSentimentCapsule(for entitySentiment: EntityArticle.EntitySentiment) -> some View {
-        let absValue: CGFloat = CGFloat(abs(entitySentiment.sentiment))
-        let intensity: CGFloat = min(absValue, 1.0)
-        let threshold: Float = 0.5
-        
-        HStack(spacing: 6) {
-            Text(entitySentiment.entity)
-                .font(.subheadline)
-                .fontWeight(absValue > 0.6 ? .bold : .medium)
-                .foregroundStyle(.white)
-            
-            if entitySentiment.sentiment > threshold {
-                Image(systemName: "hand.thumbsup.fill")
-                    .font(.caption)
-                    .foregroundStyle(.white)
-                    .scaleEffect(1 + intensity * 0.3)
-                    .shadow(color: .white.opacity(0.5), radius: intensity * 3)
-            } else if entitySentiment.sentiment < -threshold {
-                Image(systemName: "hand.thumbsdown.fill")
-                    .font(.caption)
-                    .foregroundStyle(.white)
-                    .scaleEffect(1 + intensity * 0.3)
-                    .shadow(color: .white.opacity(0.5), radius: intensity * 3)
-            }
-        }
-        .padding(.horizontal, Padding.s * (1 + intensity * 0.3))
-        .padding(.vertical, Padding.s)
-        .background(.thinMaterial)
-        .background((entitySentiment.sentiment > 0 ? Color.blue : Color.red).opacity(intensity))
-        .borderedCapsule(cornerRadius: 24,
-                         strokeColor: entitySentiment.sentiment > 0 ? Color.blue : Color.red,
-                         strokeWidth: 1 + intensity)
-        .onTapGesture {
-            if let reasoning = entitySentiment.reasoning, !reasoning.isEmpty {
-                selectedEntityReasoning = reasoning
-            }
-        }
-        .popover(
-            isPresented: Binding(
-                get: { selectedEntityReasoning == entitySentiment.reasoning && selectedEntityReasoning != nil },
-                set: { newValue in
-                    if !newValue {
-                        selectedEntityReasoning = nil
-                    }
-                }
-            )
-        ) {
-            Text(entitySentiment.reasoning ?? "")
-                .font(.caption)
-                .foregroundStyle(.label1)
-                .padding(.horizontal, Padding.m)
-                .padding(.vertical, Padding.s)
-                .frame(maxWidth: 200)
-                .presentationCompactAdaptation(.popover)
-        }
+        .padding(.horizontal, Padding.horizontal)
     }
 }
 

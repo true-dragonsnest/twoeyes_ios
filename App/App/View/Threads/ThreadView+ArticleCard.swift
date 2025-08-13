@@ -18,6 +18,8 @@ extension ThreadView {
         @State var keypointScrollPos = ScrollPosition(id: 0)
         @State var keypointScrollViewHeight: CGFloat = 0
         
+        @State var selectedEntityReasoning: String? = nil
+        
         var body: some View {
             content
                 .padding(Padding.xl)
@@ -70,17 +72,7 @@ extension ThreadView {
                 
                 Spacer()
                 
-                HStack(alignment: .bottom) {
-                    Spacer()
-                    
-                    if let date = article.createdAt {
-                        Text(Date.now, format: .reference(to: date))
-                            .font(.footnote)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(.label2)
-                            .frame(maxWidth: .infinity, alignment: .trailing)
-                    }
-                }
+                entityListView
             }
         }
         
@@ -93,7 +85,7 @@ extension ThreadView {
                         .id(-999)
                     ForEach(0..<(article.keyPoints?.count ?? 0), id: \.self) { index in
                         if keypointProgress >= index,
-                            let text = article.keyPoints?[safe: index] {
+                           let text = article.keyPoints?[safe: index] {
                             Text(text)
                                 .customAttribute(EmphasisAttribute())
                                 .font(.title)
@@ -112,7 +104,6 @@ extension ThreadView {
                                         .scaleEffect(1 - abs(phase.value * 0.2))
                                         .opacity(1 - abs(phase.value))
                                         .blur(radius: phase.isIdentity ? 0 : abs(phase.value) * 2)
-                                        //.offset(y: -phase.value * cellHeight / 2)
                                 }
                                 .onAppear {
                                     scrollTo(index)
@@ -124,6 +115,78 @@ extension ThreadView {
             .frame(maxWidth: .infinity)
             .scrollPosition($keypointScrollPos)
             .scrollDisabled(true)
+        }
+        
+        @ViewBuilder
+        var entityListView: some View {
+            if let entities = article.sentimentEntitySpecific, !entities.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: Spacing.s) {
+                        ForEach(entities, id: \.entity) { entitySentiment in
+                            nerSentimentCapsule(for: entitySentiment)
+                        }
+                    }
+                }
+                .scrollClipDisabled()
+            }
+        }
+        
+        @ViewBuilder
+        func nerSentimentCapsule(for entitySentiment: EntityArticle.EntitySentiment) -> some View {
+            let absValue: CGFloat = CGFloat(abs(entitySentiment.sentiment))
+            let intensity: CGFloat = min(absValue, 1.0)
+            let threshold: Float = 0.5
+            
+            HStack(spacing: 6) {
+                Text(entitySentiment.entity)
+                    .font(.subheadline)
+                    .fontWeight(absValue > 0.6 ? .bold : .medium)
+                    .foregroundStyle(.white)
+                
+                if entitySentiment.sentiment > threshold {
+                    Image(systemName: "hand.thumbsup.fill")
+                        .font(.caption)
+                        .foregroundStyle(.white)
+                        .scaleEffect(1 + intensity * 0.3)
+                        .shadow(color: .white.opacity(0.5), radius: intensity * 3)
+                } else if entitySentiment.sentiment < -threshold {
+                    Image(systemName: "hand.thumbsdown.fill")
+                        .font(.caption)
+                        .foregroundStyle(.white)
+                        .scaleEffect(1 + intensity * 0.3)
+                        .shadow(color: .white.opacity(0.5), radius: intensity * 3)
+                }
+            }
+            .padding(.horizontal, Padding.s * (1 + intensity * 0.3))
+            .padding(.vertical, Padding.s)
+            .background(.thinMaterial)
+            .background((entitySentiment.sentiment > 0 ? Color.blue : Color.red).opacity(intensity))
+            .borderedCapsule(cornerRadius: 24,
+                             strokeColor: entitySentiment.sentiment > 0 ? Color.blue : Color.red,
+                             strokeWidth: 1 + intensity)
+            .onTapGesture {
+                if let reasoning = entitySentiment.reasoning, !reasoning.isEmpty {
+                    selectedEntityReasoning = reasoning
+                }
+            }
+            .popover(
+                isPresented: Binding(
+                    get: { selectedEntityReasoning == entitySentiment.reasoning && selectedEntityReasoning != nil },
+                    set: { newValue in
+                        if !newValue {
+                            selectedEntityReasoning = nil
+                        }
+                    }
+                )
+            ) {
+                Text(entitySentiment.reasoning ?? "")
+                    .font(.caption)
+                    .foregroundStyle(.label1)
+                    .padding(.horizontal, Padding.m)
+                    .padding(.vertical, Padding.s)
+                    .frame(maxWidth: 200)
+                    .presentationCompactAdaptation(.popover)
+            }
         }
         
         func scrollTo(_ index: Int) {

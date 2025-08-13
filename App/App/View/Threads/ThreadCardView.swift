@@ -34,7 +34,7 @@ struct ThreadCardView: View {
             
             Spacer()
             
-            if thread.images?.isEmpty == false {
+            if thread.articleSnapshots?.isEmpty == false {
                 imageCarousel
                     .cornerRadius(12)
                     .onAppear(perform: startImageTimer)
@@ -43,13 +43,14 @@ struct ThreadCardView: View {
         }
         .background(.ultraThinMaterial)
         .borderedCapsule(cornerRadius: 12, strokeColor: .label3)
-        .readSize { width = $0.width }
+        .readSize { width = max(4, $0.width) }
     }
     
     private var imageCarousel: some View {
         ZStack(alignment: .bottom) {
-            if let images = thread.images, !images.isEmpty {
-                if let url = URL(fromString: images[safe: currentImageIndex]) {
+            if let snapshots = thread.articleSnapshots, !snapshots.isEmpty {
+                let images = snapshots.compactMap { $0.image }
+                if !images.isEmpty, let url = URL(fromString: images[safe: currentImageIndex]) {
                     KFImage(url)
                         .backgroundDecode(true)
                         .resizable()
@@ -67,7 +68,10 @@ struct ThreadCardView: View {
     }
     
     func startImageTimer() {
-        guard let images = thread.images, images.count > 1 else { return }
+        guard let snapshots = thread.articleSnapshots, 
+              !snapshots.isEmpty else { return }
+        let images = snapshots.compactMap { $0.image }
+        guard images.count > 1 else { return }
         
         timer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { _ in
             withAnimation(.easeInOut) {

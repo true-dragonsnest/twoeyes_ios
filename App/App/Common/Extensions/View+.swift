@@ -26,7 +26,7 @@ public extension View {
 /// size reader
 public extension View {
     func readSize(onChange: @escaping (CGSize) -> Void) -> some View {
-        background(
+        overlay(
             GeometryReader { proxy in
                 Color.clear.preference(key: SizePreferenceKey.self, value: proxy.size)
             }
@@ -37,7 +37,9 @@ public extension View {
 
 private struct SizePreferenceKey: PreferenceKey {
     static var defaultValue: CGSize = .zero
-    static func reduce(value _: inout CGSize, nextValue _: () -> CGSize) {}
+    static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
+        value = nextValue()
+    }
 }
 
 /// to any view

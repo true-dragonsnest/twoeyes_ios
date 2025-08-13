@@ -304,9 +304,21 @@ curl -X POST "$PROD_URL/find-similar-threads" \
       "id": 456,
       "title": "Thread Title",
       "similarity": 0.95,
-      "article_ids": [123, 124, 125],
       "main_subject": "Technology",
-      "images": ["image1.jpg", "image2.jpg"],
+      "article_snapshots": [
+        {
+          "article_id": 123,
+          "source": "example.com",
+          "title": "Article 1 Title",
+          "image": "https://example.com/image1.jpg"
+        },
+        {
+          "article_id": 124,
+          "source": "news.com",
+          "title": "Article 2 Title",
+          "image": "https://news.com/image2.jpg"
+        }
+      ],
       "created_at": "2024-01-01T00:00:00Z"
     }
   ],
