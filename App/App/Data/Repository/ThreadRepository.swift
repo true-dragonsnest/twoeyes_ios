@@ -54,10 +54,10 @@ class ThreadRepository {
         isLoadingThreads = true
         defer { isLoadingThreads = false }
         
-        let startId = reset ? nil : threads.last?.id
+        let startUpdatedAt = reset ? nil : threads.last?.updatedAt
         
         do {
-            let newThreads = try await UseCases.Threads.fetchList(from: startId, limit: Const.threadsPageSize)
+            let newThreads = try await UseCases.Threads.fetchList(from: startUpdatedAt, limit: Const.threadsPageSize)
             
             if reset {
                 threads = newThreads

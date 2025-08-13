@@ -18,6 +18,8 @@ struct ThreadCardView: View {
     
     var body: some View {
         cardView
+            .onAppear(perform: startImageTimer)
+            .onDisappear(perform: stopImageTimer)
     }
     
     var cardView: some View {
@@ -37,8 +39,6 @@ struct ThreadCardView: View {
             if thread.articleSnapshots?.isEmpty == false {
                 imageCarousel
                     .cornerRadius(12)
-                    .onAppear(perform: startImageTimer)
-                    .onDisappear(perform: stopImageTimer)
             }
         }
         .background(.ultraThinMaterial)
@@ -46,23 +46,32 @@ struct ThreadCardView: View {
         .readSize { width = max(4, $0.width) }
     }
     
+    @ViewBuilder
     private var imageCarousel: some View {
-        ZStack(alignment: .bottom) {
-            if let snapshots = thread.articleSnapshots, !snapshots.isEmpty {
-                let images = snapshots.compactMap { $0.image }
-                if !images.isEmpty, let url = URL(fromString: images[safe: currentImageIndex]) {
-                    KFImage(url)
-                        .backgroundDecode(true)
-                        .resizable()
-                        .placeholder {
-                            Color.secondaryFill
+        if let snapshots = thread.articleSnapshots, !snapshots.isEmpty {
+            let images = snapshots.compactMap { $0.image }
+            if !images.isEmpty {
+                TabView(selection: $currentImageIndex) {
+                    ForEach(images.indices, id: \.self) { index in
+                        if let url = URL(fromString: images[index]) {
+                            KFImage(url)
+                                .backgroundDecode(true)
+                                .resizable()
+                                .placeholder {
+                                    Color.secondaryFill
+                                }
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: width - 4, height: width - 4)
+                                .clipShape(.rect(cornerRadius: 12))
+                                .padding(.horizontal, Padding.xs)
+                                .padding(.bottom, Padding.xs)
+                                .tag(index)
                         }
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: width - 4, height: width - 4)
-                        .clipShape(.rect(cornerRadius: 12))
-                        .padding(.horizontal, Padding.xs)
-                        .padding(.bottom, Padding.xs)
+                    }
                 }
+                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+                .allowsHitTesting(false)
+                .frame(height: width - 4)
             }
         }
     }
@@ -74,7 +83,7 @@ struct ThreadCardView: View {
         guard images.count > 1 else { return }
         
         timer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { _ in
-            withAnimation(.easeInOut) {
+            withAnimation(.easeInOut(duration: 0.5)) {
                 currentImageIndex = (currentImageIndex + 1) % images.count
             }
         }

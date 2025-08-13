@@ -76,17 +76,17 @@ enum BackEnd {
             SupabaseService.shared.client?.from(Self.table)
         }
         
-        case fetchList(start: Int?, limit: Int)
+        case fetchList(startUpdatedAt: Date?, limit: Int)
         case fetch(threadId: Int)
         
         var query: PostgrestBuilder? {
             switch self {
-            case let .fetchList(start, limit):
+            case let .fetchList(startUpdatedAt, limit):
                 var ret = Self.rootQueryBuilder?.select()
-                if let start {
-                    ret = ret?.lt("id", value: start)
+                if let startUpdatedAt {
+                    ret = ret?.lt("updated_at", value: startUpdatedAt)
                 }
-                return ret?.order("id", ascending: false).limit(limit)
+                return ret?.order("updated_at", ascending: false).limit(limit)
             case let .fetch(threadId):
                 let ret = Self.rootQueryBuilder?.select()
                             .eq("id", value: threadId)
