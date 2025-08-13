@@ -151,7 +151,7 @@ extension UseCases.Comment {
                 to: BackEnd.Functions.getThreadComments.url,
                 decoder: decoder,
                 encoder: encoder,
-                logLevel: 2
+                logLevel: 1
             )
             "fetched \(response.comments.count) comments".ld(T)
             return response

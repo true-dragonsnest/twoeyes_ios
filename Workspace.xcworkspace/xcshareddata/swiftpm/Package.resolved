@@ -1,5 +1,5 @@
 {
-  "originHash" : "618d0c51946a0d0e444e6853a2c7f7cdfc4d7f22015d9fe4cbf57e6b4416914d",
+  "originHash" : "61733ba15ffb13f51ec2917779b7b1fbd754dcb3acf25e9e2c44ada99ef3a588",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -44,6 +44,15 @@
       "state" : {
         "revision" : "40beeca0aa629b54db521ecc7b94a2ee6cdf1a31",
         "version" : "2.38.1"
+      }
+    },
+    {
+      "identity" : "axistooltip",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/jasudev/AxisTooltip",
+      "state" : {
+        "revision" : "ed9f7acbbd54dc3ab70585c0cd006974b532e998",
+        "version" : "0.5.0"
       }
     },
     {

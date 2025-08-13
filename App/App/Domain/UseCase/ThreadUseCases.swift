@@ -60,7 +60,7 @@ extension UseCases.Threads {
                                                                      to: BackEnd.Functions.findSimilarThreads.url,
                                                                      decoder: decoder,
                                                                      encoder: encoder,
-                                                                     logLevel: 2)
+                                                                     logLevel: 1)
             "similar threads : \(o: ret.jsonPrettyPrinted)".ld(T)
             guard ret.success else {
                 "find similar threads failed".le(T)
@@ -97,7 +97,7 @@ extension UseCases.Threads {
                                                                      to: BackEnd.Functions.addArticleToThread.url,
                                                                      decoder: decoder,
                                                                      encoder: encoder,
-                                                                     logLevel: 2)
+                                                                     logLevel: 1)
             "add to thread : \(ret.threadId), created = \(ret.created), msg = \(o: ret.message)".ld(T)
             guard ret.success else {
                 "add to threads failed".le(T)
