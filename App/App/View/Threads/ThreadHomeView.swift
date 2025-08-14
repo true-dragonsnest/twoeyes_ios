@@ -47,7 +47,7 @@ struct ThreadHomeView: View {
                 .foregroundStyle(.label3)
         } else {
             ScrollView(.vertical, showsIndicators: false) {
-                LazyVStack(spacing: Spacing.m) {
+                LazyVStack(spacing: Spacing.xxl) {
                     ForEach(repository.threads, id: \.id) { thread in
                         ThreadCardView(thread: thread)
                             .onTapGesture {
@@ -60,9 +60,9 @@ struct ThreadHomeView: View {
                                     }
                                 }
                             }
+                            .padding(.bottom, Padding.xl)
                     }
                 }
-                .padding(.horizontal, Padding.xl)
                 
                 if repository.isLoadingThreads && !repository.threads.isEmpty {
                     ProgressView()

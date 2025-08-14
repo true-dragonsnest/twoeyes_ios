@@ -51,6 +51,9 @@ extension ThreadView {
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 36, height: 36)
                             .borderedCapsule(cornerRadius: 4, strokeColor: .clear)
+                    } else {
+                        Circle().fill(Color.label3.opacity(0.5))
+                            .frame(width: 36, height: 36)
                     }
                     
                     if let title = article.title {
@@ -203,7 +206,9 @@ extension ThreadView {
             Task {
                 if let image = await UseCases.Favicon.loadFavicon(from: article.url) {
                     await MainActor.run {
-                        self.favicon = image
+                        withAnimation {
+                            self.favicon = image
+                        }
                     }
                 }
             }

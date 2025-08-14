@@ -9,89 +9,169 @@ import SwiftUI
 import Kingfisher
 
 struct ThreadCardView: View {
-    let thread: EntityThread
-    
-    @State var currentImageIndex = 0
-    @State var timer: Timer? = nil
-    
-    @State var width: CGFloat = 4
-    
-    var body: some View {
-        cardView
-            .onAppear(perform: startImageTimer)
-            .onDisappear(perform: stopImageTimer)
+    enum Const {
+        static let articleListHeight: CGFloat = 300
     }
     
-    var cardView: some View {
-        VStack(alignment: .leading) {
-            HStack {
-                Text(thread.mainSubject)
-                    .font(.headline)
-                    .fontWeight(.bold)
-                    .foregroundStyle(.label1)
-                    .padding(.horizontal, Padding.s)
-                    .padding(.top, Padding.s)
-                Spacer()
-            }
-            
-            Spacer()
-            
-            if thread.articleSnapshots?.isEmpty == false {
-                imageCarousel
-                    .cornerRadius(12)
-            }
-        }
-        .background(.ultraThinMaterial)
-        .borderedCapsule(cornerRadius: 12, strokeColor: .label3)
-        .readSize { width = max(4, $0.width) }
+    let thread: EntityThread
+    
+    var body: some View {
+        content
+            .preferredColorScheme(.dark)
     }
     
     @ViewBuilder
-    private var imageCarousel: some View {
-        if let snapshots = thread.articleSnapshots, !snapshots.isEmpty {
-            let images = snapshots.compactMap { $0.image }
-            if !images.isEmpty {
-                TabView(selection: $currentImageIndex) {
-                    ForEach(images.indices, id: \.self) { index in
-                        if let url = URL(fromString: images[index]) {
-                            KFImage(url)
-                                .backgroundDecode(true)
-                                .resizable()
-                                .placeholder {
-                                    Color.secondaryFill
-                                }
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: width - 4, height: width - 4)
-                                .clipShape(.rect(cornerRadius: 12))
-                                .padding(.horizontal, Padding.xs)
-                                .padding(.bottom, Padding.xs)
-                                .tag(index)
-                        }
+    var content: some View {
+        if thread.articleSnapshots?.count ?? 0 > 1 {
+            VStack(spacing: Spacing.m) {
+                subjectHeader
+                articleList
+            }
+        } else {
+            VStack(spacing: Spacing.m) {
+                if let article = thread.articleSnapshots?.first {
+                    ArticleCard(article: article, fitWidth: true, height: 0)
+                }
+                subjectHeader
+            }
+        }
+    }
+    
+    var subjectHeader: some View {
+        Text(thread.mainSubject)
+            .font(.title3)
+            .fontWeight(.medium)
+            .foregroundStyle(.label1)
+            .multilineTextAlignment(.leading)
+            .lineLimit(3)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, Padding.horizontal)
+    }
+    
+    @ViewBuilder
+    var articleList: some View {
+        if let articles = thread.articleSnapshots, !articles.isEmpty {
+            ScrollView(.horizontal, showsIndicators: false) {
+                LazyHStack(spacing: Spacing.xs) {
+                    ForEach(articles) { article in
+                        ArticleCard(article: article, fitWidth: false, height: Const.articleListHeight)
                     }
                 }
-                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-                .allowsHitTesting(false)
-                .frame(height: width - 4)
+                .padding(.horizontal, Padding.horizontal)
             }
+            .scrollClipDisabled()
         }
-    }
-    
-    func startImageTimer() {
-        guard let snapshots = thread.articleSnapshots, 
-              !snapshots.isEmpty else { return }
-        let images = snapshots.compactMap { $0.image }
-        guard images.count > 1 else { return }
-        
-        timer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { _ in
-            withAnimation(.easeInOut(duration: 0.5)) {
-                currentImageIndex = (currentImageIndex + 1) % images.count
-            }
-        }
-    }
-    
-    func stopImageTimer() {
-        timer?.invalidate()
-        timer = nil
     }
 }
 
+// MARK: - article card view
+private extension ThreadCardView {
+    struct ArticleCard: View {
+        @Environment(\.sceneSize) var sceneSize
+        
+        let article: EntityThread.ArticleSnapshot
+        let fitWidth: Bool
+        let height: CGFloat
+        
+        @State var image: UIImage?
+        @State var favicon: UIImage?
+        
+        var body: some View {
+            Group {
+                if fitWidth {
+                    fitImageView
+                } else {
+                    fixedHeightImageView
+                }
+            }
+            .overlay(alignment: .bottomLeading) {
+                overlayView
+                    .padding(Padding.m)
+            }
+            .onAppear {
+                loadImage()
+                loadFavicon()
+            }
+        }
+        
+        @ViewBuilder
+        var fitImageView: some View {
+            if let image {
+                let fitToSquare = image.size.aspectRatio < 1
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(fitToSquare ? 1 : image.size.aspectRatio, contentMode: .fit)
+                    .frame(width: sceneSize.width)
+            } else {
+                Color.background
+                    .frame(width: sceneSize.width, height: sceneSize.width)
+            }
+        }
+        
+        @ViewBuilder
+        var fixedHeightImageView: some View {
+            if let url = URL(fromString: article.image) {
+                KFImage(url)
+                    .backgroundDecode(true)
+                    .resizable()
+                    .placeholder {
+                        Color.background
+                    }
+                    .aspectRatio(contentMode: .fit)
+                    .frame(height: height)
+                    .clipShape(.rect(cornerRadius: 8))
+            }
+        }
+        
+        var overlayView: some View {
+            HStack {
+                if let favicon {
+                    Image(uiImage: favicon)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 36, height: 36)
+                        .borderedCapsule(cornerRadius: 4, strokeColor: .clear)
+                }
+//
+//                                if let title = article.title {
+//                                    Text(title.htmlDecoded)
+//                                        .font(.headline)
+//                                        .fontWeight(.semibold)
+//                                        .multilineTextAlignment(.leading)
+//                                        .lineLimit(2)
+//                                        .foregroundStyle(.label2)
+//                                        .frame(maxWidth: .infinity, alignment: .leading)
+//                                }
+                Spacer()
+            }
+        }
+        
+        func loadImage() {
+            guard let url = URL(fromString: article.image) else { return }
+            
+            Task {
+                if let image = try? await UseCases.ImageFetch.fetch(from: url) {
+                    await MainActor.run {
+                        withAnimation {
+                            self.image = image
+                        }
+                    }
+                }
+            }
+        }
+        
+        func loadFavicon() {
+            guard favicon == nil, let url = article.source else { return }
+            
+            Task {
+                if let image = await UseCases.Favicon.loadFavicon(from: url) {
+                    await MainActor.run {
+                        withAnimation {
+                            self.favicon = image
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

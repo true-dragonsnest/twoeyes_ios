@@ -35,19 +35,12 @@ struct MainView: View {
     
     var tabView: some View {
         TabView(selection: $viewModel.tab) {
-            FeedsView()
+            ThreadHomeView()
                 .tabItem {
                     Image(systemName: "newspaper.fill")
                     Text("Feeds")
                 }
                 .tag(MainViewModel.Tab.feeds)
-            
-            ThreadHomeView()
-                .tabItem {
-                    Image(systemName: "eyes.inverse")
-                    Text("Two Eyes")
-                }
-                .tag(MainViewModel.Tab.threads)
             
             AddNewsView()
                 .tabItem {

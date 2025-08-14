@@ -72,9 +72,6 @@
     "Feeds" : {
 
     },
-    "home" : {
-
-    },
     "ID" : {
       "localizations" : {
         "ko" : {
@@ -161,9 +158,6 @@
       "shouldTranslate" : false
     },
     "Take Picture" : {
-
-    },
-    "Two Eyes" : {
 
     }
   },

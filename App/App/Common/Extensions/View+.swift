@@ -9,7 +9,7 @@ import SwiftUI
 
 /// programmable modifier
 public extension View {
-    func modify<Content>(@ViewBuilder _ transform: (Self) -> Content) -> Content {
+    func modify<Content: View>(@ViewBuilder _ transform: (Self) -> Content) -> Content {
         transform(self)
     }
 

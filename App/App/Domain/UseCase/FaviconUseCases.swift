@@ -16,8 +16,14 @@ extension UseCases {
 
 extension UseCases.Favicon {
     static func loadFavicon(from urlString: String) async -> UIImage? {
-        guard let url = URL(string: urlString),
-              let host = url.host else { return nil }
+        let url: URL?
+        if urlString.hasPrefix("http://") || urlString.hasPrefix("https://") {
+            url = URL(string: urlString)
+        } else {
+            url = URL(string: "https://" + urlString)
+        }
+        guard let url,
+              let host = url.host() else { return nil }
         
         let faviconURLs = [
             URL(string: "https://\(host)/apple-touch-icon.png"),
