@@ -71,7 +71,7 @@ private struct FullscreenList: View {
         }
         .contentMargins(.top, 16)
         .scrollTargetBehavior(.viewAligned(limitBehavior: .alwaysByOne))
-        .readSize { height = $0.height - 60 }
+        .readSize { height = max(0, $0.height - 60) }
         .scrollPosition($scrollPosition)
     }
 }

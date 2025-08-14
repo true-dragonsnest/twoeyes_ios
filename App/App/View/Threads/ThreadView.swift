@@ -7,146 +7,343 @@
 
 import SwiftUI
 import Kingfisher
+import AxisTooltip
 
+// MARK: - const
+extension ThreadView {
+    enum Const {
+        static let topGradientHeight: CGFloat = 120
+        static let bgImageBottomStretch: CGFloat = 120
+    }
+}
+
+// MARK: - view
 struct ThreadView: View {
-    @ObservedObject var viewModel: ThreadViewModel
+    let thread: EntityThread
+    let detailMode: Bool
+
+    @State var width: CGFloat = 0
+
+    @State var articleCardHeight: CGFloat = 1
+    @State var articleScrollPosition = ScrollPosition(id: 0)
+    @State var articleScrollOffset: CGFloat = 0
+    @State var selectedArticleIndex: Int = 0
     
+    @State var backgroundScrollPosition = ScrollPosition(id: 0)
+    
+    @State var showWebView = false
+    @State var webUrl: String = ""
+    
+    @FocusState var focused
     @State var commentSending = false
     
+    
+    private let repository = ThreadRepository.shared
+    
+    // TODO: Calculate actual safe area + navigation bar height
+    private var topGradientHeight: CGFloat {
+        Const.topGradientHeight
+    }
+    
+    var comments: [EntityComment] {
+        guard let threadId = thread.id else { return [] }
+        return repository.threadComments[threadId] ?? []
+    }
+    
+    var articles: [EntityArticle] {
+        guard let threadId = thread.id else { return [] }
+        return repository.threadArticles[threadId] ?? []
+    }
+    
+    var threadEntities: [EntityThreadEntity] {
+        guard let threadId = thread.id else { return [] }
+        return repository.threadEntities[threadId] ?? []
+    }
+    
+    var isLoadingComments: Bool {
+        guard let threadId = thread.id else { return false }
+        return repository.isLoadingComments[threadId] ?? false
+    }
+    
+    var currentArticle: EntityArticle? {
+        articles[safe: selectedArticleIndex]
+    }
+    
     var body: some View {
-        content
-            .navigationTitle(viewModel.thread.title ?? "Thread")
-            .toolbarRole(.editor)
-            .navigationBarTitleDisplayMode(.inline)
-            .overlay(alignment: .bottom) {
-                commentInput
-                    .padding()
+        Group {
+            if detailMode {
+                content
+                    .ignoresSafeArea()
+                    .navigationTitle("")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbarRole(.editor)
+                    .toolbarBackground(.hidden, for: .navigationBar)
+                    .toolbar(.hidden, for: .tabBar)
+            } else {
+                content
             }
+        }
+        .readSize {
+            width = $0.width
+        }
+        .sheet(isPresented: $showWebView) {
+            WebView(url: $webUrl)
+        }
+        .onAppear {
+            loadInitialData()
+        }
+        .preferredColorScheme(.dark)
     }
     
     var content: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                imageCarousel
-                    .padding(.horizontal, 16)
-                
-                commentList
-                    .padding(.horizontal, 16)
-            }
+        ZStack {
+            backgroundLayer
+            foregroundLayer
         }
+        .background(.primaryFill)
     }
     
-    @ViewBuilder
-    var imageCarousel: some View {
-        let height: CGFloat = 300
+    private func loadInitialData() {
+        guard let threadId = thread.id else { return }
         
-        if let images = viewModel.thread.images {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 2) {
-                    ForEach(Array(images.enumerated()), id: \.0) { index, image in
-                        if let url = URL(fromString: image) {
-                            KFImage(url)
-                                .backgroundDecode(true)
-                                .resizable()
-                                .placeholder {
-                                    Color.secondaryFill
-                                }
-                                .aspectRatio(contentMode: .fit)
-                                .frame(height: height)
-                        }
+        Task {
+            await withTaskGroup(of: Void.self) { group in
+                group.addTask {
+                    do {
+                        try await repository.loadArticles(for: threadId, reset: true)
+                    } catch {
+                        ContentViewModel.shared.setError(error)
+                    }
+                }
+                
+                group.addTask {
+                    do {
+                        try await repository.loadComments(for: threadId, reset: true)
+                    } catch {
+                        ContentViewModel.shared.setError(error)
                     }
                 }
             }
-            .background(.clear)
-            .frame(height: height)
-            .borderedCapsule(cornerRadius: 12, strokeColor: .label3)
+        }
+    }
+}
+    
+// MARK: - background
+extension ThreadView {
+    var backgroundLayer: some View {
+        VStack(spacing: 0) {
+            Color.clear
+                .frame(width: width, height: width)
+                .overlay(alignment: .bottom) {
+                    threadHeader
+                }
+            
+            Spacer()
+        }
+        .background(alignment: .top) {
+            VStack(spacing: 0) {
+                articleImageListView
+                Spacer()
+            }
+            .overlay {
+                VStack(spacing: 0) {
+                    LinearGradient(
+                        gradient: Gradient(
+                            stops: [
+                                .init(color: Color.primaryFill.opacity(0.8), location: 0),
+                                .init(color: Color.primaryFill.opacity(0), location: 0.2),
+                                .init(color: Color.primaryFill.opacity(0), location: 0.4),
+                                .init(color: Color.primaryFill.opacity(0.9), location: 1.0)
+                            ]
+                        ),
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .frame(width: width, height: width + Const.bgImageBottomStretch)
+                    Color.primaryFill.opacity(0.9)
+                }
+            }
         }
     }
     
     @ViewBuilder
-    var commentList: some View {
-        LazyVStack(alignment: .leading, spacing: 12) {
-            if viewModel.comments.isEmpty && !viewModel.isLoadingComments {
-                Text("No comments yet. Be the first to comment!")
-                    .foregroundColor(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.vertical, 32)
-            } else {
-                ForEach(Array(viewModel.comments.enumerated()), id: \.element.id) { index, comment in
-                    commentRow(comment: comment)
-                        .onAppear {
-                            Task {
-                                await viewModel.loadMoreCommentsIfNeeded(currentIndex: index)
+    var articleImageListView: some View {
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(spacing: 0) {
+                ForEach(Array(articles.enumerated()), id: \.offset) { index, article in
+                    Color.secondaryFill
+                        .frame(width: width, height: width + Const.bgImageBottomStretch)
+                        .overlay(alignment: .top) {
+                            if let url = URL(fromString: article.image ?? articles.first?.image) {
+                                KFImage(url)
+                                    .backgroundDecode(true)
+                                    .resizable()
+                                    .placeholder {
+                                        Color.secondaryFill
+                                    }
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: width, height: width + Const.bgImageBottomStretch)
+                                    .clipped()
                             }
                         }
-                    
-                    if index < viewModel.comments.count - 1 {
-                        Divider()
-                            .padding(.leading, 40)
-                    }
-                }
-                
-                if viewModel.isLoadingComments {
-                    ProgressView()
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .padding()
+                        .id(index)
                 }
             }
         }
+        .scrollPosition($backgroundScrollPosition)
+        .frame(width: width, height: width + Const.bgImageBottomStretch)
     }
     
     @ViewBuilder
-    func commentRow(comment: EntityComment) -> some View {
-        HStack(alignment: .top, spacing: 12) {
-            Circle()
-                .fill(.secondary)
-                .frame(width: 32, height: 32)
+    var threadHeader: some View {
+        VStack(alignment: .leading, spacing: Spacing.s) {
+            Text(currentArticle?.mainSubject ?? thread.mainSubject)
+                .font(.largeTitle)
+                .fontWeight(.bold)
+                .foregroundStyle(.label1)
+                .multilineTextAlignment(.leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
             
-            VStack(alignment: .leading, spacing: 4) {
-                HStack {
-                    Text(comment.userId)
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                    
-                    Spacer()
-                    
-                    Text(comment.createdAt, style: .relative)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+            if let date = currentArticle?.createdAt {
+                Text(Date.now, format: .reference(to: date))
+                    .font(.footnote)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.label2)
+            }
+        }
+        .padding(.horizontal, Padding.horizontal)
+    }
+}
+
+
+// MARK: - foreground
+extension ThreadView {
+    var foregroundLayer: some View {
+        VStack {
+            Color.clear
+                .frame(width: width, height: width)
+            
+            articleListView
+            
+            Color.yellow.frame(height: 100)
+                .overlay {
+                    Text("Comment area")
                 }
+        }
+        .mask(alignment: .top) {
+            VStack(spacing: 0) {
+                Color.white.opacity(0)
+                    .frame(width: width, height: width)
+                LinearGradient(
+                    gradient: Gradient(
+                        stops: [
+                            .init(color: Color.white.opacity(0), location: 0.0),
+                            .init(color: Color.white, location: 1.0)
+                        ]
+                    ),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(height: Padding.xl)
                 
-                Text(comment.content)
-                    .font(.body)
-                    .multilineTextAlignment(.leading)
-                
-                if comment.isAiGenerated {
-                    HStack {
-                        Image(systemName: "sparkles")
-                            .font(.caption)
-                            .foregroundColor(.blue)
-                        Text("AI Generated")
-                            .font(.caption)
-                            .foregroundColor(.blue)
-                    }
+                Color.white
+            }
+        }
+    }
+    
+    var articleListView: some View {
+        ScrollView(showsIndicators: false) {
+            LazyVStack(spacing: 0) {
+                ForEach(Array(articles.enumerated()), id: \.element.id) { index, article in
+                    ArticleCard(article: article, selected: index == selectedArticleIndex)
+                        .id(index)
+                        .padding(.vertical, Padding.vertical)
+                        .frame(height: articleCardHeight)
+                        .padding(.horizontal, Padding.horizontal)
+                        .contentShape(.rect)
+                        .onTapGesture {
+                            webUrl = article.url
+                            showWebView = true
+                        }
+                        .scrollTransition(axis: .vertical) { content, phase in
+                            content
+                                .scaleEffect(1 - abs(phase.value * 0.05))
+                                .opacity(1 - abs(phase.value * 0.7))
+                        }
+                }
+            }
+            .padding(.vertical, Padding.m)
+            .scrollTargetLayout()
+        }
+        .contentMargins(.bottom, Spacing.xl, for: .scrollContent)
+        .scrollClipDisabled()
+        .scrollTargetBehavior(.viewAligned(limitBehavior: .alwaysByOne))
+        .readSize {
+            articleCardHeight = max(1, $0.height - Spacing.m - 30)
+        }
+        .scrollPosition($articleScrollPosition)
+        .onScrollGeometryChange(for: CGFloat.self) { geometry in
+            geometry.contentOffset.y
+        } action: { oldValue, newValue in
+            articleScrollOffset = newValue
+        }
+        .onChange(of: articleScrollPosition) { _, newValue in
+            if let index = newValue.viewID(type: Int.self) {
+                selectedArticleIndex = index
+                withAnimation {
+                    backgroundScrollPosition.scrollTo(id: index, anchor: .top)
                 }
             }
         }
-        .padding(.vertical, 4)
     }
+
+    //    @ViewBuilder
+//    var commentList: some View {
+//        LazyVStack(alignment: .leading, spacing: Spacing.m) {
+//            if comments.isEmpty && !isLoadingComments {
+//                Text("No comments yet. Be the first to comment!")
+//                    .font(.subheadline)
+//                    .foregroundStyle(.label3)
+//                    .frame(maxWidth: .infinity, alignment: .center)
+//                    .padding(.vertical, Padding.vertical)
+//            } else {
+//                ForEach(Array(comments.enumerated()), id: \.element.id) { index, comment in
+//                    ThreadCommentView(comment: comment)
+//                        .onAppear {
+//                            Task {
+//                                guard let threadId = thread.id else { return }
+//                                await repository.loadMoreCommentsIfNeeded(for: threadId, currentIndex: index)
+//                            }
+//                        }
+//                }
+//                
+//                if isLoadingComments {
+//                    ProgressView()
+//                        .progressViewStyle(CircularProgressViewStyle(tint: .label1))
+//                        .frame(maxWidth: .infinity, alignment: .center)
+//                        .padding(Padding.m)
+//                }
+//            }
+//            
+//            // footer spacing
+//            Color.clear.frame(height: 128)
+//        }
+//    }
     
-    // MARK: comment input
-    @FocusState var focused
+    // MARK: - comment input
     var commentInput: some View {
         InputBar(text: "Drop a comment",
                  focused: $focused,
                  sendEnabled: commentSending == false)
         { comment, commentAttachments in
             Task { @MainActor in
+                guard let threadId = thread.id else { return }
+                
                 withAnimation {
                     commentSending = true
                 }
                 do {
-                    try await viewModel.postComment(content: comment)
+                    try await repository.addComment(to: threadId, content: comment)
                 } catch {
                     ContentViewModel.shared.setError(error)
                 }
@@ -156,4 +353,15 @@ struct ThreadView: View {
             }
         }
     }
+    
+//        .overlay(alignment: .bottom) {
+//            commentInput
+//                .padding(Padding.m)
+//                .background(
+//                    Color.black
+//                        .opacity(0.8)
+//                        .background(.ultraThinMaterial)
+//                        .ignoresSafeArea(edges: .bottom)
+//                )
+//        }
 }

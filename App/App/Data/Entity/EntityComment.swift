@@ -5,6 +5,8 @@ struct EntityComment: Identifiable, Codable {
     let threadId: Int
     let userId: String
     let content: String
+    let userNickname: String?
+    let userProfilePictureUrl: String?
     let userSentiment: Double?
     let aiSentiment: Double?
     let aiSentimentConfidence: Double?

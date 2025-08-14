@@ -18,9 +18,9 @@ extension UseCases.Threads {
         static let pageSize: Int = 10
     }
     
-    static func fetchList(from startId: Int? = nil, limit: Int = Const.pageSize) async throws -> [EntityThread] {
+    static func fetchList(from startUpdatedAt: Date? = nil, limit: Int = Const.pageSize) async throws -> [EntityThread] {
         do {
-            let threads: [EntityThread] = try await SupabaseService.shared.fetch(from: BackEnd.Threads.fetchList(start: startId, limit: limit).query)
+            let threads: [EntityThread] = try await SupabaseService.shared.fetch(from: BackEnd.Threads.fetchList(startUpdatedAt: startUpdatedAt, limit: limit).query)
             return threads
         } catch {
             "failed to fetch threads : \(error)".le(T)
@@ -60,7 +60,7 @@ extension UseCases.Threads {
                                                                      to: BackEnd.Functions.findSimilarThreads.url,
                                                                      decoder: decoder,
                                                                      encoder: encoder,
-                                                                     logLevel: 2)
+                                                                     logLevel: 1)
             "similar threads : \(o: ret.jsonPrettyPrinted)".ld(T)
             guard ret.success else {
                 "find similar threads failed".le(T)
@@ -97,7 +97,7 @@ extension UseCases.Threads {
                                                                      to: BackEnd.Functions.addArticleToThread.url,
                                                                      decoder: decoder,
                                                                      encoder: encoder,
-                                                                     logLevel: 2)
+                                                                     logLevel: 1)
             "add to thread : \(ret.threadId), created = \(ret.created), msg = \(o: ret.message)".ld(T)
             guard ret.success else {
                 "add to threads failed".le(T)
@@ -106,6 +106,16 @@ extension UseCases.Threads {
             return ret.threadId
         } catch {
             "failed to add to thread : \(error)".le(T)
+            throw error
+        }
+    }
+    
+    static func fetchThreadEntities(threadId: Int) async throws -> [EntityThreadEntity] {
+        do {
+            let entities: [EntityThreadEntity] = try await SupabaseService.shared.fetch(from: BackEnd.ThreadEntities.fetchForThread(threadId: threadId).query)
+            return entities
+        } catch {
+            "failed to fetch thread entities for thread \(threadId) : \(error)".le(T)
             throw error
         }
     }

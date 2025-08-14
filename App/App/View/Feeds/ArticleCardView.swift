@@ -70,7 +70,7 @@ struct ArticleCardView: View {
             
             sourceView
                 .padding(.horizontal)
-                .padding(.vertical, 12)
+                .padding(.vertical, Padding.m)
             
             summaryView
                 .padding(.horizontal)
@@ -79,7 +79,7 @@ struct ArticleCardView: View {
             
             dateView
                 .padding(.horizontal)
-                .padding(.vertical, 8)
+                .padding(.vertical, Padding.s)
         }
         .aspectRatio(9 / 16, contentMode: .fit)
     }
@@ -97,7 +97,7 @@ struct ArticleCardView: View {
                 .aspectRatio(contentMode: .fill)
                 .frame(width: width, height: width)
                 .clipShape(.rect(cornerRadius: 20))
-                .padding(4)
+                .padding(Padding.xs)
         }
     }
     
@@ -116,7 +116,7 @@ struct ArticleCardView: View {
                     .font(.title2)
                     .foregroundStyle(.secondary)
             }
-            .padding(.horizontal, 8)
+            .padding(.horizontal, Padding.s)
             .padding(.vertical, 8)
             .background((article.sentimentEnum?.color ?? .clear).opacity(0.1))
             .background(.ultraThinMaterial)
@@ -127,7 +127,7 @@ struct ArticleCardView: View {
     @ViewBuilder
     var summaryView: some View {
         if let keyPoints = article.keyPoints {
-            VStack(spacing: 8) {
+            VStack(spacing: Spacing.s) {
                 ForEach(0..<keyPoints.count) { index in
                     if showSummary >= index, let text = keyPoints[safe: index] {
                         Text(text)

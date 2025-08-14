@@ -72,8 +72,8 @@ struct AddNewsView: View {
                         Text(threadId == nil ? "Next" : "Done")
                             .foregroundStyle(.white)
                             .fontWeight(.semibold)
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 16)
+                            .padding(.horizontal, Padding.xl)
+                            .padding(.vertical, Padding.l)
                             .background(.appPrimary)
                             .clipShape(.rect(cornerRadius: 24))
                     }
@@ -110,7 +110,7 @@ struct AddNewsView: View {
     }
     
     var inputView: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: Spacing.xl) {
             Text("Post a news")
                 .font(.title3)
                 .fontWeight(.semibold)
@@ -155,7 +155,7 @@ struct AddNewsView: View {
         Color.background
             .frame(width: 200, height: 200 + 60)
             .overlay {
-                VStack(spacing: 12) {
+                VStack(spacing: Spacing.m) {
                     Spacer()
                     Text("Create\na new thread.")
                         .font(.title2)
@@ -171,15 +171,15 @@ struct AddNewsView: View {
     }
     
     var threadListView: some View {
-        VStack(alignment: .leading, spacing: 24) {
+        VStack(alignment: .leading, spacing: Spacing.xl) {
             Text("Please select the thread to which this article will be added.")
                 .font(.subheadline)
                 .fontWeight(.semibold)
                 .foregroundStyle(.label1)
-                .padding(.horizontal, 16)
+                .padding(.horizontal, Padding.l)
             
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
+                HStack(spacing: Spacing.m) {
                     if let threads {
                         ForEach(threads) { thread in
                             ThreadCardView(thread: thread)
@@ -198,7 +198,7 @@ struct AddNewsView: View {
                             selectThread(-1)
                         }
                 }
-                .padding(.horizontal, 16)
+                .padding(.horizontal, Padding.l)
             }
             .scrollClipDisabled()
         }

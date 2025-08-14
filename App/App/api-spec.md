@@ -304,9 +304,21 @@ curl -X POST "$PROD_URL/find-similar-threads" \
       "id": 456,
       "title": "Thread Title",
       "similarity": 0.95,
-      "article_ids": [123, 124, 125],
       "main_subject": "Technology",
-      "images": ["image1.jpg", "image2.jpg"],
+      "article_snapshots": [
+        {
+          "article_id": 123,
+          "source": "example.com",
+          "title": "Article 1 Title",
+          "image": "https://example.com/image1.jpg"
+        },
+        {
+          "article_id": 124,
+          "source": "news.com",
+          "title": "Article 2 Title",
+          "image": "https://news.com/image2.jpg"
+        }
+      ],
       "created_at": "2024-01-01T00:00:00Z"
     }
   ],
@@ -507,6 +519,8 @@ curl -X POST "$PROD_URL/add-comment" \
     "thread_id": 123,
     "user_id": "user-uuid-456",
     "content": "This is interesting! #article:456 provides good context.",
+    "user_nickname": "JohnDoe",
+    "user_profile_picture_url": "https://example.com/profile.jpg",
     "user_sentiment": 0.7,
     "ai_sentiment": 0.65,
     "ai_sentiment_confidence": 0.85,
@@ -591,6 +605,8 @@ curl -X POST "$PROD_URL/get-thread-comments" \
       "thread_id": 123,
       "user_id": "user-uuid-456",
       "content": "Great article! #article:456 explains it well.",
+      "user_nickname": "JaneSmith",
+      "user_profile_picture_url": "https://example.com/avatar.jpg",
       "user_sentiment": 0.8,
       "ai_sentiment": 0.75,
       "ai_sentiment_confidence": 0.9,
@@ -662,6 +678,8 @@ curl -X POST "$PROD_URL/update-comment" \
     "thread_id": 123,
     "user_id": "user-uuid-456",
     "content": "Updated comment with new insights! #article:789",
+    "user_nickname": "JohnDoe",
+    "user_profile_picture_url": "https://example.com/profile.jpg",
     "user_sentiment": 0.9,
     "ai_sentiment": 0.85,
     "ai_sentiment_confidence": 0.92,
@@ -729,6 +747,13 @@ curl -X POST "$PROD_URL/delete-comment" \
 ---
 
 ## Comment System Features
+
+### User Snapshots
+Comments now include user information snapshots captured at the time of comment creation:
+- `user_nickname`: The user's nickname when the comment was posted
+- `user_profile_picture_url`: The user's profile picture URL when the comment was posted
+
+These fields are immutable after comment creation and provide consistent user information even if the user later updates their profile. This improves performance by eliminating the need for JOIN operations when fetching comments.
 
 ### Mention Types
 Comments support three types of mentions:

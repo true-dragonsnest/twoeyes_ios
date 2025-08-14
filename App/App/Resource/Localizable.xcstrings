@@ -13,6 +13,9 @@
     "%lf" : {
       "shouldTranslate" : false
     },
+    "%lld" : {
+
+    },
     "AI Generated" : {
 
     },
@@ -21,6 +24,9 @@
     },
     "banner area" : {
       "shouldTranslate" : false
+    },
+    "Comment area" : {
+
     },
     "common.error" : {
       "extractionState" : "manual",
@@ -69,9 +75,6 @@
     "Feeds" : {
 
     },
-    "home" : {
-
-    },
     "ID" : {
       "localizations" : {
         "ko" : {
@@ -113,7 +116,7 @@
         }
       }
     },
-    "No comments yet. Be the first to comment!" : {
+    "No threads available" : {
 
     },
     "Paste" : {
@@ -158,9 +161,6 @@
       "shouldTranslate" : false
     },
     "Take Picture" : {
-
-    },
-    "Two Eyes" : {
 
     }
   },

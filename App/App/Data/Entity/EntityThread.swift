@@ -15,8 +15,15 @@ struct EntityThread: Codable, Identifiable, Equatable {
     var title: String?
     var mainSubject: String
     
-    var images: [String]?
-    var articleIds: [Int]?
+    var articleSnapshots: [ArticleSnapshot]?
     
     let similarity: Double?     // only in find similar thread response
+    
+    struct ArticleSnapshot: Codable, Identifiable, Equatable {
+        var id: Int { articleId }
+        let articleId: Int
+        let source: String?
+        let title: String?
+        let image: String?
+    }
 }

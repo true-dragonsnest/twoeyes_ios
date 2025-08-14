@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B5454F202E4B2AF0001A18FC /* AxisTooltip in Frameworks */ = {isa = PBXBuildFile; productRef = B5454F1F2E4B2AF0001A18FC /* AxisTooltip */; };
 		B55906B52D1708A000CC17F2 /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = B55906B42D1708A000CC17F2 /* AlertToast */; };
 		B55906B82D1708CB00CC17F2 /* AWSS3 in Frameworks */ = {isa = PBXBuildFile; productRef = B55906B72D1708CB00CC17F2 /* AWSS3 */; };
 		B55906BB2D1708EF00CC17F2 /* CollectionConcurrencyKit in Frameworks */ = {isa = PBXBuildFile; productRef = B55906BA2D1708EF00CC17F2 /* CollectionConcurrencyKit */; };
@@ -61,6 +62,7 @@
 				B5F1D7282D620AE10090F652 /* Reeeed in Frameworks */,
 				B55906C42D17093C00CC17F2 /* Supabase in Frameworks */,
 				B55906B82D1708CB00CC17F2 /* AWSS3 in Frameworks */,
+				B5454F202E4B2AF0001A18FC /* AxisTooltip in Frameworks */,
 				B55906EA2D17264B00CC17F2 /* FirebaseMessaging in Frameworks */,
 				B55906B52D1708A000CC17F2 /* AlertToast in Frameworks */,
 				B55906BE2D17093C00CC17F2 /* Auth in Frameworks */,
@@ -143,6 +145,7 @@
 				B5F1D7272D620AE10090F652 /* Reeeed */,
 				B5CB9E102E41BE4900C3618A /* Shimmer */,
 				B5CB9E172E41C68300C3618A /* SwiftUIIntrospect */,
+				B5454F1F2E4B2AF0001A18FC /* AxisTooltip */,
 			);
 			productName = App;
 			productReference = B53089352D16F1C60014D4AD /* App.app */;
@@ -185,6 +188,7 @@
 				B5F1D7262D620AE10090F652 /* XCRemoteSwiftPackageReference "reeeed" */,
 				B5CB9E0F2E41BE4900C3618A /* XCRemoteSwiftPackageReference "SwiftUI-Shimmer" */,
 				B5CB9E162E41C68300C3618A /* XCRemoteSwiftPackageReference "swiftui-introspect" */,
+				B5454F1E2E4B2AF0001A18FC /* XCRemoteSwiftPackageReference "AxisTooltip" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B53089362D16F1C60014D4AD /* Products */;
@@ -451,6 +455,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		B5454F1E2E4B2AF0001A18FC /* XCRemoteSwiftPackageReference "AxisTooltip" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/jasudev/AxisTooltip";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.5.0;
+			};
+		};
 		B55906B32D1708A000CC17F2 /* XCRemoteSwiftPackageReference "AlertToast" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/elai950/AlertToast";
@@ -542,6 +554,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		B5454F1F2E4B2AF0001A18FC /* AxisTooltip */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B5454F1E2E4B2AF0001A18FC /* XCRemoteSwiftPackageReference "AxisTooltip" */;
+			productName = AxisTooltip;
+		};
 		B55906B42D1708A000CC17F2 /* AlertToast */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = B55906B32D1708A000CC17F2 /* XCRemoteSwiftPackageReference "AlertToast" */;

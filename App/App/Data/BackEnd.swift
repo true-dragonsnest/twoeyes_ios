@@ -76,21 +76,39 @@ enum BackEnd {
             SupabaseService.shared.client?.from(Self.table)
         }
         
-        case fetchList(start: Int?, limit: Int)
+        case fetchList(startUpdatedAt: Date?, limit: Int)
         case fetch(threadId: Int)
         
         var query: PostgrestBuilder? {
             switch self {
-            case let .fetchList(start, limit):
+            case let .fetchList(startUpdatedAt, limit):
                 var ret = Self.rootQueryBuilder?.select()
-                if let start {
-                    ret = ret?.lt("id", value: start)
+                if let startUpdatedAt {
+                    ret = ret?.lt("updated_at", value: startUpdatedAt)
                 }
-                return ret?.order("id", ascending: false).limit(limit)
+                return ret?.order("updated_at", ascending: false).limit(limit)
             case let .fetch(threadId):
                 let ret = Self.rootQueryBuilder?.select()
                             .eq("id", value: threadId)
                 return ret
+            }
+        }
+    }
+    
+    enum ThreadEntities {
+        static let table = "thread_entities"
+        static var rootQueryBuilder: PostgrestQueryBuilder? {
+            SupabaseService.shared.client?.from(Self.table)
+        }
+        
+        case fetchForThread(threadId: Int)
+        
+        var query: PostgrestBuilder? {
+            switch self {
+            case let .fetchForThread(threadId):
+                return Self.rootQueryBuilder?.select()
+                    .eq("thread_id", value: threadId)
+                    .order("sentiment_count", ascending: false)
             }
         }
     }
