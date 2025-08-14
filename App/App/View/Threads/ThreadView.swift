@@ -118,14 +118,6 @@ struct ThreadView: View {
                 
                 group.addTask {
                     do {
-                        try await repository.loadThreadEntities(for: threadId)
-                    } catch {
-                        ContentViewModel.shared.setError(error)
-                    }
-                }
-                
-                group.addTask {
-                    do {
                         try await repository.loadComments(for: threadId, reset: true)
                     } catch {
                         ContentViewModel.shared.setError(error)

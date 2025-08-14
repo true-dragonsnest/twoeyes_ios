@@ -67,6 +67,20 @@ class ThreadRepository {
             
             hasMoreThreads = newThreads.count == Const.threadsPageSize
             
+            // Load thread entities for each thread in parallel
+            await withTaskGroup(of: Void.self) { group in
+                for thread in newThreads {
+                    guard let threadId = thread.id else { continue }
+                    group.addTask {
+                        do {
+                            try await self.loadThreadEntities(for: threadId)
+                        } catch {
+                            "Failed to load thread entities for thread \(threadId): \(error)".le(T)
+                        }
+                    }
+                }
+            }
+            
         } catch {
             "Failed to load threads: \(error)".le(T)
             throw error

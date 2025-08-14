@@ -18,8 +18,6 @@ extension ThreadView {
         @State var keypointScrollPos = ScrollPosition(id: 0)
         @State var keypointScrollViewHeight: CGFloat = 0
         
-        @State var selectedEntityReasoning: String? = nil
-        
         var body: some View {
             content
                 .padding(Padding.xl)
@@ -52,7 +50,7 @@ extension ThreadView {
                             .frame(width: 36, height: 36)
                             .borderedCapsule(cornerRadius: 4, strokeColor: .clear)
                     } else {
-                        Circle().fill(Color.label3.opacity(0.5))
+                        Circle().fill(.regularMaterial)
                             .frame(width: 36, height: 36)
                     }
                     
@@ -126,69 +124,15 @@ extension ThreadView {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: Spacing.s) {
                         ForEach(entities, id: \.entity) { entitySentiment in
-                            nerSentimentCapsule(for: entitySentiment)
+                            NERSentimentCapsule(
+                                entity: entitySentiment.entity,
+                                sentiment: entitySentiment.sentiment,
+                                reasoning: entitySentiment.reasoning
+                            )
                         }
                     }
                 }
                 .scrollClipDisabled()
-            }
-        }
-        
-        @ViewBuilder
-        func nerSentimentCapsule(for entitySentiment: EntityArticle.EntitySentiment) -> some View {
-            let absValue: CGFloat = CGFloat(abs(entitySentiment.sentiment))
-            let intensity: CGFloat = min(absValue, 1.0)
-            let threshold: Float = 0.5
-            
-            HStack(spacing: 6) {
-                Text(entitySentiment.entity)
-                    .font(.subheadline)
-                    .fontWeight(absValue > 0.6 ? .bold : .medium)
-                    .foregroundStyle(.white)
-                
-                if entitySentiment.sentiment > threshold {
-                    Image(systemName: "hand.thumbsup.fill")
-                        .font(.caption)
-                        .foregroundStyle(.white)
-                        .scaleEffect(1 + intensity * 0.3)
-                        .shadow(color: .white.opacity(0.5), radius: intensity * 3)
-                } else if entitySentiment.sentiment < -threshold {
-                    Image(systemName: "hand.thumbsdown.fill")
-                        .font(.caption)
-                        .foregroundStyle(.white)
-                        .scaleEffect(1 + intensity * 0.3)
-                        .shadow(color: .white.opacity(0.5), radius: intensity * 3)
-                }
-            }
-            .padding(.horizontal, Padding.s * (1 + intensity * 0.3))
-            .padding(.vertical, Padding.s)
-            .background(.thinMaterial)
-            .background((entitySentiment.sentiment > 0 ? Color.blue : Color.red).opacity(intensity))
-            .borderedCapsule(cornerRadius: 24,
-                             strokeColor: entitySentiment.sentiment > 0 ? Color.blue : Color.red,
-                             strokeWidth: 1 + intensity)
-            .onTapGesture {
-                if let reasoning = entitySentiment.reasoning, !reasoning.isEmpty {
-                    selectedEntityReasoning = reasoning
-                }
-            }
-            .popover(
-                isPresented: Binding(
-                    get: { selectedEntityReasoning == entitySentiment.reasoning && selectedEntityReasoning != nil },
-                    set: { newValue in
-                        if !newValue {
-                            selectedEntityReasoning = nil
-                        }
-                    }
-                )
-            ) {
-                Text(entitySentiment.reasoning ?? "")
-                    .font(.caption)
-                    .foregroundStyle(.label1)
-                    .padding(.horizontal, Padding.m)
-                    .padding(.vertical, Padding.s)
-                    .frame(maxWidth: 200)
-                    .presentationCompactAdaptation(.popover)
             }
         }
         

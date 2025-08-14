@@ -10,7 +10,7 @@ import Kingfisher
 
 struct ThreadCardView: View {
     enum Const {
-        static let articleListHeight: CGFloat = 300
+        static let articleListHeight: CGFloat = 260
     }
     
     let thread: EntityThread
@@ -24,8 +24,8 @@ struct ThreadCardView: View {
     var content: some View {
         if thread.articleSnapshots?.count ?? 0 > 1 {
             VStack(spacing: Spacing.m) {
-                subjectHeader
                 articleList
+                subjectHeader
             }
         } else {
             VStack(spacing: Spacing.m) {
@@ -37,15 +37,48 @@ struct ThreadCardView: View {
         }
     }
     
+    
     var subjectHeader: some View {
-        Text(thread.mainSubject)
-            .font(.title3)
-            .fontWeight(.medium)
-            .foregroundStyle(.label1)
-            .multilineTextAlignment(.leading)
-            .lineLimit(3)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, Padding.horizontal)
+        VStack(spacing: Spacing.m) {
+            Text(thread.mainSubject)
+                .font(.title3)
+                .fontWeight(.medium)
+                .foregroundStyle(.label1)
+                .multilineTextAlignment(.leading)
+                .lineLimit(3)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            
+            if let threadId = thread.id,
+               let entities = ThreadRepository.shared.threadEntities[threadId]?.sorted(by: { $0.sentimentCount ?? 0 > $1.sentimentCount ?? 0 }),
+               entities.isEmpty == false
+            {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: Spacing.s) {
+                        ForEach(entities) { entity in
+                            NERSentimentCapsule(
+                                entity: entity.entityName,
+                                sentiment: Float(entity.averageSentiment ?? 0),
+                                reasoning: nil
+                            )
+                        }
+                    }
+                }
+                .scrollClipDisabled()
+            }
+            
+            if let count = thread.articleSnapshots?.count, count > 1 {
+                HStack {
+                    HStack(spacing: Spacing.xs) {
+                        "document.on.document".iconButton(font: .subheadline, monochrome: .label1)
+                        Text("\(count)")
+                            .foregroundStyle(.label1)
+                            .font(.subheadline)
+                    }
+                    Spacer()
+                }
+            }
+        }
+        .padding(.horizontal, Padding.horizontal)
     }
     
     @ViewBuilder
@@ -100,8 +133,11 @@ private extension ThreadCardView {
                 let fitToSquare = image.size.aspectRatio < 1
                 Image(uiImage: image)
                     .resizable()
-                    .aspectRatio(fitToSquare ? 1 : image.size.aspectRatio, contentMode: .fit)
+                    //.aspectRatio(fitToSquare ? 1 : image.size.aspectRatio, contentMode: .fit)
+                    .aspectRatio(contentMode: fitToSquare ? .fill : .fit)
                     .frame(width: sceneSize.width)
+                    .frame(maxHeight: sceneSize.width)
+                    .clipped()
             } else {
                 Color.background
                     .frame(width: sceneSize.width, height: sceneSize.width)
@@ -131,17 +167,21 @@ private extension ThreadCardView {
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 36, height: 36)
                         .borderedCapsule(cornerRadius: 4, strokeColor: .clear)
+                } else {
+                    Circle().fill(.regularMaterial)
+                        .frame(width: 36, height: 36)
                 }
 //
-//                                if let title = article.title {
-//                                    Text(title.htmlDecoded)
-//                                        .font(.headline)
-//                                        .fontWeight(.semibold)
-//                                        .multilineTextAlignment(.leading)
-//                                        .lineLimit(2)
-//                                        .foregroundStyle(.label2)
-//                                        .frame(maxWidth: .infinity, alignment: .leading)
-//                                }
+//                if let title = article.title {
+//                    Text(title.htmlDecoded)
+//                        .font(.headline)
+//                        .fontWeight(.semibold)
+//                        .multilineTextAlignment(.leading)
+//                        .lineLimit(2)
+//                        .foregroundStyle(.label2)
+//                        .frame(maxWidth: .infinity, alignment: .leading)
+//                }
+
                 Spacer()
             }
         }
@@ -152,9 +192,9 @@ private extension ThreadCardView {
             Task {
                 if let image = try? await UseCases.ImageFetch.fetch(from: url) {
                     await MainActor.run {
-                        withAnimation {
+                        //withAnimation {
                             self.image = image
-                        }
+                        //}
                     }
                 }
             }

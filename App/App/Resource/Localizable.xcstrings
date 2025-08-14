@@ -13,6 +13,9 @@
     "%lf" : {
       "shouldTranslate" : false
     },
+    "%lld" : {
+
+    },
     "AI Generated" : {
 
     },
