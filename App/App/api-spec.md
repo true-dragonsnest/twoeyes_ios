@@ -367,7 +367,78 @@ curl -X POST "$PROD_URL/generate-embedding" \
 
 ---
 
-### 8. System Status
+### 8. Get Categories
+Returns the list of primary categories available in the system with optional translations.
+
+**Query Parameters:**
+- `languageCode` (string, optional): Language code for translations (supported: "en", "ko")
+
+**Local:**
+```bash
+# Default (English only)
+curl -X GET "$LOCAL_URL/get-categories" \
+  -H "Authorization: Bearer $LOCAL_ANON_KEY"
+
+# With Korean translations
+curl -X GET "$LOCAL_URL/get-categories?languageCode=ko" \
+  -H "Authorization: Bearer $LOCAL_ANON_KEY"
+```
+
+**Production:**
+```bash
+# Default (English only)
+curl -X GET "$PROD_URL/get-categories" \
+  -H "Authorization: Bearer $PROD_ANON_KEY"
+
+# With Korean translations
+curl -X GET "$PROD_URL/get-categories?languageCode=ko" \
+  -H "Authorization: Bearer $PROD_ANON_KEY"
+```
+
+**Response (without language code):**
+```json
+{
+  "categories": [
+    "Politics",
+    "Economy",
+    "Society",
+    "International",
+    "Culture",
+    "Sports",
+    "Technology/Science",
+    "Life/Health",
+    "Environment"
+  ],
+  "languageCode": null,
+  "total": 9
+}
+```
+
+**Response (with language code):**
+```json
+{
+  "categories": [
+    {"original": "Politics", "translated": "정치"},
+    {"original": "Economy", "translated": "경제"},
+    {"original": "Society", "translated": "사회"},
+    {"original": "International", "translated": "국제"},
+    {"original": "Culture", "translated": "문화"},
+    {"original": "Sports", "translated": "스포츠"},
+    {"original": "Technology/Science", "translated": "기술/과학"},
+    {"original": "Life/Health", "translated": "생활/건강"},
+    {"original": "Environment", "translated": "환경"}
+  ],
+  "languageCode": "ko",
+  "total": 9
+}
+```
+
+**Error Response:**
+- `400 Bad Request`: Unsupported language code
+
+---
+
+### 9. System Status
 Provides comprehensive system information and configuration details.
 
 **Local:**
@@ -436,6 +507,7 @@ curl -X GET "$PROD_URL/system-status" \
     "fetch-google-trends",
     "find-similar-threads",
     "generate-embedding",
+    "get-categories",
     "system-status",
     "add-comment",
     "get-thread-comments",
@@ -449,7 +521,7 @@ curl -X GET "$PROD_URL/system-status" \
 
 ---
 
-### 9. Add Comment
+### 10. Add Comment
 Adds a new comment to a thread with optional AI generation and mention support.
 
 **Request Body:**
@@ -550,7 +622,7 @@ curl -X POST "$PROD_URL/add-comment" \
 
 ---
 
-### 10. Get Thread Comments
+### 11. Get Thread Comments
 Retrieves comments for a specific thread with pagination and sorting options.
 
 **Request Body:**
@@ -629,7 +701,7 @@ curl -X POST "$PROD_URL/get-thread-comments" \
 
 ---
 
-### 11. Update Comment
+### 12. Update Comment
 Updates an existing comment's content, sentiment, or mentions.
 
 **Request Body:**
@@ -705,7 +777,7 @@ curl -X POST "$PROD_URL/update-comment" \
 
 ---
 
-### 12. Delete Comment
+### 13. Delete Comment
 Deletes a comment and all its mentions.
 
 **Request Body:**
@@ -914,18 +986,21 @@ curl -X GET "$TS_API_URL/status" \
 ---
 
 ### 2. Web Scraping
-Scrape web pages with advanced options including smart mode, auto-scroll, and metadata extraction.
+Scrape web pages with automatic content detection, custom selectors, and metadata extraction.
 
 **Request Body:**
 - `url` (string, required): Target URL to scrape
-- `includeHtml` (boolean, optional): Include raw HTML content
-- `includeMeta` (boolean, optional): Include meta tags and SEO data
-- `includeLinks` (boolean, optional): Extract all links from the page
-- `extractHeroImage` (boolean, optional): Extract main image from the page
-- `smartMode` (boolean, optional): Use intelligent content detection
-- `autoScroll` (boolean, optional): Auto-scroll to load dynamic content
-- `waitUntil` (string, optional): Wait condition ("load", "domcontentloaded", "networkidle")
-- `maxWaitTime` (number, optional): Maximum wait time in milliseconds (default: 30000)
+- `includeHtml` (boolean, optional, default: false): Include raw HTML content
+- `includeMeta` (boolean, optional, default: false): Include meta tags and SEO data
+- `includeLinks` (boolean, optional, default: false): Extract all links from the page
+- `extractHeroImage` (boolean, optional, default: true): Extract main image from the page
+- `customSelectors` (object, optional): Custom CSS selectors to extract specific content
+- `autoScroll` (boolean, optional, default: false): Auto-scroll to load dynamic content
+- `waitUntil` (string, optional, default: "networkidle"): Wait condition ("load", "domcontentloaded", "networkidle", "commit")
+- `maxWaitTime` (number, optional, default: 60000): Maximum wait time in milliseconds
+- `waitForSelector` (string, optional): CSS selector to wait for before scraping
+- `waitForTimeout` (number, optional): Additional timeout in milliseconds
+- `evaluateScript` (string, optional): JavaScript code to execute in page context
 
 **Local:**
 ```bash
@@ -938,10 +1013,13 @@ curl -X POST "$TS_API_URL/scrape" \
     "includeMeta": true,
     "includeLinks": true,
     "extractHeroImage": true,
-    "smartMode": true,
-    "autoScroll": true,
+    "autoScroll": false,
     "waitUntil": "networkidle",
-    "maxWaitTime": 30000
+    "maxWaitTime": 60000,
+    "customSelectors": {
+      "headlines": "h1, h2",
+      "prices": ".price"
+    }
   }'
 ```
 
@@ -951,17 +1029,59 @@ curl -X POST "$TS_API_URL/scrape" \
   "success": true,
   "data": {
     "url": "https://example.com",
-    "title": "Page Title",
-    "description": "Page description",
-    "content": "Extracted text content",
-    "html": "<html>...</html>",
-    "meta": {
-      "keywords": "keyword1, keyword2",
-      "author": "Author Name",
-      "publishedTime": "2024-01-01T00:00:00Z"
+    "timestamp": "2025-08-15T03:27:59.823Z",
+    "detectedSelectors": {
+      "title": "h1",
+      "content": "article",
+      "date": "[class*=\"date\"]",
+      "author": ".author"
     },
-    "links": ["https://link1.com", "https://link2.com"],
-    "heroImage": "https://example.com/image.jpg"
+    "heroImage": {
+      "url": "https://example.com/image.jpg",
+      "alt": "Hero image description",
+      "width": 800,
+      "height": 400,
+      "source_element": "meta[property=\"og:image\"]"
+    },
+    "title": ["Page Title"],
+    "content": ["Main article content paragraphs..."],
+    "date": ["2024-01-01"],
+    "author": ["Author Name"],
+    "headlines": ["Headline 1", "Headline 2"],
+    "prices": ["$19.99", "$29.99"],
+    "html": "<html>...</html>",
+    "meta": [
+      {
+        "name": "keywords",
+        "content": "keyword1, keyword2"
+      },
+      {
+        "name": "author", 
+        "content": "Author Name"
+      }
+    ],
+    "links": [
+      {
+        "text": "Link text",
+        "href": "https://link1.com",
+        "rel": ""
+      }
+    ]
+  },
+  "meta": {
+    "scrapedAt": "2025-08-15T03:28:00.136Z",
+    "options": {
+      "url": "https://example.com",
+      "waitUntil": "networkidle",
+      "maxWaitTime": 60000,
+      "includeHtml": true,
+      "includeMeta": true,
+      "includeLinks": true,
+      "extractHeroImage": true,
+      "autoScroll": false,
+      "hasCustomSelectors": true,
+      "hasEvaluateScript": false
+    }
   }
 }
 ```

@@ -1,5 +1,5 @@
 //
-//  NERSentimentCapsule.swift
+//  NERSentimentBadge.swift
 //  App
 //
 //  Created by Assistant on 1/14/25.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct NERSentimentCapsule: View {
+struct NERSentimentBadge: View {
     let entity: String
     let sentiment: Float
     let reasoning: String?

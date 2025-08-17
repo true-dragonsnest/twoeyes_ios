@@ -134,6 +134,7 @@ enum BackEnd {
         case getThreadComments
         case updateComment
         case deleteComment
+        case getCategories(languageCode: String)
         
         var url: String {
             switch self {
@@ -144,6 +145,7 @@ enum BackEnd {
             case .getThreadComments: Self.endpoint + "/get-thread-comments"
             case .updateComment: Self.endpoint + "/update-comment"
             case .deleteComment: Self.endpoint + "/delete-comment"
+            case .getCategories(let lc): Self.endpoint + "/get-categories?languageCode=\(lc)"
             }
         }
     }

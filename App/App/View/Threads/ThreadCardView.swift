@@ -17,7 +17,6 @@ struct ThreadCardView: View {
     
     var body: some View {
         content
-            .preferredColorScheme(.dark)
     }
     
     @ViewBuilder
@@ -55,7 +54,7 @@ struct ThreadCardView: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: Spacing.s) {
                         ForEach(entities) { entity in
-                            NERSentimentCapsule(
+                            NERSentimentBadge(
                                 entity: entity.entityName,
                                 sentiment: Float(entity.averageSentiment ?? 0),
                                 reasoning: nil
@@ -117,9 +116,8 @@ private extension ThreadCardView {
                     fixedHeightImageView
                 }
             }
-            .overlay(alignment: .bottomLeading) {
+            .overlay(alignment: .topLeading) {
                 overlayView
-                    .padding(Padding.m)
             }
             .onAppear {
                 loadImage()
@@ -171,19 +169,26 @@ private extension ThreadCardView {
                     Circle().fill(.regularMaterial)
                         .frame(width: 36, height: 36)
                 }
-//
-//                if let title = article.title {
-//                    Text(title.htmlDecoded)
-//                        .font(.headline)
-//                        .fontWeight(.semibold)
-//                        .multilineTextAlignment(.leading)
-//                        .lineLimit(2)
-//                        .foregroundStyle(.label2)
-//                        .frame(maxWidth: .infinity, alignment: .leading)
-//                }
+                
+                if let title = article.title {
+                    Text(title.htmlDecoded)
+                        .font(.subheadline)
+                        .multilineTextAlignment(.leading)
+                        .lineLimit(1)
+                        .foregroundStyle(.label2)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
 
                 Spacer()
             }
+            .padding(Padding.m)
+            .background(
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.primaryFill, Color.clear]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
         }
         
         func loadImage() {

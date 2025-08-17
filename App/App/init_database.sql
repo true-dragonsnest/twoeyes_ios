@@ -36,10 +36,10 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS threads (
     id SERIAL PRIMARY KEY,
     embedding VECTOR(1536) NOT NULL, -- Assuming OpenAI embedding dimension
-    summary_embedding VECTOR(1536),
     title TEXT DEFAULT NULL,
     main_subject TEXT,
-    images TEXT[] DEFAULT '{}', -- Array of image URLs
+    primary_category article_category,
+    article_snapshots JSONB DEFAULT '[]', -- Array of article snapshot objects
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
 );
@@ -60,7 +60,6 @@ CREATE TABLE IF NOT EXISTS articles (
     summary TEXT DEFAULT NULL,
     main_subject TEXT DEFAULT NULL,
     embedding VECTOR(1536), -- Vector representation for similarity search
-    summary_embedding VECTOR(1536),
     thread_id INTEGER REFERENCES threads(id) DEFAULT NULL,
     entities TEXT[] DEFAULT '{}', -- Array of high importance entity names
     sentiment FLOAT,
@@ -80,14 +79,13 @@ CREATE INDEX IF NOT EXISTS idx_articles_created_at ON articles(created_at);
 CREATE INDEX IF NOT EXISTS idx_articles_primary_category ON articles(primary_category);
 
 CREATE INDEX IF NOT EXISTS idx_threads_created_at ON threads(created_at);
+CREATE INDEX IF NOT EXISTS idx_threads_primary_category ON threads(primary_category);
 
 CREATE INDEX IF NOT EXISTS idx_users_user_id ON users(user_id);
 
 -- Create vector similarity indexes for embedding search
 CREATE INDEX IF NOT EXISTS idx_articles_embedding ON articles USING ivfflat (embedding vector_cosine_ops);
-CREATE INDEX IF NOT EXISTS idx_articles_summary_embedding ON articles USING ivfflat (summary_embedding vector_cosine_ops);
 CREATE INDEX IF NOT EXISTS idx_threads_embedding ON threads USING ivfflat (embedding vector_cosine_ops);
-CREATE INDEX IF NOT EXISTS idx_threads_summary_embedding ON threads USING ivfflat (summary_embedding vector_cosine_ops);
 
 -- Create updated_at trigger function
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -270,15 +268,14 @@ CREATE POLICY "System can delete thread entities" ON thread_entities FOR DELETE 
 CREATE OR REPLACE FUNCTION find_similar_threads(
     query_embedding vector(1536),
     similarity_threshold float DEFAULT 0.7,
-    limit_count int DEFAULT 5,
-    use_summary_embedding boolean DEFAULT false
+    limit_count int DEFAULT 5
 )
 RETURNS TABLE(
     id int,
     title text,
     similarity float,
     main_subject text,
-    images text[],
+    article_snapshots jsonb,
     created_at timestamp
 )
 LANGUAGE plpgsql
@@ -288,23 +285,13 @@ BEGIN
     SELECT 
         t.id,
         t.title,
-        CASE 
-            WHEN use_summary_embedding AND t.summary_embedding IS NOT NULL THEN
-                1 - (t.summary_embedding <=> query_embedding)
-            ELSE
-                1 - (t.embedding <=> query_embedding)
-        END AS similarity,
+        1 - (t.embedding <=> query_embedding) AS similarity,
         t.main_subject,
-        t.images,
+        t.article_snapshots,
         t.created_at
     FROM threads t
     WHERE 
-        CASE 
-            WHEN use_summary_embedding AND t.summary_embedding IS NOT NULL THEN
-                1 - (t.summary_embedding <=> query_embedding) >= similarity_threshold
-            ELSE
-                1 - (t.embedding <=> query_embedding) >= similarity_threshold
-        END
+        1 - (t.embedding <=> query_embedding) >= similarity_threshold
     ORDER BY similarity DESC
     LIMIT limit_count;
 END;
@@ -318,7 +305,6 @@ LANGUAGE plpgsql
 AS $$
 DECLARE
     avg_embedding vector(1536);
-    avg_summary_embedding vector(1536);
 BEGIN
     -- Calculate average embedding from all articles in the thread
     SELECT AVG(embedding)::vector(1536)
@@ -327,18 +313,10 @@ BEGIN
     WHERE thread_id = thread_id_param
     AND embedding IS NOT NULL;
 
-    -- Calculate average summary_embedding from all articles in the thread
-    SELECT AVG(summary_embedding)::vector(1536)
-    INTO avg_summary_embedding
-    FROM articles
-    WHERE thread_id = thread_id_param
-    AND summary_embedding IS NOT NULL;
-
-    -- Update thread embeddings if we have valid averages
-    IF avg_embedding IS NOT NULL OR avg_summary_embedding IS NOT NULL THEN
+    -- Update thread embedding if we have valid average
+    IF avg_embedding IS NOT NULL THEN
         UPDATE threads
-        SET embedding = COALESCE(avg_embedding, embedding),
-            summary_embedding = COALESCE(avg_summary_embedding, summary_embedding),
+        SET embedding = avg_embedding,
             updated_at = NOW()
         WHERE id = thread_id_param;
     END IF;
@@ -379,10 +357,107 @@ BEGIN
 END;
 $$;
 
+-- Function to update thread article snapshots when articles are added
+CREATE OR REPLACE FUNCTION update_thread_article_snapshots(thread_id_param int)
+RETURNS void
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    new_snapshots jsonb;
+BEGIN
+    -- Build snapshots array from all articles in the thread
+    SELECT jsonb_agg(
+        jsonb_build_object(
+            'article_id', a.id,
+            'source', a.source,
+            'title', a.title,
+            'image', a.image
+        ) ORDER BY a.created_at DESC
+    )
+    INTO new_snapshots
+    FROM articles a
+    WHERE a.thread_id = thread_id_param
+    AND a.id IS NOT NULL;
+
+    -- Update thread with new snapshots
+    IF new_snapshots IS NOT NULL THEN
+        UPDATE threads
+        SET article_snapshots = new_snapshots,
+            updated_at = NOW()
+        WHERE id = thread_id_param;
+    END IF;
+END;
+$$;
+
 -- Grant execute permissions on RPC functions
 GRANT EXECUTE ON FUNCTION find_similar_threads TO anon, authenticated, service_role;
 GRANT EXECUTE ON FUNCTION update_thread_embedding TO anon, authenticated, service_role;
 GRANT EXECUTE ON FUNCTION update_thread_entity_aggregation TO anon, authenticated, service_role;
+GRANT EXECUTE ON FUNCTION update_thread_article_snapshots TO anon, authenticated, service_role;
+
+-- Create blacklist table
+CREATE TABLE IF NOT EXISTS blacklist (
+    id SERIAL PRIMARY KEY,
+    domain TEXT UNIQUE NOT NULL,
+    skip_reader_mode BOOLEAN DEFAULT FALSE,
+    skip_scrape BOOLEAN DEFAULT FALSE,
+    examples TEXT[] DEFAULT '{}',
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Create indexes for blacklist
+CREATE INDEX IF NOT EXISTS idx_blacklist_domain ON blacklist(domain);
+
+-- Enable RLS for blacklist
+ALTER TABLE blacklist ENABLE ROW LEVEL SECURITY;
+
+-- Blacklist policies - anyone can view
+DROP POLICY IF EXISTS "Anyone can view blacklist" ON blacklist;
+CREATE POLICY "Anyone can view blacklist" ON blacklist FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Authenticated users can manage blacklist" ON blacklist;
+CREATE POLICY "Authenticated users can manage blacklist" ON blacklist FOR ALL USING (auth.role() = 'authenticated');
+
+-- Add updated_at trigger for blacklist
+DROP TRIGGER IF EXISTS update_blacklist_updated_at ON blacklist;
+CREATE TRIGGER update_blacklist_updated_at 
+    BEFORE UPDATE ON blacklist 
+    FOR EACH ROW 
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- Create failure_log table
+CREATE TABLE IF NOT EXISTS failure_log (
+    id SERIAL PRIMARY KEY,
+    operation TEXT NOT NULL,
+    error_message TEXT NOT NULL,
+    extra TEXT DEFAULT NULL,
+    owner TEXT DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Create indexes for failure_log
+CREATE INDEX IF NOT EXISTS idx_failure_log_operation ON failure_log(operation);
+CREATE INDEX IF NOT EXISTS idx_failure_log_owner ON failure_log(owner);
+CREATE INDEX IF NOT EXISTS idx_failure_log_created_at ON failure_log(created_at);
+
+-- Enable RLS for failure_log
+ALTER TABLE failure_log ENABLE ROW LEVEL SECURITY;
+
+-- Failure log policies - anyone can view and insert
+DROP POLICY IF EXISTS "Anyone can view failure log" ON failure_log;
+CREATE POLICY "Anyone can view failure log" ON failure_log FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Anyone can insert failure log" ON failure_log;
+CREATE POLICY "Anyone can insert failure log" ON failure_log FOR INSERT WITH CHECK (true);
+DROP POLICY IF EXISTS "Authenticated users can manage failure log" ON failure_log;
+CREATE POLICY "Authenticated users can manage failure log" ON failure_log FOR ALL USING (auth.role() = 'authenticated');
+
+-- Add updated_at trigger for failure_log
+DROP TRIGGER IF EXISTS update_failure_log_updated_at ON failure_log;
+CREATE TRIGGER update_failure_log_updated_at 
+    BEFORE UPDATE ON failure_log 
+    FOR EACH ROW 
+    EXECUTE FUNCTION update_updated_at_column();
 
 -- Create admin user for system operations
 INSERT INTO users (id, user_id, created_at, updated_at)

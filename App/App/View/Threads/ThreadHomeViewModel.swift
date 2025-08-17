@@ -9,6 +9,7 @@ import SwiftUI
 
 @Observable
 class ThreadHomeViewModel {
+    // MARK: - Navigation
     enum NavPath: Hashable {
         case thread(_ entity: EntityThread)
         
@@ -32,7 +33,6 @@ class ThreadHomeViewModel {
     
     var navPath = NavigationPath()
     
-    // MARK: - Navigation
     func navToThread(_ entity: EntityThread) {
         navPath.append(NavPath.thread(entity))
     }
@@ -45,5 +45,32 @@ class ThreadHomeViewModel {
         if !navPath.isEmpty {
             navPath.removeLast()
         }
+    }
+    
+    // MARK: - init
+    init() {
+        Task {
+            await fetchCategories()
+        }
+    }
+
+    // MARK: - Categories
+    static let allCategory: EntityCategory = .init(original: "All", translated: "All".localized)
+    var categories: [EntityCategory] = [allCategory]
+    var selectedCategory: EntityCategory = allCategory
+    
+    func fetchCategories() async {
+        do {
+            let fetchedCategories = try await UseCases.Categories.getCategories()
+            await MainActor.run {
+                self.categories = [Self.allCategory] + fetchedCategories
+            }
+        } catch {
+            "Failed to fetch categories: \(error)".le()
+        }
+    }
+    
+    func selectCategory(_ category: EntityCategory) {
+        selectedCategory = category
     }
 }

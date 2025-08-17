@@ -124,7 +124,7 @@ extension ThreadView {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: Spacing.s) {
                         ForEach(entities, id: \.entity) { entitySentiment in
-                            NERSentimentCapsule(
+                            NERSentimentBadge(
                                 entity: entitySentiment.entity,
                                 sentiment: entitySentiment.sentiment,
                                 reasoning: entitySentiment.reasoning
