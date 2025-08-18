@@ -116,14 +116,18 @@ private extension ThreadHomeView {
 private extension ThreadHomeView {
     @ViewBuilder
     var threadListView: some View {
+//        if repository.threads.isEmpty && repository.isLoadingThreads {
+//            ProgressView()
+//                .progressViewStyle(CircularProgressViewStyle(tint: .label3))
+//        } else if repository.threads.isEmpty {
+//            Text("No threads available")
+//                .foregroundStyle(.label3)
+//                .font(.subheadline)
+//                .fontWeight(.medium)
+//        } else
         if repository.threads.isEmpty && repository.isLoadingThreads {
             ProgressView()
-                .progressViewStyle(CircularProgressViewStyle(tint: .label3))
-        } else if repository.threads.isEmpty {
-            Text("No threads available")
-                .foregroundStyle(.label3)
-                .font(.subheadline)
-                .fontWeight(.medium)
+                .progressViewStyle(CircularProgressViewStyle(tint: .label1))
         } else {
             List {
                 ForEach(repository.threads, id: \.id) { thread in
