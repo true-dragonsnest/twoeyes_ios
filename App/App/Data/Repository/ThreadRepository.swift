@@ -34,6 +34,7 @@ class ThreadRepository {
     
     private var articlesOffset: [Int: Int] = [:]
     private var commentsOffset: [Int: Int] = [:]
+    private var currentCategory: String? = nil
     
     static let shared = ThreadRepository()
     
@@ -41,12 +42,13 @@ class ThreadRepository {
     
     // MARK: - Thread Management
     @MainActor
-    func loadThreads(reset: Bool = false) async throws {
+    func loadThreads(reset: Bool = false, category: String? = nil) async throws {
         guard !isLoadingThreads || reset else { return }
         
-        if reset {
+        if reset || category != currentCategory {
             threads = []
             hasMoreThreads = true
+            currentCategory = category
         }
         
         guard hasMoreThreads else { return }
@@ -54,10 +56,10 @@ class ThreadRepository {
         isLoadingThreads = true
         defer { isLoadingThreads = false }
         
-        let startUpdatedAt = reset ? nil : threads.last?.updatedAt
+        let startUpdatedAt = reset || category != currentCategory ? nil : threads.last?.updatedAt
         
         do {
-            let newThreads = try await UseCases.Threads.fetchList(from: startUpdatedAt, limit: Const.threadsPageSize)
+            let newThreads = try await UseCases.Threads.fetchList(from: startUpdatedAt, category: currentCategory, limit: Const.threadsPageSize)
             
             if reset {
                 threads = newThreads
@@ -305,9 +307,9 @@ class ThreadRepository {
     
     // MARK: - Refresh
     @MainActor
-    func refresh() async {
+    func refresh(category: String? = nil) async {
         do {
-            try await loadThreads(reset: true)
+            try await loadThreads(reset: true, category: category)
         } catch {
             "Failed to refresh threads: \(error)".le(T)
             ContentViewModel.shared.setError(error)

@@ -18,9 +18,9 @@ extension UseCases.Threads {
         static let pageSize: Int = 10
     }
     
-    static func fetchList(from startUpdatedAt: Date? = nil, limit: Int = Const.pageSize) async throws -> [EntityThread] {
+    static func fetchList(from startUpdatedAt: Date? = nil, category: String? = nil, limit: Int = Const.pageSize) async throws -> [EntityThread] {
         do {
-            let threads: [EntityThread] = try await SupabaseService.shared.fetch(from: BackEnd.Threads.fetchList(startUpdatedAt: startUpdatedAt, limit: limit).query)
+            let threads: [EntityThread] = try await SupabaseService.shared.fetch(from: BackEnd.Threads.fetchList(startUpdatedAt: startUpdatedAt, category: category, limit: limit).query)
             return threads
         } catch {
             "failed to fetch threads : \(error)".le(T)

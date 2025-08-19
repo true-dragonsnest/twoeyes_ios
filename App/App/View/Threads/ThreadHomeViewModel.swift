@@ -72,5 +72,10 @@ class ThreadHomeViewModel {
     
     func selectCategory(_ category: EntityCategory) {
         selectedCategory = category
+        
+        Task {
+            let categoryValue = category.id == Self.allCategory.id ? nil : category.original
+            await ThreadRepository.shared.refresh(category: categoryValue)
+        }
     }
 }
